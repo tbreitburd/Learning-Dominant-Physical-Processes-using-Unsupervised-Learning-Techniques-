@@ -2,3 +2,6 @@ Report/*
 !Report/Report.tex
 !Report/Report.pdf
 .DS_Store
+Data/*
+Plots/
+Tools/__pycache__
