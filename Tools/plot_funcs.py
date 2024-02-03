@@ -313,3 +313,192 @@ def plot_spca_residuals(alphas, err):
     plt.savefig(plot_dir)
 
     plt.show()
+
+
+def plot_balance_models(gridmap, grid_labels):
+    plt.figure(figsize=(6, 3))
+    plt.pcolor(
+        gridmap, vmin=-0.5, vmax=cm.N - 0.5, cmap=cm, edgecolors="k", linewidth=1
+    )
+    plt.gca().set_xticks(np.arange(0.5, gridmap.shape[0] + 0.5))
+    plt.gca().set_xticklabels(grid_labels, fontsize=24)
+    plt.gca().set_yticklabels([])
+    # plt.gca().set_yticks(np.arange(0.5, nmodels+0.5))
+    # plt.gca().set_yticklabels(range(nc), fontsize=20)
+    # plt.ylabel('Balance Model')
+
+    for axis in ["top", "bottom", "left", "right"]:
+        plt.gca().spines[axis].set_linewidth(2)
+
+    plt.gca().tick_params(axis="both", width=0)
+
+    cur_dir = os.getcwd()
+    proj_dir = os.path.dirname(cur_dir)
+    plots_dir = os.path.join(proj_dir, "Plots")
+    os.makedirs(plots_dir, exist_ok=True)
+
+    plot_dir = os.path.join(plots_dir, "balance_models.png")
+    plt.savefig(plot_dir)
+    plt.show()
+
+
+def plot_spca_reduced_clustering(x, y, balancemap, cm):
+    plt.figure(figsize=(15, 3))
+    plt.pcolor(
+        x,
+        y,
+        balancemap + 1,
+        cmap=cm,
+        vmin=-0.5,
+        vmax=cm.N - 0.5,
+        alpha=1,
+        edgecolors="face",
+    )
+
+    plt.gca().set_xticks([])
+    plt.gca().set_yticks([])
+
+    # plt.xlabel('$x$')
+    # plt.ylabel('$y$')
+    plt.title("SPCA Reduction")
+
+    cur_dir = os.getcwd()
+    proj_dir = os.path.dirname(cur_dir)
+    plots_dir = os.path.join(proj_dir, "Plots")
+    os.makedirs(plots_dir, exist_ok=True)
+
+    plot_dir = os.path.join(plots_dir, "spca_reduced_clustering.png")
+    plt.savefig(plot_dir)
+
+    plt.show()
+
+
+def plot_feature_space(features, mask, balance_idx, order, labels, fontsize, s):
+    fig, ax = plt.subplots(2, 2, figsize=(8, 8))
+    for k in order:
+        plt_mask = mask[np.nonzero(balance_idx[mask] == k)]
+        c = np.array(cm(k + 1))[None, :]
+        ax[0, 0].scatter(features[plt_mask, 0], features[plt_mask, 4], s=s, c=c)
+        ax[0, 1].scatter(features[plt_mask, 0], features[plt_mask, 1], s=s, c=c)
+        ax[1, 0].scatter(features[plt_mask, 0], features[plt_mask, 3], s=s, c=c)
+        ax[1, 1].scatter(features[plt_mask, 4], features[plt_mask, 3], s=s, c=c)
+
+    ax[0, 0].set_xlabel(labels[0], fontsize=fontsize)
+    ax[0, 0].set_ylabel(labels[4], fontsize=fontsize)
+
+    ax[0, 1].set_xlabel(labels[0], fontsize=fontsize)
+    ax[0, 1].set_ylabel(labels[1], fontsize=fontsize)
+
+    ax[1, 0].set_xlabel(labels[0], fontsize=fontsize)
+    ax[1, 0].set_ylabel(labels[3], fontsize=fontsize)
+
+    ax[1, 1].set_xlabel(labels[4], fontsize=fontsize)
+    ax[1, 1].set_ylabel(labels[3], fontsize=fontsize)
+
+    for i in [0, 1]:
+        for j in [0, 1]:
+            ax[i, j].grid()
+
+            # ax[i,j].set_xticklabels([])
+            # ax[i,j].set_yticklabels([])
+            # ax[i,j].tick_params(axis='x', length=10, width=0)
+            # ax[i,j].tick_params(axis='y', length=0)
+
+    plt.subplots_adjust(
+        left=None, bottom=None, right=None, top=None, wspace=0.3, hspace=0.3
+    )
+
+    cur_dir = os.getcwd()
+    proj_dir = os.path.dirname(cur_dir)
+    plots_dir = os.path.join(proj_dir, "Plots")
+    os.makedirs(plots_dir, exist_ok=True)
+
+    plot_dir = os.path.join(plots_dir, "feature_space.png")
+    plt.savefig(plot_dir)
+
+    plt.show()
+
+
+def plot_sublayer_scaling(x, y, balancemap, delta, x_layer, gmm_fit, p_gmm, to_fit):
+    plt.figure(figsize=(15, 3))
+    plt.pcolor(x, y, balancemap + 1, cmap=cm, vmin=-0.5, vmax=cm.N - 0.5)
+
+    plt.plot(x, delta, "k--", label=r"$0.99 U_\infty$")
+    plt.plot(
+        x_layer[to_fit],
+        gmm_fit[to_fit],
+        "k",
+        label=r"$\ell \sim x^{{{0:0.2f}}}$".format(p_gmm[1]),
+    )
+    plt.legend(fontsize=16)
+
+    plt.xlabel("$x$")
+    plt.ylabel("$y$")
+
+    plt.title("Inertial sublayer scaling")
+    plt.show()
+
+
+def plot_self_similarity(x, y_plus, u_plus, balancemap):
+    y_fit = []
+    u_fit = []
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 5))
+    x_plt = [600, 700, 800, 900, x[-3]]
+    for i in range(len(x_plt)):
+        x_idx = np.nonzero(x > x_plt[i])[0][0]
+
+        # Find viscous balance indices
+        y_idx = np.nonzero(balancemap[:, x_idx] == 0)[0]
+
+        # Print the y+ coordinate where the balance ends (~70)
+        print(y_plus[y_idx[-1], x_idx])
+
+        ax1.plot(
+            u_plus[:, x_idx],
+            y_plus[:, x_idx],
+            ".",
+            markersize=2,
+            label="$x={{{0:d}}}$".format(int(np.round(x[x_idx]))),
+        )
+        ax2.plot(
+            u_plus[y_idx, x_idx],
+            y_plus[y_idx, x_idx],
+            ".",
+            label="$x={{{0:d}}}$".format(int(np.round(x[x_idx]))),
+        )
+
+        y_fit = np.concatenate((y_fit, y_plus[y_idx, x_idx]))
+        u_fit = np.concatenate((u_fit, u_plus[y_idx, x_idx]))
+
+    ax1.plot([0, 30], [70, 70], "k--", label="Identified extent")
+    ax1.set_xlim([0, 25])
+    ax1.legend(fontsize=14, framealpha=1)
+
+    ax1.set_yscale("log")
+    ax1.set_ylabel("$y^+$")
+    ax1.set_xlabel("$u^+$")
+    ax1.set_title("Wall region")
+    ax1.grid()
+
+    ax2.set_yscale("log")
+    ax2.set_ylabel("$y^+$")
+    ax2.set_xlabel("$u^+$")
+    ax2.set_title("Wall region (viscous balance only)")
+
+    ax2.grid()
+
+    plt.subplots_adjust(wspace=0.3)
+    plt.show()
+
+
+def plot_blasius_solution(eta, f):
+    plt.figure(figsize=(4, 4))
+    plt.plot(eta, f[:, 0], label="Scipy solution")
+    plt.xlabel(r"Similarity parameter $\eta$")
+    plt.ylabel(r"$f(\eta)$")
+    plt.xlim([0, 6])
+    plt.ylim([0, 5])
+    plt.grid()
+    plt.title("Blaisus solution")
+    plt.show()
