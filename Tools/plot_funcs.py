@@ -36,7 +36,17 @@ mpl_colors = [
 ]
 
 
-def plot_reynolds_stress(x, y, X, Y, u, Ruv):
+labels = [
+    r"$\bar{u} \bar{u}_x$",
+    r"$\bar{v}\bar{u}_y$",
+    r"$\rho^{-1} \bar{p}_x$",
+    r"$\nu \nabla^2 \bar{u}$",
+    r"$\overline{(u^\prime v^\prime)}_y$",
+    r"$\overline{({u^\prime} ^2)}_x$",
+]
+
+
+def plot_reynolds_stress(x, y, X, Y, u, Reynold_uv):
     """Plot the Reynolds stress term.
 
     Args:
@@ -45,11 +55,12 @@ def plot_reynolds_stress(x, y, X, Y, u, Ruv):
     - X: x-coordinates of the grid for the contour plot
     - Y: y-coordinates of the grid for the contour plot
     - u: mean streamwise velocity
-    - Ruv: Reynolds stress term
+    - Reynold_uv: Reynolds stress term
     """
 
     plt.figure(figsize=(15, 3))
-    plt.pcolor(x, y, Ruv, cmap="bone")  # , vmin=0, vmax=1)
+
+    plt.pcolor(x, y, Reynold_uv, cmap="bone")  # , vmin=0, vmax=1)
     plt.colorbar()
 
     plt.contour(X, Y, u, [0.99], linestyles="dashed", colors="k")
@@ -70,75 +81,81 @@ def plot_reynolds_stress(x, y, X, Y, u, Ruv):
 
 
 def plot_equation_space_bound_lay(
-    x, y, nx, ny, u, ux, uy, v, Ruvy, Ruux, px, nu, lap_u
+    x,
+    y,
+    num_x,
+    num_y,
+    u,
+    u_grad_x,
+    u_grad_y,
+    v,
+    Reynold_uv_y,
+    Reynold_uu_x,
+    p_grad_x,
+    nu,
+    lap_u,
 ):
     """Plot the equation space for the RANS equation terms.
 
     Args:
     - x: x-coordinates of the grid
     - y: y-coordinates of the grid
-    - nx: number of grid points in x-direction
-    - ny: number of grid points in y-direction
+    - num_x: number of grid points in x-direction
+    - num_y: number of grid points in y-direction
     - u: mean streamwise velocity
-    - ux: streamwise velocity gradient in x-direction
-    - uy: streamwise velocity gradient in y-direction
+    - u_grad_x: streamwise velocity gradient in x-direction
+    - u_grad_y: streamwise velocity gradient in y-direction
     - v: mean wall-normal velocity
-    - Ruvy: Reynolds stress term
-    - Ruux: Reynolds stress term
-    - px: mean pressure gradient in x-direction
+    - Reynold_uv_y: Reynolds stress term
+    - Reynold_uu_x: Reynolds stress term
+    - p_grad_x: mean pressure gradient in x-direction
     - nu: kinematic viscosity
     - lap_u: Laplacian of the mean streamwise velocity
     """
 
     plt.figure(figsize=(15, 5))
-    labels = [
-        r"$\bar{u} \bar{u}_x$",
-        r"$\bar{v}\bar{u}_y$",
-        r"$\rho^{-1} \bar{p}_x$",
-        r"$\nu \nabla^2 \bar{u}$",
-        r"$\overline{(u^\prime v^\prime)}_y$",
-        r"$\overline{({u^\prime} ^2)}_x$",
-    ]
+
+    global labels
     clim = 5e-4
     fontsize = 18
 
     plt.subplot(231)
-    field = np.reshape(u * ux, [ny, nx], order="F")
+    field = np.reshape(u * u_grad_x, [num_y, num_x], order="F")
     plt.pcolor(x, y, field, vmin=-clim, vmax=clim, cmap="RdBu")
     plt.gca().set_xticks([])
     plt.gca().set_yticks([])
     plt.ylabel(labels[0], fontsize=fontsize)
 
     plt.subplot(232)
-    field = np.reshape(v * uy, [ny, nx], order="F")
+    field = np.reshape(v * u_grad_y, [num_y, num_x], order="F")
     plt.pcolor(x, y, field, vmin=-clim, vmax=clim, cmap="RdBu")
     plt.gca().set_xticks([])
     plt.gca().set_yticks([])
     plt.ylabel(labels[1], fontsize=fontsize)
 
     plt.subplot(233)
-    field = np.reshape(px, [ny, nx], order="F")
+    field = np.reshape(p_grad_x, [num_y, num_x], order="F")
     plt.pcolor(x, y, field, vmin=-clim, vmax=clim, cmap="RdBu")
     plt.gca().set_xticks([])
     plt.gca().set_yticks([])
     plt.ylabel(labels[2], fontsize=fontsize)
 
     plt.subplot(234)
-    field = np.reshape(nu * lap_u, [ny, nx], order="F")
+    field = np.reshape(nu * lap_u, [num_y, num_x], order="F")
     plt.pcolor(x, y, field, vmin=-clim, vmax=clim, cmap="RdBu")
     plt.gca().set_xticks([])
     plt.gca().set_yticks([])
     plt.ylabel(labels[3], fontsize=fontsize)
 
     plt.subplot(235)
-    field = np.reshape(Ruvy, [ny, nx], order="F")
+    field = np.reshape(Reynold_uv_y, [num_y, num_x], order="F")
     plt.pcolor(x, y, field, vmin=-clim, vmax=clim, cmap="RdBu")
     plt.gca().set_xticks([])
     plt.gca().set_yticks([])
     plt.ylabel(labels[4], fontsize=fontsize)
 
     plt.subplot(236)
-    field = np.reshape(Ruux, [ny, nx], order="F")
+    field = np.reshape(Reynold_uu_x, [num_y, num_x], order="F")
     plt.pcolor(x, y, field, vmin=-clim, vmax=clim, cmap="RdBu")
     plt.gca().set_xticks([])
     plt.gca().set_yticks([])
@@ -158,23 +175,27 @@ def plot_equation_space_bound_lay(
     plt.show()
 
 
-def plot_cov_mat(model, nfeatures, nc):
-    labels = [
-        r"$\bar{u} \bar{u}_x$",
-        r"$\bar{v}\bar{u}_y$",
-        r"$\rho^{-1} \bar{p}_x$",
-        r"$\nu \nabla^2 \bar{u}$",
-        r"$\overline{(u^\prime v^\prime)}_y$",
-        r"$\overline{({u^\prime} ^2)}_x$",
-    ]
+def plot_cov_mat(model, nfeatures, n_clusters):
+    """Plot the covariance matrix of the GMM model.
+
+    Args:
+    - model: GMM model
+    - nfeatures: number of features
+    - n_clusters: number of clusters
+    """
+
+    global labels
 
     plt.figure(figsize=(12, 15))
-    for i in range(nc):
+
+    for i in range(n_clusters):
         plt.subplot(3, 3, i + 1)
         C = model.covariances_[i, :, :]
+
         plt.pcolor(
             C, vmin=-max(abs(C.flatten())), vmax=max(abs(C.flatten())), cmap="RdBu"
         )
+
         plt.gca().set_xticks(np.arange(0.5, nfeatures + 0.5))
         plt.gca().set_xticklabels(labels, fontsize=12)
         plt.gca().set_yticks(np.arange(0.5, nfeatures + 0.5))
@@ -196,23 +217,28 @@ def plot_cov_mat(model, nfeatures, nc):
     plt.show()
 
 
-def plot_clustering_2d_eq_space(features, cluster_idx, mask, nc):
-    labels = [
-        r"$\bar{u} \bar{u}_x$",
-        r"$\bar{v}\bar{u}_y$",
-        r"$\rho^{-1} \bar{p}_x$",
-        r"$\nu \nabla^2 \bar{u}$",
-        r"$\overline{(u^\prime v^\prime)}_y$",
-        r"$\overline{({u^\prime} ^2)}_x$",
-    ]
+def plot_clustering_2d_eq_space(features, cluster_idx, mask, n_clusters):
+    """Plot the clustering in the 2D equation space.
+
+    Args:
+    - features: features
+    - cluster_idx: cluster index
+    - mask: mask
+    - n_clusters: number of clusters
+    """
+
+    global labels
 
     plt.figure(figsize=(8, 8))
+
     plt.subplot(221)
     plt.scatter(features[mask, 0], features[mask, 1], 0.1, cluster_idx, cmap=cm)
     plt.xlabel(labels[0], fontsize=20)
     plt.ylabel(labels[1], fontsize=20)
     plt.clim([-0.5, cm.N - 0.5])
-    plt.colorbar(boundaries=np.arange(0.5, nc + 1.5), ticks=np.arange(1, nc + 1))
+    plt.colorbar(
+        boundaries=np.arange(0.5, n_clusters + 1.5), ticks=np.arange(1, n_clusters + 1)
+    )
     plt.grid()
 
     plt.gca().tick_params(axis="both", which="major", labelsize=18)
@@ -223,7 +249,9 @@ def plot_clustering_2d_eq_space(features, cluster_idx, mask, nc):
     plt.xlabel(labels[1], fontsize=20)
     plt.ylabel(labels[2], fontsize=20)
     plt.clim([-0.5, cm.N - 0.5])
-    plt.colorbar(boundaries=np.arange(0.5, nc + 1.5), ticks=np.arange(1, nc + 1))
+    plt.colorbar(
+        boundaries=np.arange(0.5, n_clusters + 1.5), ticks=np.arange(1, n_clusters + 1)
+    )
     plt.grid()
 
     plt.gca().tick_params(axis="both", which="major", labelsize=18)
@@ -234,7 +262,9 @@ def plot_clustering_2d_eq_space(features, cluster_idx, mask, nc):
     plt.xlabel(labels[1], fontsize=20)
     plt.ylabel(labels[3], fontsize=20)
     plt.clim([-0.5, cm.N - 0.5])
-    plt.colorbar(boundaries=np.arange(0.5, nc + 1.5), ticks=np.arange(1, nc + 1))
+    plt.colorbar(
+        boundaries=np.arange(0.5, n_clusters + 1.5), ticks=np.arange(1, n_clusters + 1)
+    )
     plt.grid()
 
     plt.gca().tick_params(axis="both", which="major", labelsize=18)
@@ -245,7 +275,9 @@ def plot_clustering_2d_eq_space(features, cluster_idx, mask, nc):
     plt.xlabel(labels[4], fontsize=20)
     plt.ylabel(labels[3], fontsize=20)
     plt.clim([-0.5, cm.N - 0.5])
-    plt.colorbar(boundaries=np.arange(0.5, nc + 1.5), ticks=np.arange(1, nc + 1))
+    plt.colorbar(
+        boundaries=np.arange(0.5, n_clusters + 1.5), ticks=np.arange(1, n_clusters + 1)
+    )
     plt.grid()
 
     plt.gca().tick_params(axis="both", which="major", labelsize=18)
@@ -266,15 +298,32 @@ def plot_clustering_2d_eq_space(features, cluster_idx, mask, nc):
     plt.show()
 
 
-def plot_clustering_space(clustermap, x, y, X, Y, nx, ny, nc, u, U_inf):
+def plot_clustering_space(clustermap, x, y, X, Y, num_x, num_y, n_clusters, u, U_inf):
+    """Plot the clustering in the space.
+
+    Args:
+    - clustermap: cluster map
+    - x: x-coordinates of the grid
+    - y: y-coordinates of the grid
+    - X: x-coordinates of the grid for the contour plot
+    - Y: y-coordinates of the grid for the contour plot
+    - num_x: number of grid points in x-direction
+    - num_y: number of grid points in y-direction
+    - n_clusters: number of clusters
+    - u: mean streamwise velocity
+    - U_inf: free stream velocity
+    """
+
     plt.figure(figsize=(15, 3))
     plt.pcolor(x, y, clustermap + 1, cmap=cm, vmin=-0.5, vmax=cm.N - 0.5)
-    plt.colorbar(boundaries=np.arange(0.5, nc + 1.5), ticks=np.arange(0, nc + 1))
+    plt.colorbar(
+        boundaries=np.arange(0.5, n_clusters + 1.5), ticks=np.arange(0, n_clusters + 1)
+    )
 
     plt.contour(
         X,
         Y,
-        np.reshape(u / U_inf, [ny, nx], order="F"),
+        np.reshape(u / U_inf, [num_y, num_x], order="F"),
         [0.99],
         linestyles="dashed",
         colors="k",
@@ -295,9 +344,18 @@ def plot_clustering_space(clustermap, x, y, X, Y, nx, ny, nc, u, U_inf):
     plt.show()
 
 
-def plot_spca_residuals(alphas, err):
+def plot_spca_residuals(alphas, error):
+    """Plot the residuals of the inactive terms in the SPCA model.
+
+    Args:
+    - alphas: alpha values
+    - error: residuals
+    """
+
     plt.figure(figsize=(6, 4))
-    plt.scatter(alphas, err)
+
+    plt.scatter(alphas, error)
+
     plt.xlabel(r"$\ell_1$ regularization")
     plt.ylabel("Residual of inactive terms")
     plt.gca().set_xscale("log")
@@ -316,6 +374,13 @@ def plot_spca_residuals(alphas, err):
 
 
 def plot_balance_models(gridmap, grid_labels):
+    """Plot a table of the balance models.
+
+    Args:
+    - gridmap: grid map
+    - grid_labels: grid labels
+    """
+
     plt.figure(figsize=(6, 3))
     plt.pcolor(
         gridmap, vmin=-0.5, vmax=cm.N - 0.5, cmap=cm, edgecolors="k", linewidth=1
@@ -342,7 +407,15 @@ def plot_balance_models(gridmap, grid_labels):
     plt.show()
 
 
-def plot_spca_reduced_clustering(x, y, balancemap, cm):
+def plot_spca_reduced_clustering(x, y, balancemap):
+    """Plot the reduced clustering using SPCA.
+
+    Args:
+    - x: x-coordinates of the grid
+    - y: y-coordinates of the grid
+    - balancemap: balance map
+    """
+
     plt.figure(figsize=(15, 3))
     plt.pcolor(
         x,
@@ -373,15 +446,27 @@ def plot_spca_reduced_clustering(x, y, balancemap, cm):
     plt.show()
 
 
-def plot_feature_space(features, mask, balance_idx, order, labels, fontsize, s):
+def plot_feature_space(features, mask, balance_idx, order, labels, fontsize, size):
+    """Plot the feature space.
+
+    Args:
+    - features: features
+    - mask: mask
+    - balance_idx: balance index
+    - order: order
+    - labels: labels
+    - fontsize: font size
+    - size: size
+    """
+
     fig, ax = plt.subplots(2, 2, figsize=(8, 8))
     for k in order:
         plt_mask = mask[np.nonzero(balance_idx[mask] == k)]
         c = np.array(cm(k + 1))[None, :]
-        ax[0, 0].scatter(features[plt_mask, 0], features[plt_mask, 4], s=s, c=c)
-        ax[0, 1].scatter(features[plt_mask, 0], features[plt_mask, 1], s=s, c=c)
-        ax[1, 0].scatter(features[plt_mask, 0], features[plt_mask, 3], s=s, c=c)
-        ax[1, 1].scatter(features[plt_mask, 4], features[plt_mask, 3], s=s, c=c)
+        ax[0, 0].scatter(features[plt_mask, 0], features[plt_mask, 4], s=size, c=c)
+        ax[0, 1].scatter(features[plt_mask, 0], features[plt_mask, 1], s=size, c=c)
+        ax[1, 0].scatter(features[plt_mask, 0], features[plt_mask, 3], s=size, c=c)
+        ax[1, 1].scatter(features[plt_mask, 4], features[plt_mask, 3], s=size, c=c)
 
     ax[0, 0].set_xlabel(labels[0], fontsize=fontsize)
     ax[0, 0].set_ylabel(labels[4], fontsize=fontsize)
@@ -420,6 +505,19 @@ def plot_feature_space(features, mask, balance_idx, order, labels, fontsize, s):
 
 
 def plot_sublayer_scaling(x, y, balancemap, delta, x_layer, gmm_fit, p_gmm, to_fit):
+    """Plot the inertial sublayer scaling.
+
+    Args:
+    - x: x-coordinates of the grid
+    - y: y-coordinates of the grid
+    - balancemap: balance map
+    - delta: delta
+    - x_layer: x layer
+    - gmm_fit: GMM fit
+    - p_gmm: GMM parameters
+    - to_fit: to fit
+    """
+
     plt.figure(figsize=(15, 3))
     plt.pcolor(x, y, balancemap + 1, cmap=cm, vmin=-0.5, vmax=cm.N - 0.5)
 
@@ -440,6 +538,15 @@ def plot_sublayer_scaling(x, y, balancemap, delta, x_layer, gmm_fit, p_gmm, to_f
 
 
 def plot_self_similarity(x, y_plus, u_plus, balancemap):
+    """Plot the self-similarity of the wall region.
+
+    Args:
+    - x: x-coordinates of the grid
+    - y_plus: y_plus, y-coordinate in wall units
+    - u_plus: u_plus, u-velocity in wall units
+    - balancemap: array of dominant balance models
+    """
+
     y_fit = []
     u_fit = []
 
@@ -493,6 +600,12 @@ def plot_self_similarity(x, y_plus, u_plus, balancemap):
 
 
 def plot_blasius_solution(eta, f):
+    """Plot the Blasius solution.
+
+    Args:
+    - eta: similarity parameter
+    - f: Blasius solution
+    """
     plt.figure(figsize=(4, 4))
     plt.plot(eta, f[:, 0], label="Scipy solution")
     plt.xlabel(r"Similarity parameter $\eta$")
@@ -500,5 +613,5 @@ def plot_blasius_solution(eta, f):
     plt.xlim([0, 6])
     plt.ylim([0, 5])
     plt.grid()
-    plt.title("Blaisus solution")
+    plt.title("Blasius solution")
     plt.show()
