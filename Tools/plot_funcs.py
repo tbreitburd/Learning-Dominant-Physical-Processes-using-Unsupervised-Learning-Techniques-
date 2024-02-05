@@ -60,9 +60,11 @@ def plot_reynolds_stress(x, y, X, Y, u, Reynold_uv):
 
     plt.figure(figsize=(15, 3))
 
+    # Plot the Reynolds stress term
     plt.pcolor(x, y, Reynold_uv, cmap="bone")  # , vmin=0, vmax=1)
     plt.colorbar()
 
+    # Plot the 99th percentile of the mean streamwise velocity
     plt.contour(X, Y, u, [0.99], linestyles="dashed", colors="k")
 
     plt.gca().set_yticks([])
@@ -119,6 +121,7 @@ def plot_equation_space_bound_lay(
     clim = 5e-4
     fontsize = 18
 
+    # Plot the terms in equation space
     plt.subplot(231)
     field = np.reshape(u * u_grad_x, [num_y, num_x], order="F")
     plt.pcolor(x, y, field, vmin=-clim, vmax=clim, cmap="RdBu")
@@ -175,23 +178,29 @@ def plot_equation_space_bound_lay(
     plt.show()
 
 
-def plot_cov_mat(model, nfeatures, n_clusters):
+def plot_cov_mat(model, nfeatures, n_clusters, algorithm):
     """Plot the covariance matrix of the GMM model.
 
     Args:
     - model: GMM model
     - nfeatures: number of features
     - n_clusters: number of clusters
+    - algorithm: algorithm used, can be either GMM or other
     """
 
     global labels
 
     plt.figure(figsize=(12, 15))
 
+    # Get the covariance matrix for each cluster
     for i in range(n_clusters):
         plt.subplot(3, 3, i + 1)
-        C = model.covariances_[i, :, :]
+        if algorithm == "GMM":
+            C = model.covariances_[i, :, :]
+        else:
+            C = model[i, :, :]
 
+        # Plot a colormap of the covariance matrix
         plt.pcolor(
             C, vmin=-max(abs(C.flatten())), vmax=max(abs(C.flatten())), cmap="RdBu"
         )
@@ -231,6 +240,7 @@ def plot_clustering_2d_eq_space(features, cluster_idx, mask, n_clusters):
 
     plt.figure(figsize=(8, 8))
 
+    # Plot the clustering in the 2D equation space, for different pairs of features
     plt.subplot(221)
     plt.scatter(features[mask, 0], features[mask, 1], 0.1, cluster_idx, cmap=cm)
     plt.xlabel(labels[0], fontsize=20)
@@ -315,11 +325,13 @@ def plot_clustering_space(clustermap, x, y, X, Y, num_x, num_y, n_clusters, u, U
     """
 
     plt.figure(figsize=(15, 3))
+    # Plot the clustering in space
     plt.pcolor(x, y, clustermap + 1, cmap=cm, vmin=-0.5, vmax=cm.N - 0.5)
     plt.colorbar(
         boundaries=np.arange(0.5, n_clusters + 1.5), ticks=np.arange(0, n_clusters + 1)
     )
 
+    # Plot the 99th percentile of the mean streamwise velocity
     plt.contour(
         X,
         Y,
@@ -348,12 +360,13 @@ def plot_spca_residuals(alphas, error):
     """Plot the residuals of the inactive terms in the SPCA model.
 
     Args:
-    - alphas: alpha values
-    - error: residuals
+    - alphas: regularisation term alpha values
+    - error: SPCA residuals
     """
 
     plt.figure(figsize=(6, 4))
 
+    # Plot the residuals of the inactive terms
     plt.scatter(alphas, error)
 
     plt.xlabel(r"$\ell_1$ regularization")
@@ -382,6 +395,8 @@ def plot_balance_models(gridmap, grid_labels):
     """
 
     plt.figure(figsize=(6, 3))
+
+    # Make a grid of the balance models
     plt.pcolor(
         gridmap, vmin=-0.5, vmax=cm.N - 0.5, cmap=cm, edgecolors="k", linewidth=1
     )
@@ -417,6 +432,8 @@ def plot_spca_reduced_clustering(x, y, balancemap):
     """
 
     plt.figure(figsize=(15, 3))
+
+    # Plot the reduced clustering after SPCA
     plt.pcolor(
         x,
         y,
@@ -433,7 +450,7 @@ def plot_spca_reduced_clustering(x, y, balancemap):
 
     # plt.xlabel('$x$')
     # plt.ylabel('$y$')
-    plt.title("SPCA Reduction")
+    plt.title("SPCA Reduced Clustering")
 
     cur_dir = os.getcwd()
     proj_dir = os.path.dirname(cur_dir)
@@ -446,20 +463,25 @@ def plot_spca_reduced_clustering(x, y, balancemap):
     plt.show()
 
 
-def plot_feature_space(features, mask, balance_idx, order, labels, fontsize, size):
+def plot_feature_space(features, mask, balance_idx):
     """Plot the feature space.
 
     Args:
     - features: features
     - mask: mask
     - balance_idx: balance index
-    - order: order
-    - labels: labels
-    - fontsize: font size
-    - size: size
     """
 
+    fontsize = 20
+    size = 1
+
+    # Plot order of the terms for best visibility
+    order = [3, 0, 4, 1, 2]
+
     fig, ax = plt.subplots(2, 2, figsize=(8, 8))
+
+    # Plot each balance model in the feature space,
+    # in an order that makes the the balance models visible
     for k in order:
         plt_mask = mask[np.nonzero(balance_idx[mask] == k)]
         c = np.array(cm(k + 1))[None, :]
@@ -515,12 +537,15 @@ def plot_sublayer_scaling(x, y, balancemap, delta, x_layer, gmm_fit, p_gmm, to_f
     - x_layer: x layer
     - gmm_fit: GMM fit
     - p_gmm: GMM parameters
-    - to_fit: to fit
+    - x_to_fit: x coordinates over which to fit the inertial balance to the power law
     """
 
     plt.figure(figsize=(15, 3))
+
+    # Plot the balance model map
     plt.pcolor(x, y, balancemap + 1, cmap=cm, vmin=-0.5, vmax=cm.N - 0.5)
 
+    # Plot the inertial sublayer scaling
     plt.plot(x, delta, "k--", label=r"$0.99 U_\infty$")
     plt.plot(
         x_layer[to_fit],
@@ -550,12 +575,14 @@ def plot_self_similarity(x, y_plus, u_plus, balancemap):
     y_fit = []
     u_fit = []
 
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 5))
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(11, 5))
     x_plt = [600, 700, 800, 900, x[-3]]
+
+    # For each x-coordinate, plot the near-wall region collapsed profiles
     for i in range(len(x_plt)):
         x_idx = np.nonzero(x > x_plt[i])[0][0]
 
-        # Find viscous balance indices
+        # Find the indices for the viscous balance
         y_idx = np.nonzero(balancemap[:, x_idx] == 0)[0]
 
         # Print the y+ coordinate where the balance ends (~70)
