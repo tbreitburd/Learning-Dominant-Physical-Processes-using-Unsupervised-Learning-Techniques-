@@ -400,7 +400,7 @@ def plot_balance_models(gridmap, grid_labels):
     plt.pcolor(
         gridmap, vmin=-0.5, vmax=cm.N - 0.5, cmap=cm, edgecolors="k", linewidth=1
     )
-    plt.gca().set_xticks(np.arange(0.5, gridmap.shape[0] + 0.5))
+    plt.gca().set_xticks(np.arange(0.5, len(grid_labels) + 0.5))
     plt.gca().set_xticklabels(grid_labels, fontsize=24)
     plt.gca().set_yticklabels([])
     # plt.gca().set_yticks(np.arange(0.5, nmodels+0.5))
