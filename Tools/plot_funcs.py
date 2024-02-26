@@ -185,7 +185,7 @@ def plot_cov_mat(model, nfeatures, n_clusters, algorithm):
     - model: GMM model
     - nfeatures: number of features
     - n_clusters: number of clusters
-    - algorithm: algorithm used, can be either GMM or other
+    - algorithm: algorithm used, can be either 'GMM' or other
     """
 
     global labels
@@ -226,14 +226,14 @@ def plot_cov_mat(model, nfeatures, n_clusters, algorithm):
     plt.show()
 
 
-def plot_clustering_2d_eq_space(features, cluster_idx, mask, n_clusters):
-    """Plot the clustering in the 2D equation space.
+def plot_clustering_2d_eq_space(features, cluster_idx, n_clusters):
+    """Plot the clustering in the 2D equation space. If the features data is masked, make sure
+    that the cluster index is masked as well.
 
     Args:
-    - features: features
-    - cluster_idx: cluster index
-    - mask: mask
-    - n_clusters: number of clusters
+    - features: equation space data with terms as features, np.array [n, 6]
+    - cluster_idx: cluster labels assigned to each sample point of features, np.array [n]
+    - n_clusters: number of clusters, int
     """
 
     global labels
@@ -242,7 +242,7 @@ def plot_clustering_2d_eq_space(features, cluster_idx, mask, n_clusters):
 
     # Plot the clustering in the 2D equation space, for different pairs of features
     plt.subplot(221)
-    plt.scatter(features[mask, 0], features[mask, 1], 0.1, cluster_idx, cmap=cm)
+    plt.scatter(features[:, 0], features[:, 1], 0.1, cluster_idx, cmap=cm)
     plt.xlabel(labels[0], fontsize=20)
     plt.ylabel(labels[1], fontsize=20)
     plt.clim([-0.5, cm.N - 0.5])
@@ -255,7 +255,7 @@ def plot_clustering_2d_eq_space(features, cluster_idx, mask, n_clusters):
     plt.gca().tick_params(axis="both", which="minor", labelsize=18)
 
     plt.subplot(222)
-    plt.scatter(features[mask, 1], features[mask, 2], 0.1, cluster_idx, cmap=cm)
+    plt.scatter(features[:, 1], features[:, 2], 0.1, cluster_idx, cmap=cm)
     plt.xlabel(labels[1], fontsize=20)
     plt.ylabel(labels[2], fontsize=20)
     plt.clim([-0.5, cm.N - 0.5])
@@ -268,7 +268,7 @@ def plot_clustering_2d_eq_space(features, cluster_idx, mask, n_clusters):
     plt.gca().tick_params(axis="both", which="minor", labelsize=18)
 
     plt.subplot(223)
-    plt.scatter(features[mask, 1], features[mask, 3], 0.1, cluster_idx, cmap=cm)
+    plt.scatter(features[:, 1], features[:, 3], 0.1, cluster_idx, cmap=cm)
     plt.xlabel(labels[1], fontsize=20)
     plt.ylabel(labels[3], fontsize=20)
     plt.clim([-0.5, cm.N - 0.5])
@@ -281,7 +281,7 @@ def plot_clustering_2d_eq_space(features, cluster_idx, mask, n_clusters):
     plt.gca().tick_params(axis="both", which="minor", labelsize=18)
 
     plt.subplot(224)
-    plt.scatter(features[mask, 4], features[mask, 3], 0.1, cluster_idx, cmap=cm)
+    plt.scatter(features[:, 4], features[:, 3], 0.1, cluster_idx, cmap=cm)
     plt.xlabel(labels[4], fontsize=20)
     plt.ylabel(labels[3], fontsize=20)
     plt.clim([-0.5, cm.N - 0.5])
@@ -309,19 +309,19 @@ def plot_clustering_2d_eq_space(features, cluster_idx, mask, n_clusters):
 
 
 def plot_clustering_space(clustermap, x, y, X, Y, num_x, num_y, n_clusters, u, U_inf):
-    """Plot the clustering in the space.
+    """Plot the clustering in physical space.
 
     Args:
     - clustermap: cluster map
-    - x: x-coordinates of the grid
-    - y: y-coordinates of the grid
-    - X: x-coordinates of the grid for the contour plot
-    - Y: y-coordinates of the grid for the contour plot
-    - num_x: number of grid points in x-direction
-    - num_y: number of grid points in y-direction
-    - n_clusters: number of clusters
-    - u: mean streamwise velocity
-    - U_inf: free stream velocity
+    - x: x-coordinates of the grid, np.array [num_x]
+    - y: y-coordinates of the grid, np.array [num_y]
+    - X: x-coordinates of the grid for the contour plot, np.array [num_y, num_x]
+    - Y: y-coordinates of the grid for the contour plot, np.array [num_y, num_x]
+    - num_x: number of grid points in x-direction, int
+    - num_y: number of grid points in y-direction, int
+    - n_clusters: number of clusters, int
+    - u: mean streamwise velocity, np.array [num_y, num_x]
+    - U_inf: free stream velocity, float
     """
 
     plt.figure(figsize=(15, 3))
@@ -360,8 +360,8 @@ def plot_spca_residuals(alphas, error):
     """Plot the residuals of the inactive terms in the SPCA model.
 
     Args:
-    - alphas: regularisation term alpha values
-    - error: SPCA residuals
+    - alphas: regularisation term alpha values, list
+    - error: SPCA residuals, np.array [len(alphas)]
     """
 
     plt.figure(figsize=(6, 4))
@@ -390,8 +390,8 @@ def plot_balance_models(gridmap, grid_labels):
     """Plot a table of the balance models.
 
     Args:
-    - gridmap: grid map
-    - grid_labels: grid labels
+    - gridmap: grid map, np.array [nmodels, nclusters]
+    - grid_labels: term labels with unused terms removed, list
     """
 
     plt.figure(figsize=(6, 3))
@@ -426,9 +426,9 @@ def plot_spca_reduced_clustering(x, y, balancemap):
     """Plot the reduced clustering using SPCA.
 
     Args:
-    - x: x-coordinates of the grid
-    - y: y-coordinates of the grid
-    - balancemap: balance map
+    - x: x-coordinates of the grid, np.array [num_x]
+    - y: y-coordinates of the grid, np.array [num_y]
+    - balancemap: balance map, np.array [num_y, num_x]
     """
 
     plt.figure(figsize=(15, 3))
@@ -463,13 +463,14 @@ def plot_spca_reduced_clustering(x, y, balancemap):
     plt.show()
 
 
-def plot_feature_space(features, mask, balance_idx):
-    """Plot the feature space.
+def plot_feature_space(features, balance_idx):
+    """Plot the points in feature space, coloured according to
+    the balance model they belong to. If the features data is masked, make sure
+    that the balance index is masked as well.
 
     Args:
-    - features: features
-    - mask: mask
-    - balance_idx: balance index
+    - features: equation space data with each term as a feature, np.array [n, 6]
+    - balance_idx: balance model that the data point belongs to, np.array [n]
     """
 
     fontsize = 20
@@ -483,12 +484,12 @@ def plot_feature_space(features, mask, balance_idx):
     # Plot each balance model in the feature space,
     # in an order that makes the the balance models visible
     for k in order:
-        plt_mask = mask[np.nonzero(balance_idx[mask] == k)]
+        plt_ = np.nonzero(balance_idx[:] == k)
         c = np.array(cm(k + 1))[None, :]
-        ax[0, 0].scatter(features[plt_mask, 0], features[plt_mask, 4], s=size, c=c)
-        ax[0, 1].scatter(features[plt_mask, 0], features[plt_mask, 1], s=size, c=c)
-        ax[1, 0].scatter(features[plt_mask, 0], features[plt_mask, 3], s=size, c=c)
-        ax[1, 1].scatter(features[plt_mask, 4], features[plt_mask, 3], s=size, c=c)
+        ax[0, 0].scatter(features[plt_, 0], features[plt_, 4], s=size, c=c)
+        ax[0, 1].scatter(features[plt_, 0], features[plt_, 1], s=size, c=c)
+        ax[1, 0].scatter(features[plt_, 0], features[plt_, 3], s=size, c=c)
+        ax[1, 1].scatter(features[plt_, 4], features[plt_, 3], s=size, c=c)
 
     ax[0, 0].set_xlabel(labels[0], fontsize=fontsize)
     ax[0, 0].set_ylabel(labels[4], fontsize=fontsize)
