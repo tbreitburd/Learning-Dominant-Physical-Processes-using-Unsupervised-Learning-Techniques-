@@ -8,6 +8,7 @@ import os
 import matplotlib as mpl
 from matplotlib.colors import ListedColormap
 import seaborn as sns
+from scipy.interpolate import interp1d
 
 mpl.rc("text", usetex=True)
 mpl.rc("font", family="serif")
@@ -46,7 +47,7 @@ labels = [
 ]
 
 
-def plot_reynolds_stress(x, y, X, Y, u, Reynold_uv):
+def plot_reynolds_stress(x, y, X, Y, u, Reynold_uv, show=True):
     """Plot the Reynolds stress term.
 
     Args:
@@ -58,7 +59,7 @@ def plot_reynolds_stress(x, y, X, Y, u, Reynold_uv):
     - Reynold_uv: Reynolds stress term
     """
 
-    plt.figure(figsize=(15, 3))
+    plt.figure(figsize=(10, 4))
 
     # Plot the Reynolds stress term
     plt.pcolor(x, y, Reynold_uv, cmap="bone")  # , vmin=0, vmax=1)
@@ -66,10 +67,11 @@ def plot_reynolds_stress(x, y, X, Y, u, Reynold_uv):
 
     # Plot the 99th percentile of the mean streamwise velocity
     plt.contour(X, Y, u, [0.99], linestyles="dashed", colors="k")
-
     plt.gca().set_yticks([])
     plt.gca().set_xticks([])
-    plt.title(r"Reynold's Stress: $\overline{uv}$")
+    plt.title(r"Reynold's Stress: $\overline{uv}$ (in $(m.s^{-1})^{2}$)")
+
+    plt.tight_layout()
 
     cur_dir = os.getcwd()
     proj_dir = os.path.dirname(cur_dir)
@@ -79,10 +81,13 @@ def plot_reynolds_stress(x, y, X, Y, u, Reynold_uv):
     plot_dir = os.path.join(plots_dir, "reynolds_stresses.png")
     plt.savefig(plot_dir)
 
-    plt.show()
+    if show:
+        plt.show()
+    else:
+        plt.close()
 
 
-def plot_equation_space_bound_lay(
+def plot_equation_terms_bound_lay(
     x,
     y,
     num_x,
@@ -96,8 +101,9 @@ def plot_equation_space_bound_lay(
     p_grad_x,
     nu,
     lap_u,
+    show=True,
 ):
-    """Plot the equation space for the RANS equation terms.
+    """Plot physical space fields of each of the RANS equation terms
 
     Args:
     - x: x-coordinates of the grid
@@ -115,7 +121,7 @@ def plot_equation_space_bound_lay(
     - lap_u: Laplacian of the mean streamwise velocity
     """
 
-    plt.figure(figsize=(15, 5))
+    plt.figure(figsize=(13, 6))
 
     global labels
     clim = 5e-4
@@ -168,17 +174,28 @@ def plot_equation_space_bound_lay(
         left=None, bottom=None, right=None, top=None, wspace=0.2, hspace=0.05
     )
 
+    plt.suptitle(
+        "Plots of the values of each RANS equation terms \n in physical space",
+        fontsize=20,
+    )
+
+    plt.tight_layout()
+
     cur_dir = os.getcwd()
     proj_dir = os.path.dirname(cur_dir)
     plots_dir = os.path.join(proj_dir, "Plots")
     os.makedirs(plots_dir, exist_ok=True)
 
-    plot_dir = os.path.join(plots_dir, "equation_space_bound_lay.png")
+    plot_dir = os.path.join(plots_dir, "equation_terms_bound_lay.png")
     plt.savefig(plot_dir)
-    plt.show()
+
+    if show:
+        plt.show()
+    else:
+        plt.close()
 
 
-def plot_cov_mat(model, nfeatures, n_clusters, algorithm):
+def plot_cov_mat(model, nfeatures, n_clusters, algorithm, show=True):
     """Plot the covariance matrix of the GMM model.
 
     Args:
@@ -190,7 +207,7 @@ def plot_cov_mat(model, nfeatures, n_clusters, algorithm):
 
     global labels
 
-    plt.figure(figsize=(12, 15))
+    plt.figure(figsize=(12, 10))
 
     # Get the covariance matrix for each cluster
     for i in range(n_clusters):
@@ -215,6 +232,8 @@ def plot_cov_mat(model, nfeatures, n_clusters, algorithm):
         left=None, bottom=None, right=None, top=None, wspace=0.3, hspace=0.4
     )
 
+    plt.tight_layout()
+
     cur_dir = os.getcwd()
     proj_dir = os.path.dirname(cur_dir)
     plots_dir = os.path.join(proj_dir, "Plots")
@@ -223,10 +242,13 @@ def plot_cov_mat(model, nfeatures, n_clusters, algorithm):
     plot_dir = os.path.join(plots_dir, "cov_mat_bound_lay.png")
     plt.savefig(plot_dir)
 
-    plt.show()
+    if show:
+        plt.show()
+    else:
+        plt.close()
 
 
-def plot_clustering_2d_eq_space(features, cluster_idx, n_clusters):
+def plot_clustering_2d_eq_space(features, cluster_idx, n_clusters, show=True):
     """Plot the clustering in the 2D equation space. If the features data is masked, make sure
     that the cluster index is masked as well.
 
@@ -297,6 +319,8 @@ def plot_clustering_2d_eq_space(features, cluster_idx, n_clusters):
         left=None, bottom=None, right=None, top=None, wspace=0.3, hspace=0.3
     )
 
+    plt.tight_layout()
+
     cur_dir = os.getcwd()
     proj_dir = os.path.dirname(cur_dir)
     plots_dir = os.path.join(proj_dir, "Plots")
@@ -305,10 +329,15 @@ def plot_clustering_2d_eq_space(features, cluster_idx, n_clusters):
     plot_dir = os.path.join(plots_dir, "clustering_2d_eq_space.png")
     plt.savefig(plot_dir)
 
-    plt.show()
+    if show:
+        plt.show()
+    else:
+        plt.close()
 
 
-def plot_clustering_space(clustermap, x, y, X, Y, num_x, num_y, n_clusters, u, U_inf):
+def plot_clustering_space(
+    clustermap, x, y, X, Y, num_x, num_y, n_clusters, u, U_inf, show=True
+):
     """Plot the clustering in physical space.
 
     Args:
@@ -324,7 +353,7 @@ def plot_clustering_space(clustermap, x, y, X, Y, num_x, num_y, n_clusters, u, U
     - U_inf: free stream velocity, float
     """
 
-    plt.figure(figsize=(15, 3))
+    plt.figure(figsize=(10, 4))
     # Plot the clustering in space
     plt.pcolor(x, y, clustermap + 1, cmap=cm, vmin=-0.5, vmax=cm.N - 0.5)
     plt.colorbar(
@@ -345,6 +374,8 @@ def plot_clustering_space(clustermap, x, y, X, Y, num_x, num_y, n_clusters, u, U
     plt.ylabel("$y$", fontsize=18)
     plt.title("GMM Clusters", fontsize=20)
 
+    plt.tight_layout()
+
     cur_dir = os.getcwd()
     proj_dir = os.path.dirname(cur_dir)
     plots_dir = os.path.join(proj_dir, "Plots")
@@ -353,10 +384,65 @@ def plot_clustering_space(clustermap, x, y, X, Y, num_x, num_y, n_clusters, u, U
     plot_dir = os.path.join(plots_dir, "clustering_space.png")
     plt.savefig(plot_dir)
 
-    plt.show()
+    if show:
+        plt.show()
+    else:
+        plt.close()
 
 
-def plot_spca_residuals(alphas, error):
+def plot_active_terms(spca_model, labels, show=True):
+    """Plot a table of the active terms for each cluster
+
+    Args:
+    - spca_model: grid map, np.array [nmodels, nclusters]
+    - labels: term labels, list
+    """
+
+    # Plot a grid with active terms in each cluster
+    gridmap = spca_model.copy()
+    gridmask = gridmap == 0
+    nmodels = spca_model.shape[0]
+    gridmap = (gridmap.T * np.arange(nmodels)).T + 1
+    gridmap[gridmask] = 0
+
+    # Delete unused terms
+    grid_mask = np.nonzero(np.all(gridmap == 0, axis=0))[0]
+    gridmap = np.delete(gridmap, grid_mask, axis=1)
+    grid_labels = np.delete(labels, grid_mask)
+
+    plt.figure(figsize=(6, 3))
+
+    # Make a grid of the balance models
+    plt.pcolor(gridmap, edgecolors="k", linewidth=1, cmap="Greys", vmin=0, vmax=1)
+    plt.gca().set_xticks(np.arange(0.5, len(grid_labels) + 0.5))
+    plt.gca().set_xticklabels(grid_labels, fontsize=24)
+    plt.gca().set_yticklabels([])
+
+    for axis in ["top", "bottom", "left", "right"]:
+        plt.gca().spines[axis].set_linewidth(2)
+
+    plt.gca().tick_params(axis="both", width=0)
+
+    plt.xlabel("Terms")
+    plt.ylabel("Active terms in each cluster")
+
+    plt.tight_layout()
+
+    cur_dir = os.getcwd()
+    proj_dir = os.path.dirname(cur_dir)
+    plots_dir = os.path.join(proj_dir, "Plots")
+    os.makedirs(plots_dir, exist_ok=True)
+
+    plot_dir = os.path.join(plots_dir, "active_terms.png")
+    plt.savefig(plot_dir)
+
+    if show:
+        plt.show()
+    else:
+        plt.close()
+
+
+def plot_spca_residuals(alphas, error, show=True):
     """Plot the residuals of the inactive terms in the SPCA model.
 
     Args:
@@ -375,6 +461,8 @@ def plot_spca_residuals(alphas, error):
     plt.xlim([1e-5, 1e6])
     plt.grid()
 
+    plt.tight_layout()
+
     cur_dir = os.getcwd()
     proj_dir = os.path.dirname(cur_dir)
     plots_dir = os.path.join(proj_dir, "Plots")
@@ -383,10 +471,13 @@ def plot_spca_residuals(alphas, error):
     plot_dir = os.path.join(plots_dir, "spca_residuals.png")
     plt.savefig(plot_dir)
 
-    plt.show()
+    if show:
+        plt.show()
+    else:
+        plt.close()
 
 
-def plot_balance_models(gridmap, grid_labels):
+def plot_balance_models(gridmap, grid_labels, show=True):
     """Plot a table of the balance models.
 
     Args:
@@ -394,7 +485,7 @@ def plot_balance_models(gridmap, grid_labels):
     - grid_labels: term labels with unused terms removed, list
     """
 
-    plt.figure(figsize=(6, 3))
+    plt.figure(figsize=(7, 4))
 
     # Make a grid of the balance models
     plt.pcolor(
@@ -405,12 +496,15 @@ def plot_balance_models(gridmap, grid_labels):
     plt.gca().set_yticklabels([])
     # plt.gca().set_yticks(np.arange(0.5, nmodels+0.5))
     # plt.gca().set_yticklabels(range(nc), fontsize=20)
-    # plt.ylabel('Balance Model')
+    plt.ylabel("Balance Models")
+    plt.xlabel("Terms")
 
     for axis in ["top", "bottom", "left", "right"]:
         plt.gca().spines[axis].set_linewidth(2)
 
     plt.gca().tick_params(axis="both", width=0)
+
+    plt.tight_layout()
 
     cur_dir = os.getcwd()
     proj_dir = os.path.dirname(cur_dir)
@@ -419,10 +513,14 @@ def plot_balance_models(gridmap, grid_labels):
 
     plot_dir = os.path.join(plots_dir, "balance_models.png")
     plt.savefig(plot_dir)
-    plt.show()
+
+    if show:
+        plt.show()
+    else:
+        plt.close()
 
 
-def plot_spca_reduced_clustering(x, y, balancemap):
+def plot_spca_reduced_clustering(x, y, balancemap, show=True):
     """Plot the reduced clustering using SPCA.
 
     Args:
@@ -431,7 +529,7 @@ def plot_spca_reduced_clustering(x, y, balancemap):
     - balancemap: balance map, np.array [num_y, num_x]
     """
 
-    plt.figure(figsize=(15, 3))
+    plt.figure(figsize=(10, 4))
 
     # Plot the reduced clustering after SPCA
     plt.pcolor(
@@ -448,9 +546,11 @@ def plot_spca_reduced_clustering(x, y, balancemap):
     plt.gca().set_xticks([])
     plt.gca().set_yticks([])
 
-    # plt.xlabel('$x$')
-    # plt.ylabel('$y$')
+    plt.xlabel("$x$")
+    plt.ylabel("$y$")
     plt.title("SPCA Reduced Clustering")
+
+    plt.tight_layout()
 
     cur_dir = os.getcwd()
     proj_dir = os.path.dirname(cur_dir)
@@ -460,10 +560,13 @@ def plot_spca_reduced_clustering(x, y, balancemap):
     plot_dir = os.path.join(plots_dir, "spca_reduced_clustering.png")
     plt.savefig(plot_dir)
 
-    plt.show()
+    if show:
+        plt.show()
+    else:
+        plt.close()
 
 
-def plot_feature_space(features, balance_idx):
+def plot_feature_space(features, balance_idx, show=True):
     """Plot the points in feature space, coloured according to
     the balance model they belong to. If the features data is masked, make sure
     that the balance index is masked as well.
@@ -515,6 +618,7 @@ def plot_feature_space(features, balance_idx):
     plt.subplots_adjust(
         left=None, bottom=None, right=None, top=None, wspace=0.3, hspace=0.3
     )
+    plt.tight_layout()
 
     cur_dir = os.getcwd()
     proj_dir = os.path.dirname(cur_dir)
@@ -524,10 +628,15 @@ def plot_feature_space(features, balance_idx):
     plot_dir = os.path.join(plots_dir, "feature_space.png")
     plt.savefig(plot_dir)
 
-    plt.show()
+    if show:
+        plt.show()
+    else:
+        plt.close()
 
 
-def plot_sublayer_scaling(x, y, balancemap, delta, x_layer, gmm_fit, p_gmm, to_fit):
+def plot_sublayer_scaling(
+    x, y, balancemap, delta, x_layer, gmm_fit, p_gmm, to_fit, show=True
+):
     """Plot the inertial sublayer scaling.
 
     Args:
@@ -541,7 +650,7 @@ def plot_sublayer_scaling(x, y, balancemap, delta, x_layer, gmm_fit, p_gmm, to_f
     - x_to_fit: x coordinates over which to fit the inertial balance to the power law
     """
 
-    plt.figure(figsize=(15, 3))
+    plt.figure(figsize=(10, 4))
 
     # Plot the balance model map
     plt.pcolor(x, y, balancemap + 1, cmap=cm, vmin=-0.5, vmax=cm.N - 0.5)
@@ -560,10 +669,24 @@ def plot_sublayer_scaling(x, y, balancemap, delta, x_layer, gmm_fit, p_gmm, to_f
     plt.ylabel("$y$")
 
     plt.title("Inertial sublayer scaling")
-    plt.show()
+
+    plt.tight_layout()
+
+    cur_dir = os.getcwd()
+    proj_dir = os.path.dirname(cur_dir)
+    plots_dir = os.path.join(proj_dir, "Plots")
+    os.makedirs(plots_dir, exist_ok=True)
+
+    plot_dir = os.path.join(plots_dir, "sublay_scaling.png")
+    plt.savefig(plot_dir)
+
+    if show:
+        plt.show()
+    else:
+        plt.close()
 
 
-def plot_self_similarity(x, y_plus, u_plus, balancemap):
+def plot_self_similarity(x, y_plus, u_plus, balancemap, show=True):
     """Plot the self-similarity of the wall region.
 
     Args:
@@ -624,10 +747,24 @@ def plot_self_similarity(x, y_plus, u_plus, balancemap):
     ax2.grid()
 
     plt.subplots_adjust(wspace=0.3)
-    plt.show()
+
+    plt.tight_layout()
+
+    cur_dir = os.getcwd()
+    proj_dir = os.path.dirname(cur_dir)
+    plots_dir = os.path.join(proj_dir, "Plots")
+    os.makedirs(plots_dir, exist_ok=True)
+
+    plot_dir = os.path.join(plots_dir, "self_simil.png")
+    plt.savefig(plot_dir)
+
+    if show:
+        plt.show()
+    else:
+        plt.close()
 
 
-def plot_blasius_solution(eta, f):
+def plot_blasius_solution(eta, f, show=True):
     """Plot the Blasius solution.
 
     Args:
@@ -642,4 +779,68 @@ def plot_blasius_solution(eta, f):
     plt.ylim([0, 5])
     plt.grid()
     plt.title("Blasius solution")
-    plt.show()
+
+    plt.tight_layout()
+
+    cur_dir = os.getcwd()
+    proj_dir = os.path.dirname(cur_dir)
+    plots_dir = os.path.join(proj_dir, "Plots")
+    os.makedirs(plots_dir, exist_ok=True)
+
+    plot_dir = os.path.join(plots_dir, "blasius_solution.png")
+    plt.savefig(plot_dir)
+
+    if show:
+        plt.show()
+    else:
+        plt.close()
+
+
+def plot_blasius_deviation(x, y, nx, ny, u, eta, f, U_inf, nu, show=True):
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 6))
+    u_map = np.reshape(u, [ny, nx], order="F")
+
+    # Create a function of eta for f_prime
+    f_prime = interp1d(eta, f[:, 1])  # Second variable from first-order integrator
+
+    for x_plt in [30, 50, 100, 150, 200, 250, 300]:
+        x_idx = np.nonzero(x > x_plt)[0][0]
+
+        eta_plot = y * np.sqrt(U_inf / (1.1 * nu * x_plt))
+
+        dev = u_map[:, x_idx] / max(u_map[:, x_idx]) - f_prime(eta_plot)
+        if x_plt < 200:
+            ax1.plot(u_map[:, x_idx] / max(u_map[:, x_idx]), eta_plot)
+            ax2.plot(dev, eta_plot, label="$x={{{0}}}$".format(x_plt))
+        else:
+            ax1.plot(u_map[:, x_idx] / max(u_map[:, x_idx]), eta_plot, "--")
+            ax2.plot(dev, eta_plot, "--", label="$x={{{0}}}$".format(x_plt))
+
+    # plt.ylim([0, 10])
+    ax1.plot(f[:, 1], eta, "k", label="Blasius")
+    ax1.set_yscale("log")
+    ax1.legend(fontsize=16)
+
+    ax1.set_ylabel("$\eta$")  # noqa: W605
+    ax1.set_xlabel("$u/U_\infty$")  # noqa: W605
+    ax1.grid()
+
+    ax2.legend(fontsize=12)
+    ax2.set_yscale("log")
+
+    ax2.set_ylabel("$\eta$")  # noqa: W605
+    ax2.set_xlabel("Deviation from Blasius")
+    ax2.grid()
+
+    cur_dir = os.getcwd()
+    proj_dir = os.path.dirname(cur_dir)
+    plots_dir = os.path.join(proj_dir, "Plots")
+    os.makedirs(plots_dir, exist_ok=True)
+
+    plot_dir = os.path.join(plots_dir, "blasius_deviation.png")
+    plt.savefig(plot_dir)
+
+    if show:
+        plt.show()
+    else:
+        plt.close()
