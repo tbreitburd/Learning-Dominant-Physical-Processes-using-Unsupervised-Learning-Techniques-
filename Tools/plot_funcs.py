@@ -400,10 +400,6 @@ def plot_active_terms(spca_model, labels, show=True):
 
     # Plot a grid with active terms in each cluster
     gridmap = spca_model.copy()
-    gridmask = gridmap == 0
-    nmodels = spca_model.shape[0]
-    gridmap = (gridmap.T * np.arange(nmodels)).T + 1
-    gridmap[gridmask] = 0
 
     # Delete unused terms
     grid_mask = np.nonzero(np.all(gridmap == 0, axis=0))[0]
@@ -413,7 +409,7 @@ def plot_active_terms(spca_model, labels, show=True):
     plt.figure(figsize=(6, 3))
 
     # Make a grid of the balance models
-    plt.pcolor(gridmap, edgecolors="k", linewidth=1, cmap="Greys", vmin=0, vmax=1)
+    plt.pcolor(gridmap, edgecolors="k", linewidth=1, cmap="Greys", vmin=0, vmax=2)
     plt.gca().set_xticks(np.arange(0.5, len(grid_labels) + 0.5))
     plt.gca().set_xticklabels(grid_labels, fontsize=24)
     plt.gca().set_yticklabels([])
@@ -424,7 +420,7 @@ def plot_active_terms(spca_model, labels, show=True):
     plt.gca().tick_params(axis="both", width=0)
 
     plt.xlabel("Terms")
-    plt.ylabel("Active terms in each cluster")
+    plt.ylabel("Active terms \n in each cluster")
 
     plt.tight_layout()
 
@@ -686,11 +682,12 @@ def plot_sublayer_scaling(
         plt.close()
 
 
-def plot_self_similarity(x, y_plus, u_plus, balancemap, show=True):
+def plot_self_similarity(x, visc_bal_idx, y_plus, u_plus, balancemap, show=True):
     """Plot the self-similarity of the wall region.
 
     Args:
     - x: x-coordinates of the grid
+    - visc_bal_idx: cluster index of the viscous balance
     - y_plus: y_plus, y-coordinate in wall units
     - u_plus: u_plus, u-velocity in wall units
     - balancemap: array of dominant balance models
@@ -698,7 +695,7 @@ def plot_self_similarity(x, y_plus, u_plus, balancemap, show=True):
 
     y_fit = []
     u_fit = []
-
+    y_extent = []
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(11, 5))
     x_plt = [600, 700, 800, 900, x[-3]]
 
@@ -707,9 +704,10 @@ def plot_self_similarity(x, y_plus, u_plus, balancemap, show=True):
         x_idx = np.nonzero(x > x_plt[i])[0][0]
 
         # Find the indices for the viscous balance
-        y_idx = np.nonzero(balancemap[:, x_idx] == 0)[0]
+        y_idx = np.nonzero(balancemap[:, x_idx] == visc_bal_idx)[0]
 
         # Print the y+ coordinate where the balance ends (~70)
+        y_extent.append(y_plus[y_idx[-1], x_idx])
         print(y_plus[y_idx[-1], x_idx])
 
         ax1.plot(
@@ -729,7 +727,8 @@ def plot_self_similarity(x, y_plus, u_plus, balancemap, show=True):
         y_fit = np.concatenate((y_fit, y_plus[y_idx, x_idx]))
         u_fit = np.concatenate((u_fit, u_plus[y_idx, x_idx]))
 
-    ax1.plot([0, 30], [70, 70], "k--", label="Identified extent")
+    y_lim = np.mean(y_extent)
+    ax1.plot([0, 30], [y_lim, y_lim], "k--", label="Identified extent")
     ax1.set_xlim([0, 25])
     ax1.legend(fontsize=14, framealpha=1)
 
