@@ -843,3 +843,75 @@ def plot_blasius_deviation(x, y, nx, ny, u, eta, f, U_inf, nu, show=True):
         plt.show()
     else:
         plt.close()
+
+
+def scatter_clustering_space(x, y, cluster_idx, show=True):
+    plt.figure(figsize=(15, 5))
+    plt.scatter(
+        x,
+        y,
+        c=cluster_idx + 1,
+        vmin=-0.5,
+        vmax=cm.N - 0.5,
+        cmap=cm,
+        s=10,
+    )
+    ax = plt.gca()
+    ax.set_facecolor("#000000")
+
+    n_clusters = cluster_idx.max()
+    plt.colorbar(
+        boundaries=np.arange(0.5, n_clusters + 1.5), ticks=np.arange(1, n_clusters + 1)
+    )
+    plt.xlabel("$x$", fontsize=18)
+    plt.ylabel("$y$", fontsize=18)
+    plt.title("Spectral Clustering Clusters", fontsize=20)
+
+    plt.tight_layout()
+
+    cur_dir = os.getcwd()
+    proj_dir = os.path.dirname(cur_dir)
+    plots_dir = os.path.join(proj_dir, "Plots")
+    os.makedirs(plots_dir, exist_ok=True)
+
+    plot_dir = os.path.join(plots_dir, "scatter_space_clustering.png")
+    plt.savefig(plot_dir)
+
+    if show:
+        plt.show()
+    else:
+        plt.close()
+
+
+def scatter_spca_reduced_clustering(x, y, balance_idx, show=True):
+    plt.figure(figsize=(15, 5))
+    plt.scatter(
+        x,
+        y,
+        c=balance_idx + 1,
+        vmin=-0.5,
+        vmax=cm.N - 0.5,
+        cmap=cm,
+        s=10,
+    )
+    ax = plt.gca()
+    ax.set_facecolor("#000000")
+
+    plt.xlabel("$x$", fontsize=18)
+    plt.ylabel("$y$", fontsize=18)
+    plt.title("SPCA Reduced Clustering", fontsize=20)
+
+    plt.tight_layout()
+
+    cur_dir = os.getcwd()
+    proj_dir = os.path.dirname(cur_dir)
+    plots_dir = os.path.join(proj_dir, "Plots")
+    os.makedirs(plots_dir, exist_ok=True)
+
+    plot_dir = os.path.join(plots_dir, "spca_reduced_scatter_clustering.png")
+    plt.savefig(plot_dir)
+
+    if show:
+        plt.show()
+    else:
+        plt.close()
