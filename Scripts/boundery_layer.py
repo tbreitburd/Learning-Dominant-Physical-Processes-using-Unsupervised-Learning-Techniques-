@@ -4,50 +4,17 @@
 
 import numpy as np
 import h5py
+from sklearn.mixture import GaussianMixture
+from sklearn.decomposition import SparsePCA
+from scipy.optimize import curve_fit, root
+from scipy.integrate import odeint
 import sys
 
 sys.path.append("../Tools/")
-from sklearn.mixture import GaussianMixture  # noqa: E402
-from sklearn.decomposition import SparsePCA  # noqa: E402
-from scipy.optimize import curve_fit, root  # noqa: E402
-from scipy.integrate import odeint  # noqa: E402
 import plot_funcs as pf  # noqa: E402
 import blasius_solution as bs  # noqa: E402
 import preprocessing as pp  # noqa: E402
-import matplotlib as mpl  # noqa: E402
-from matplotlib.colors import ListedColormap  # noqa: E402
-import seaborn as sns  # noqa: E402
 
-
-mpl.rc("text", usetex=True)
-mpl.rc("font", family="serif")
-mpl.rc("figure", figsize=(15, 3))
-mpl.rc("xtick", labelsize=14)
-mpl.rc("ytick", labelsize=14)
-mpl.rc("axes", labelsize=20)
-mpl.rc("axes", titlesize=20)
-mpl.rcParams["figure.dpi"] = 150
-
-# Set colormap
-
-sns_list = sns.color_palette("deep").as_hex()
-sns_list.insert(0, "#ffffff")
-sns_cmap = ListedColormap(sns_list)
-
-cm = sns_cmap
-
-mpl_colors = [
-    "#1f77b4",
-    "#ff7f0e",
-    "#2ca02c",
-    "#d62728",
-    "#9467bd",
-    "#8c564b",
-    "#e377c2",
-    "#7f7f7f",
-    "#bcbd22",
-    "#17becf",
-]
 
 # ---------------------------------------------
 # Preprocessing
@@ -174,8 +141,6 @@ pf.plot_cov_mat(model, nfeatures, nc, "GMM", False)
 
 # Predict the cluster index for each data point
 cluster_idx = model.predict(features) + 1
-clim = [0.5, cm.N - 0.5]
-bounds = np.arange(0.5, nc + 1.5)
 
 # Plot the clusters in equation space with 2D projections
 pf.plot_clustering_2d_eq_space(features, cluster_idx, nc, False)
