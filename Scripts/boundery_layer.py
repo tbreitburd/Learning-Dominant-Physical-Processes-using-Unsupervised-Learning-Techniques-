@@ -311,7 +311,7 @@ u_plus = np.reshape(u, [ny, nx], order="F") / u_tau
 
 # Plot the self-similarity of the flow
 print("y+ coordinates where the balance ends:")
-pf.plot_self_similarity(x, 0, y_plus, u_plus, balancemap, False)
+pf.plot_self_similarity(x, 0, y_plus, u_plus, balancemap, show=False)
 
 # ----- Blasius Solution in laminar regime -----
 # There is an inflow region with negligible Reynolds stresses (left boundary),

@@ -290,7 +290,7 @@ print(p_gmm)  # Print the fit parameters
 
 # Plot the inertial sublayer scaling
 pf.plot_sublayer_scaling(
-    x, y, balancemap, delta, x_layer, gmm_fit, p_gmm, x_to_fit, False
+    x, y, balancemap, delta, x_layer, gmm_fit, p_gmm, x_to_fit, show=False
 )
 
 # ----- Self-similarity -----
