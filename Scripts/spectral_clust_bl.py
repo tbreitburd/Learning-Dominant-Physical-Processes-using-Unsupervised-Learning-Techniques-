@@ -245,3 +245,57 @@ pf.scatter_spca_reduced_clustering(
 
 # Visualize the clusters in equation space with 2D projections
 pf.plot_feature_space(features_sc[:, :6], balance_idx, False)
+
+
+# ---------------------------------------------
+# Validate the balance models with some diagnostics
+# ---------------------------------------------
+print("----------------------------------")
+print("Validating the balance models")
+print("----------------------------------")
+
+# ----- Outer Layer Scaling -----
+# The length scale of the outer layer should scale with: l ~ x^(4/5)
+print("----- Outer layer scaling -----")
+
+# Define some variables
+u_map = np.reshape(u, (ny, nx), order="F")
+
+x_min = 110  # Where inertial balance begins
+x_turb = 500  # Where transitional region ends (based on resutls with GMM)
+
+x_idx = np.nonzero(x > x_min)[0]
+x_layer = x[x_idx]
+
+
+# Next, find the 99% of free stream velocity line
+delta = np.zeros(len(x))
+# Loop until velocity falls past 99% freestream
+for i in range(len(x)):
+    j = 0
+    while u_map[j, i] < 0.99:
+        j += 1
+    delta[i] = y[j - 1]
+
+# Fit inertial balance to power law
+power_law = lambda x, a, b: a * x**b  # noqa: E731
+x_to_fit = x_layer > x_turb  # End of transitional region
+gmm_fit = power_law(x_layer, 0.06832071, 0.80)  # Fit from the GMM results
+
+# Plot the inertial sublayer scaling
+pf.scatter_sublayer_scaling(
+    x,
+    features_sc[:, 6],
+    features_sc[:, 7],
+    balance_idx,
+    delta,
+    x_layer,
+    gmm_fit,
+    x_to_fit,
+    False,
+)
+
+# ----- Self-similarity -----
+# In the near-wall region, the wall-normal profiles of velocity should be self-similar
+# over all x locations. This is done from observing the resulting
+# dominant balance scatter plot in the report.
