@@ -682,7 +682,9 @@ def plot_sublayer_scaling(
         plt.close()
 
 
-def plot_self_similarity(x, visc_bal_idx, y_plus, u_plus, balancemap, show=True):
+def plot_self_similarity(
+    x, visc_bal_idx, y_plus, u_plus, balancemap, spectral=False, show=True
+):
     """Plot the self-similarity of the wall region.
 
     Args:
@@ -697,9 +699,9 @@ def plot_self_similarity(x, visc_bal_idx, y_plus, u_plus, balancemap, show=True)
     u_fit = []
     y_extent = []
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(11, 5))
-    x_plt = [600, 700, 800, 900, x[-3]]
 
     # For each x-coordinate, plot the near-wall region collapsed profiles
+    x_plt = [600, 700, 800, 900, x[-3]]
     for i in range(len(x_plt)):
         x_idx = np.nonzero(x > x_plt[i])[0][0]
 
@@ -909,6 +911,58 @@ def scatter_spca_reduced_clustering(x, y, balance_idx, show=True):
     os.makedirs(plots_dir, exist_ok=True)
 
     plot_dir = os.path.join(plots_dir, "spca_reduced_scatter_clustering.png")
+    plt.savefig(plot_dir)
+
+    if show:
+        plt.show()
+    else:
+        plt.close()
+
+
+def scatter_sublayer_scaling(
+    x, x_sc, y_sc, balancemap, delta, x_layer, gmm_fit, x_to_fit, show=True
+):
+    """Plot the inertial sublayer scaling.
+
+    Args:
+    - x: x-coordinates of the grid
+    - y: y-coordinates of the grid
+    - balancemap: balance map
+    - delta: delta
+    - x_layer: x layer
+    - gmm_fit: GMM fit
+    - x_to_fit: x coordinates over which to fit the inertial balance to the power law
+    """
+
+    plt.figure(figsize=(10, 4))
+
+    # Plot the balance model map
+    plt.scatter(x_sc, y_sc, c=balancemap + 1, cmap=cm, vmin=-0.5, vmax=cm.N - 0.5, s=10)
+    ax = plt.gca()
+    ax.set_facecolor("#000000")
+    # Plot the inertial sublayer scaling
+    plt.plot(x, delta, "w--", label=r"$0.99 U_\infty$")
+    plt.plot(
+        x_layer[x_to_fit],
+        gmm_fit[x_to_fit],
+        "white",
+        label=r"$\ell \sim x^{{{0:0.2f}}}$".format(0.80),
+    )
+    plt.legend(fontsize=16)
+
+    plt.xlabel("$x$")
+    plt.ylabel("$y$")
+
+    plt.title("Inertial sublayer scaling")
+
+    plt.tight_layout()
+
+    cur_dir = os.getcwd()
+    proj_dir = os.path.dirname(cur_dir)
+    plots_dir = os.path.join(proj_dir, "Plots")
+    os.makedirs(plots_dir, exist_ok=True)
+
+    plot_dir = os.path.join(plots_dir, "scatter_sublay_scaling.png")
     plt.savefig(plot_dir)
 
     if show:
