@@ -299,3 +299,12 @@ pf.scatter_sublayer_scaling(
 # In the near-wall region, the wall-normal profiles of velocity should be self-similar
 # over all x locations. This is done from observing the resulting
 # dominant balance scatter plot in the report.
+
+# Compute friction velocity with an estimate of the wall shear stress
+u_tau = np.sqrt(nu * uy[::ny])
+y_plus = np.outer(1, u_tau / nu)
+print(y_plus.shape)
+x_plt = [600, 700, 800, 900, x[-3]]
+for i in range(5):
+    x_idx = np.nonzero(x > x_plt[i])[0][0]
+    print(y_plus[:, x_idx])

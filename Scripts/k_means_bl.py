@@ -113,7 +113,7 @@ print("----------------------------------")
 # Fit Gaussian mixture model
 nc = 6  # Number of clusters
 seed = 76016  # Set a seed for debugging/plotting
-model = KMeans(n_clusters=nc, random_state=seed)
+model = KMeans(n_clusters=nc, n_init=10, random_state=seed)
 
 # Train on only a subset (10%) of the data due to large size
 sample_pct = 0.1
@@ -309,4 +309,4 @@ u_plus = np.reshape(u, [ny, nx], order="F") / u_tau
 
 # Plot the self-similarity of the flow
 print("y+ coordinates where the balance ends:")
-pf.plot_self_similarity(x, 0, y_plus, u_plus, balancemap, False)
+pf.plot_self_similarity(x, 0, y_plus, u_plus, balancemap, show=False)
