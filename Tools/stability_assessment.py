@@ -2,8 +2,10 @@ import numpy as np
 from sklearn.mixture import GaussianMixture
 from sklearn.decomposition import SparsePCA
 
+np.random.seed(75016)
 
-def get_clusters(n_clusters, features):
+
+def get_clusters(n_clusters, features, train_frac):
     """
     Cluster the points in the equation space using a Gaussian Mixture Model.
 
@@ -11,16 +13,16 @@ def get_clusters(n_clusters, features):
     ----------
     n_clusters : The number of clusters to use, int
     features : The features to cluster, np.array
+    train_frac : The fraction of the data to train on, float
 
     Returns
     -------
     cluster_idx : The cluster index for each point, np.array
     """
-    seed = 76016  # Set a seed for debugging/plotting
-    model = GaussianMixture(n_components=n_clusters, random_state=seed)
+    model = GaussianMixture(n_components=n_clusters, random_state=75016)
 
     # Train on only a subset (10%) of the data
-    sample_pct = 0.1
+    sample_pct = train_frac
     mask = np.random.permutation(features.shape[0])[
         : int(sample_pct * features.shape[0])
     ]
@@ -57,7 +59,7 @@ def get_spca_residuals(alphas, n_clusters, cluster_idx, eq_space_data, n_feature
             cluster_features = eq_space_data[feature_idx, :]
 
             # Conduct Sparse PCA
-            spca = SparsePCA(n_components=1, alpha=alphas[k])
+            spca = SparsePCA(n_components=1, alpha=alphas[k], random_state=75016)
             spca.fit(cluster_features)
 
             # Identify active and terms
@@ -99,7 +101,9 @@ def get_spca_active_terms(
         feature_idx = np.nonzero(cluster_idx == i)[0]
         cluster_features = eq_space_data[feature_idx, :]
 
-        spca = SparsePCA(n_components=1, alpha=alpha_opt)  # normalize_components=True
+        spca = SparsePCA(
+            n_components=1, alpha=alpha_opt, random_state=75016
+        )  # normalize_components=True
         spca.fit(cluster_features)
 
         active_terms = np.nonzero(spca.components_[0])[0]
