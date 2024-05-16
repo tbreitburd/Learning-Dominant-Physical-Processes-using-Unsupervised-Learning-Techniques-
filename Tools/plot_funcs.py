@@ -10,6 +10,7 @@ from matplotlib.colors import ListedColormap
 import seaborn as sns
 from scipy.interpolate import interp1d
 
+# Set the plotting style
 mpl.rc("text", usetex=True)
 mpl.rc("font", family="serif")
 mpl.rc("figure", figsize=(15, 3))
@@ -18,25 +19,10 @@ mpl.rc("ytick", labelsize=14)
 mpl.rc("axes", labelsize=20)
 mpl.rc("axes", titlesize=20)
 
-sns_list = sns.color_palette("deep").as_hex()
-sns_list.insert(0, "#ffffff")  # Insert white at zero position
-sns_cmap = ListedColormap(sns_list)
-cm = sns_cmap
+# Set the colormap
+cm = ListedColormap(sns.color_palette("colorblind").as_hex())
 
-mpl_colors = [
-    "#1f77b4",
-    "#ff7f0e",
-    "#2ca02c",
-    "#d62728",
-    "#9467bd",
-    "#8c564b",
-    "#e377c2",
-    "#7f7f7f",
-    "#bcbd22",
-    "#17becf",
-]
-
-
+# Set the labels for the RANS equation terms
 labels = [
     r"$\bar{u} \bar{u}_x$",
     r"$\bar{v}\bar{u}_y$",
@@ -47,10 +33,11 @@ labels = [
 ]
 
 
-def plot_reynolds_stress(x, y, X, Y, u, Reynold_uv, show=True):
-    """Plot the Reynolds stress term.
+def plot_reynolds_stress(x, y, X, Y, u, Reynold_stress, show=True):
+    """Plot the Reynolds stress term, with a line of the 99th percentile
+    of the mean streamwise velocity.
 
-    Args:
+    Params:
     - x: x-coordinates of the grid
     - y: y-coordinates of the grid
     - X: x-coordinates of the grid for the contour plot
@@ -62,14 +49,13 @@ def plot_reynolds_stress(x, y, X, Y, u, Reynold_uv, show=True):
     plt.figure(figsize=(10, 4))
 
     # Plot the Reynolds stress term
-    plt.pcolor(x, y, Reynold_uv, cmap="bone")  # , vmin=0, vmax=1)
-    plt.colorbar()
+    plt.pcolor(x, y, Reynold_stress, cmap="magma")
+    cbar = plt.colorbar()
+    cbar.set_label(r"$\overline{uv}$ (in $(m.s^{-1})^{2}$)")
 
     # Plot the 99th percentile of the mean streamwise velocity
     plt.contour(X, Y, u, [0.99], linestyles="dashed", colors="k")
-    plt.gca().set_yticks([])
-    plt.gca().set_xticks([])
-    plt.title(r"Reynold's Stress: $\overline{uv}$ (in $(m.s^{-1})^{2}$)")
+    plt.title(r"Field Plot of Reynold's Stress with 99th percentile of $u$ line")
 
     plt.tight_layout()
 

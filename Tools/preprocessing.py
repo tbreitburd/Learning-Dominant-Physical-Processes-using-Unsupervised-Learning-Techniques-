@@ -19,9 +19,9 @@ def get_derivatives(nx, ny, dx, dy):
     Returns:
     --------
     Dx: sparse matrix
-        2nd order derivative in the x-direction
+        1st derivative to 2nd order accuracy in the x-direction
     Dy: sparse matrix
-        2nd order derivative in the y-direction
+        1st derivative to 2nd order accuracy in the y-direction
     """
 
     Dy = sparse.diags([-1, 1], [-1, 1], shape=(ny, ny)).toarray()
