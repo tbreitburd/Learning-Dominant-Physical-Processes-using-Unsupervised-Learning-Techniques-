@@ -20,7 +20,9 @@ mpl.rc("axes", labelsize=20)
 mpl.rc("axes", titlesize=20)
 
 # Set the colormap
-cm = ListedColormap(sns.color_palette("colorblind").as_hex())
+cm = sns.color_palette("tab10").as_hex()
+cm.insert(0, "#ffffff")
+cm = ListedColormap(cm)
 
 # Set the labels for the RANS equation terms
 labels = [
@@ -115,42 +117,61 @@ def plot_equation_terms_bound_lay(
 
     # Plot the terms in equation space
     plt.subplot(231)
-    field = np.reshape(u * u_grad_x, [num_y, num_x], order="F")
+    if u.ndim == 1 and u_grad_x.ndim == 1:
+        field = np.reshape(u * u_grad_x, [num_y, num_x], order="F")
+    else:
+        field = u * u_grad_x
+
     plt.pcolor(x, y, field, vmin=-clim, vmax=clim, cmap="RdBu")
     plt.gca().set_xticks([])
     plt.gca().set_yticks([])
     plt.ylabel(labels[0], fontsize=fontsize)
 
     plt.subplot(232)
-    field = np.reshape(v * u_grad_y, [num_y, num_x], order="F")
+    if v.ndim == 1 and u_grad_y.ndim == 1:
+        field = np.reshape(v * u_grad_y, [num_y, num_x], order="F")
+    else:
+        field = v * u_grad_y
     plt.pcolor(x, y, field, vmin=-clim, vmax=clim, cmap="RdBu")
     plt.gca().set_xticks([])
     plt.gca().set_yticks([])
     plt.ylabel(labels[1], fontsize=fontsize)
 
     plt.subplot(233)
-    field = np.reshape(p_grad_x, [num_y, num_x], order="F")
+    if u.ndim == 1 and p_grad_x.ndim == 1:
+        field = np.reshape(u * p_grad_x, [num_y, num_x], order="F")
+    else:
+        field = u * p_grad_x
     plt.pcolor(x, y, field, vmin=-clim, vmax=clim, cmap="RdBu")
     plt.gca().set_xticks([])
     plt.gca().set_yticks([])
     plt.ylabel(labels[2], fontsize=fontsize)
 
     plt.subplot(234)
-    field = np.reshape(nu * lap_u, [num_y, num_x], order="F")
+    if lap_u.ndim == 1:
+        field = np.reshape(nu * lap_u, [num_y, num_x], order="F")
+    else:
+        field = nu * lap_u
     plt.pcolor(x, y, field, vmin=-clim, vmax=clim, cmap="RdBu")
     plt.gca().set_xticks([])
     plt.gca().set_yticks([])
     plt.ylabel(labels[3], fontsize=fontsize)
 
     plt.subplot(235)
-    field = np.reshape(Reynold_uv_y, [num_y, num_x], order="F")
+    if Reynold_uv_y.ndim == 1:
+        field = np.reshape(Reynold_uv_y, [num_y, num_x], order="F")
+    else:
+        field = Reynold_uv_y
     plt.pcolor(x, y, field, vmin=-clim, vmax=clim, cmap="RdBu")
     plt.gca().set_xticks([])
     plt.gca().set_yticks([])
     plt.ylabel(labels[4], fontsize=fontsize)
 
     plt.subplot(236)
-    field = np.reshape(Reynold_uu_x, [num_y, num_x], order="F")
+    if Reynold_uu_x.ndim == 1:
+        field = np.reshape(Reynold_uu_x, [num_y, num_x], order="F")
+    else:
+        field = Reynold_uu_x
     plt.pcolor(x, y, field, vmin=-clim, vmax=clim, cmap="RdBu")
     plt.gca().set_xticks([])
     plt.gca().set_yticks([])
@@ -166,6 +187,8 @@ def plot_equation_terms_bound_lay(
     )
 
     plt.tight_layout()
+
+    field = None
 
     cur_dir = os.getcwd()
     proj_dir = os.path.dirname(cur_dir)
