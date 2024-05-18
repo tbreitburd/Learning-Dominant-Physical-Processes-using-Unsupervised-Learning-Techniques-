@@ -57,3 +57,69 @@ def get_derivatives(nx, ny, dx, dy):
     Dy = Dy.tocsr()
 
     return Dx, Dy
+
+
+def get_derivatives_numpy(nx, ny, dx, y, u, v, p, R_uu, R_uv):
+    """Get the derivatives for the 2D domain
+
+    Parameters:
+    -----------
+    nx: int
+        Number of points in the x-direction
+    ny: int
+        Number of points in the y-direction
+    dx: float
+        Step in the x-direction
+    y: numpy array
+        Array of y coordinates
+    u: numpy array
+        Array of u velocities
+    v: numpy array
+        Array of v velocities
+    p: numpy array
+        Array of pressures
+    R_uu: numpy array
+        Array of R_uu values
+    R_uv: numpy array
+        Array of R_uv values
+
+    Returns:
+    --------
+    u_x: numpy array
+        1st derivative to 2nd order accuracy in the x-direction
+    u_y: numpy array
+        1st derivative to 2nd order accuracy in the y-direction
+    lap_u: numpy array
+        Laplacian of u
+    v_y: numpy array
+        1st derivative to 2nd order accuracy in the y-direction
+    p_x: numpy array
+        1st derivative to 2nd order accuracy in the x-direction
+    R_uux: numpy array
+        1st derivative to 2nd order accuracy in the x-direction
+    R_uvy: numpy array
+        1st derivative to 2nd order accuracy in the y-direction
+    """
+
+    u_x = np.zeros((ny, nx))
+    u_y = np.zeros((ny, nx))
+    u_yy = np.zeros((ny, nx))
+    u_xx = np.zeros((ny, nx))
+    v_y = np.zeros((ny, nx))
+    p_x = np.zeros((ny, nx))
+    R_uux = np.zeros((ny, nx))
+    R_uvy = np.zeros((ny, nx))
+
+    u_x = np.gradient(u, dx, edge_order=2, axis=1)
+    p_x = np.gradient(p, dx, edge_order=2, axis=1)
+    R_uux = np.gradient(R_uu, dx, edge_order=2, axis=1)
+    u_xx = np.gradient(u_x, dx, edge_order=2, axis=1)
+
+    u_y = np.gradient(u, y, edge_order=2, axis=0)
+    v_y = np.gradient(v, y, edge_order=2, axis=0)
+    R_uvy = np.gradient(R_uv, y, edge_order=2, axis=0)
+    u_yy = np.gradient(u_y, y, edge_order=2, axis=0)
+
+    lap_u = u_xx + u_yy
+
+    return u_x, u_y, lap_u, v_y, p_x, R_uux, R_uvy
