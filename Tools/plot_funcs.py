@@ -23,6 +23,8 @@ mpl.rc("axes", titlesize=20)
 cm = sns.color_palette("tab10").as_hex()
 cm.insert(0, "#ffffff")
 cm = ListedColormap(cm)
+cm.set_bad("darkgrey")
+
 
 # Set the labels for the RANS equation terms
 labels = [
@@ -213,8 +215,6 @@ def plot_cov_mat(model, nfeatures, n_clusters, labels, algorithm, show=True):
     - n_clusters: number of clusters
     - algorithm: algorithm used, can be either 'GMM' or other
     """
-
-    # global labels
 
     plt.figure(figsize=(12, 10))
 
@@ -972,6 +972,59 @@ def scatter_sublayer_scaling(
     os.makedirs(plots_dir, exist_ok=True)
 
     plot_dir = os.path.join(plots_dir, "scatter_sublay_scaling.png")
+    plt.savefig(plot_dir)
+
+    if show:
+        plt.show()
+    else:
+        plt.close()
+
+
+def plot_clustering_space_geo(
+    clustermap_mer, clustermap_zon, x, y, n_clusters, show=True
+):
+    """Plot the clustering for the geostrophic balance in physical space.
+
+    Args:
+    - clustermap_mer: cluster map for meridional balance, np.array [num_y, num_x]
+    - clustermap_zon: cluster map for zonal balance, np.array [num_y, num_x]
+    - x: x-coordinates of the grid, np.array [num_x]
+    - y: y-coordinates of the grid, np.array [num_y]
+    - n_clusters: number of clusters, int
+    """
+
+    plt.figure(figsize=(10, 8))
+
+    plt.subplot(211)
+    plt.pcolormesh(x, y, clustermap_mer + 1, cmap=cm, vmin=-0.5, vmax=cm.N - 0.5)
+    plt.colorbar(
+        boundaries=np.arange(0.5, n_clusters + 1.5), ticks=np.arange(0, n_clusters + 1)
+    )
+    plt.grid()
+    plt.xlabel("Longitude (in degrees)", fontsize=18)
+    plt.ylabel("Latitude (in degrees)", fontsize=18)
+    plt.title("Meridional Balance", fontsize=20)
+
+    plt.subplot(212)
+    plt.pcolormesh(x, y, clustermap_zon + 1, cmap=cm, vmin=-0.5, vmax=cm.N - 0.5)
+    plt.colorbar(
+        boundaries=np.arange(0.5, n_clusters + 1.5), ticks=np.arange(0, n_clusters + 1)
+    )
+    plt.grid()
+    plt.xlabel("Longitude (in degrees)", fontsize=18)
+    plt.ylabel("Latitude (in degrees)", fontsize=18)
+    plt.title("Zonal Balance", fontsize=20)
+
+    plt.suptitle("GMM Clusters", fontsize=25)
+
+    plt.tight_layout()
+
+    cur_dir = os.getcwd()
+    proj_dir = os.path.dirname(cur_dir)
+    plots_dir = os.path.join(proj_dir, "Plots")
+    os.makedirs(plots_dir, exist_ok=True)
+
+    plot_dir = os.path.join(plots_dir, "clustering_space_geo.png")
     plt.savefig(plot_dir)
 
     if show:
