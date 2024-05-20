@@ -204,7 +204,7 @@ def plot_equation_terms_bound_lay(
         plt.close()
 
 
-def plot_cov_mat(model, nfeatures, n_clusters, algorithm, show=True):
+def plot_cov_mat(model, nfeatures, n_clusters, labels, algorithm, show=True):
     """Plot the covariance matrix of the GMM model.
 
     Args:
@@ -214,7 +214,7 @@ def plot_cov_mat(model, nfeatures, n_clusters, algorithm, show=True):
     - algorithm: algorithm used, can be either 'GMM' or other
     """
 
-    global labels
+    # global labels
 
     plt.figure(figsize=(12, 10))
 
