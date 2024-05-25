@@ -10,6 +10,7 @@ from matplotlib.colors import ListedColormap
 import seaborn as sns
 from scipy.interpolate import interp1d
 
+# Set the plotting style
 mpl.rc("text", usetex=True)
 mpl.rc("font", family="serif")
 mpl.rc("figure", figsize=(15, 3))
@@ -18,25 +19,14 @@ mpl.rc("ytick", labelsize=14)
 mpl.rc("axes", labelsize=20)
 mpl.rc("axes", titlesize=20)
 
-sns_list = sns.color_palette("deep").as_hex()
-sns_list.insert(0, "#ffffff")  # Insert white at zero position
-sns_cmap = ListedColormap(sns_list)
-cm = sns_cmap
-
-mpl_colors = [
-    "#1f77b4",
-    "#ff7f0e",
-    "#2ca02c",
-    "#d62728",
-    "#9467bd",
-    "#8c564b",
-    "#e377c2",
-    "#7f7f7f",
-    "#bcbd22",
-    "#17becf",
-]
+# Set the colormap
+cm = sns.color_palette("tab10").as_hex()
+cm.insert(0, "#ffffff")
+cm = ListedColormap(cm)
+cm.set_bad("darkgrey")
 
 
+# Set the labels for the RANS equation terms
 labels = [
     r"$\bar{u} \bar{u}_x$",
     r"$\bar{v}\bar{u}_y$",
@@ -47,10 +37,11 @@ labels = [
 ]
 
 
-def plot_reynolds_stress(x, y, X, Y, u, Reynold_uv, show=True):
-    """Plot the Reynolds stress term.
+def plot_reynolds_stress(x, y, X, Y, u, Reynold_stress, show=True):
+    """Plot the Reynolds stress term, with a line of the 99th percentile
+    of the mean streamwise velocity.
 
-    Args:
+    Params:
     - x: x-coordinates of the grid
     - y: y-coordinates of the grid
     - X: x-coordinates of the grid for the contour plot
@@ -62,14 +53,13 @@ def plot_reynolds_stress(x, y, X, Y, u, Reynold_uv, show=True):
     plt.figure(figsize=(10, 4))
 
     # Plot the Reynolds stress term
-    plt.pcolor(x, y, Reynold_uv, cmap="bone")  # , vmin=0, vmax=1)
-    plt.colorbar()
+    plt.pcolor(x, y, Reynold_stress, cmap="magma")
+    cbar = plt.colorbar()
+    cbar.set_label(r"$\overline{uv}$ (in $(m.s^{-1})^{2}$)")
 
     # Plot the 99th percentile of the mean streamwise velocity
     plt.contour(X, Y, u, [0.99], linestyles="dashed", colors="k")
-    plt.gca().set_yticks([])
-    plt.gca().set_xticks([])
-    plt.title(r"Reynold's Stress: $\overline{uv}$ (in $(m.s^{-1})^{2}$)")
+    plt.title(r"Field Plot of Reynold's Stress with 99th percentile of $u$ line")
 
     plt.tight_layout()
 
@@ -129,42 +119,61 @@ def plot_equation_terms_bound_lay(
 
     # Plot the terms in equation space
     plt.subplot(231)
-    field = np.reshape(u * u_grad_x, [num_y, num_x], order="F")
+    if u.ndim == 1 and u_grad_x.ndim == 1:
+        field = np.reshape(u * u_grad_x, [num_y, num_x], order="F")
+    else:
+        field = u * u_grad_x
+
     plt.pcolor(x, y, field, vmin=-clim, vmax=clim, cmap="RdBu")
     plt.gca().set_xticks([])
     plt.gca().set_yticks([])
     plt.ylabel(labels[0], fontsize=fontsize)
 
     plt.subplot(232)
-    field = np.reshape(v * u_grad_y, [num_y, num_x], order="F")
+    if v.ndim == 1 and u_grad_y.ndim == 1:
+        field = np.reshape(v * u_grad_y, [num_y, num_x], order="F")
+    else:
+        field = v * u_grad_y
     plt.pcolor(x, y, field, vmin=-clim, vmax=clim, cmap="RdBu")
     plt.gca().set_xticks([])
     plt.gca().set_yticks([])
     plt.ylabel(labels[1], fontsize=fontsize)
 
     plt.subplot(233)
-    field = np.reshape(p_grad_x, [num_y, num_x], order="F")
+    if u.ndim == 1 and p_grad_x.ndim == 1:
+        field = np.reshape(u * p_grad_x, [num_y, num_x], order="F")
+    else:
+        field = u * p_grad_x
     plt.pcolor(x, y, field, vmin=-clim, vmax=clim, cmap="RdBu")
     plt.gca().set_xticks([])
     plt.gca().set_yticks([])
     plt.ylabel(labels[2], fontsize=fontsize)
 
     plt.subplot(234)
-    field = np.reshape(nu * lap_u, [num_y, num_x], order="F")
+    if lap_u.ndim == 1:
+        field = np.reshape(nu * lap_u, [num_y, num_x], order="F")
+    else:
+        field = nu * lap_u
     plt.pcolor(x, y, field, vmin=-clim, vmax=clim, cmap="RdBu")
     plt.gca().set_xticks([])
     plt.gca().set_yticks([])
     plt.ylabel(labels[3], fontsize=fontsize)
 
     plt.subplot(235)
-    field = np.reshape(Reynold_uv_y, [num_y, num_x], order="F")
+    if Reynold_uv_y.ndim == 1:
+        field = np.reshape(Reynold_uv_y, [num_y, num_x], order="F")
+    else:
+        field = Reynold_uv_y
     plt.pcolor(x, y, field, vmin=-clim, vmax=clim, cmap="RdBu")
     plt.gca().set_xticks([])
     plt.gca().set_yticks([])
     plt.ylabel(labels[4], fontsize=fontsize)
 
     plt.subplot(236)
-    field = np.reshape(Reynold_uu_x, [num_y, num_x], order="F")
+    if Reynold_uu_x.ndim == 1:
+        field = np.reshape(Reynold_uu_x, [num_y, num_x], order="F")
+    else:
+        field = Reynold_uu_x
     plt.pcolor(x, y, field, vmin=-clim, vmax=clim, cmap="RdBu")
     plt.gca().set_xticks([])
     plt.gca().set_yticks([])
@@ -181,6 +190,8 @@ def plot_equation_terms_bound_lay(
 
     plt.tight_layout()
 
+    field = None
+
     cur_dir = os.getcwd()
     proj_dir = os.path.dirname(cur_dir)
     plots_dir = os.path.join(proj_dir, "Plots")
@@ -195,7 +206,7 @@ def plot_equation_terms_bound_lay(
         plt.close()
 
 
-def plot_cov_mat(model, nfeatures, n_clusters, algorithm, show=True):
+def plot_cov_mat(model, nfeatures, n_clusters, labels, algorithm, show=True):
     """Plot the covariance matrix of the GMM model.
 
     Args:
@@ -204,8 +215,6 @@ def plot_cov_mat(model, nfeatures, n_clusters, algorithm, show=True):
     - n_clusters: number of clusters
     - algorithm: algorithm used, can be either 'GMM' or other
     """
-
-    global labels
 
     plt.figure(figsize=(12, 10))
 
@@ -963,6 +972,59 @@ def scatter_sublayer_scaling(
     os.makedirs(plots_dir, exist_ok=True)
 
     plot_dir = os.path.join(plots_dir, "scatter_sublay_scaling.png")
+    plt.savefig(plot_dir)
+
+    if show:
+        plt.show()
+    else:
+        plt.close()
+
+
+def plot_clustering_space_geo(
+    clustermap_mer, clustermap_zon, x, y, n_clusters, show=True
+):
+    """Plot the clustering for the geostrophic balance in physical space.
+
+    Args:
+    - clustermap_mer: cluster map for meridional balance, np.array [num_y, num_x]
+    - clustermap_zon: cluster map for zonal balance, np.array [num_y, num_x]
+    - x: x-coordinates of the grid, np.array [num_x]
+    - y: y-coordinates of the grid, np.array [num_y]
+    - n_clusters: number of clusters, int
+    """
+
+    plt.figure(figsize=(10, 8))
+
+    plt.subplot(211)
+    plt.pcolormesh(x, y, clustermap_mer + 1, cmap=cm, vmin=-0.5, vmax=cm.N - 0.5)
+    plt.colorbar(
+        boundaries=np.arange(0.5, n_clusters + 1.5), ticks=np.arange(0, n_clusters + 1)
+    )
+    plt.grid()
+    plt.xlabel("Longitude (in degrees)", fontsize=18)
+    plt.ylabel("Latitude (in degrees)", fontsize=18)
+    plt.title("Meridional Balance", fontsize=20)
+
+    plt.subplot(212)
+    plt.pcolormesh(x, y, clustermap_zon + 1, cmap=cm, vmin=-0.5, vmax=cm.N - 0.5)
+    plt.colorbar(
+        boundaries=np.arange(0.5, n_clusters + 1.5), ticks=np.arange(0, n_clusters + 1)
+    )
+    plt.grid()
+    plt.xlabel("Longitude (in degrees)", fontsize=18)
+    plt.ylabel("Latitude (in degrees)", fontsize=18)
+    plt.title("Zonal Balance", fontsize=20)
+
+    plt.suptitle("GMM Clusters", fontsize=25)
+
+    plt.tight_layout()
+
+    cur_dir = os.getcwd()
+    proj_dir = os.path.dirname(cur_dir)
+    plots_dir = os.path.join(proj_dir, "Plots")
+    os.makedirs(plots_dir, exist_ok=True)
+
+    plot_dir = os.path.join(plots_dir, "clustering_space_geo.png")
     plt.savefig(plot_dir)
 
     if show:

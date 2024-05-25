@@ -152,11 +152,24 @@ In many areas of physics, the equations describing the observed are complex and 
 
 \chapter{Introduction}
 
+For many problems in engineering of physical sciences, equations involve a large number of terms and are complex differential equations. Simulating them is therefore computationally expensive. However, it is often the case that these systems have multiple asymptotic local behaviours where the system is dominated only by a few terms. In these cases, one can simplify the equations to a balance between these dominant terms. This method is known as dominant balance or scale analysis, and has been a powerful tool in physics. Though it is extremely useful, it also requires a lot of expertise and has been done by hand in the past. In this report, a novel approach, developped by Callaham et al. (2021)\cite{callaham2021learning} is discussed, verified and used on new data. The first part of the report will be a discussion of the background of the paper and of the method used. Then, the research and results of the Callaham et al. (2021)\cite{callaham2021learning} paper will be shortly investigated, evaluating the ease of reproducibility of their work. Third, focussing on one of the examples used in the paper, use of other algorithms than the one used in the paper will be carried out, to test the robustness of the method. Finally, the method will be used on a new dataset, from simulation of elasto-inertial turbulence, a property of of polymer laden flow.
 
 
 \chapter{Background}
 
+
+Motivation for the work. Why is it important to be able to identify the dominant balance regimes in equations? What are the challenges but also what's the same in every dominant balance regardless of physics type?
+
+
+
+Past litterature if any. Has there been models with similar objectives but less flexibility (like only for one of the examples)
+
+
+
+
+
 \chapter{Methodology}
+
 
 Get simulated data of the terms in the equation of physical variables from which terms in the equation can be derived
 
@@ -173,11 +186,25 @@ Group together clusters that have the same active terms
 
 Callaham has used the algorithm in a few different cases to validate how it functions.
 
+
+
 \section{Portability of the code}
 
 \section{Reproducibility of the results}
 
 \section{Exploration of other algorithms}
+
+\subsection{Spectral clustering}
+
+\subsection{K-Means}
+
+\subsection{Weighted K-Means}
+
+\section{Stability Assessment}
+
+\subsection{Under different number of clusters set}
+
+\subsection{Under different training set size}
 
 \chapter{Elasto-inertial turbulence}
 
@@ -191,5 +218,8 @@ Callaham has used the algorithm in a few different cases to validate how it func
 
 \chapter{Data analysis pipeline}
 
+
+\bibliographystyle{plain}
+\bibliography{refs.bib}
 
 \end{document}
