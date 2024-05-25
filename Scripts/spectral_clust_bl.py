@@ -141,7 +141,7 @@ for i in range(nc):
     covs[i, :, :] = np.cov(features_sc[mask_, :6].T)
 
 # Plot the covariances
-pf.plot_cov_mat(covs, nfeatures, nc, "Other", False)
+pf.plot_cov_mat(covs, nfeatures, nc, labels, "Other", False)
 
 # ---------------------------------------------
 # Cluster the data and visualise:
