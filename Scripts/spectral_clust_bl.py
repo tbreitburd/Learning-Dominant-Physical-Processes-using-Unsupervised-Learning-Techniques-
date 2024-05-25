@@ -14,6 +14,13 @@ sys.path.insert(0, "../Tools/")
 import plot_funcs as pf  # noqa: E402
 import preprocessing as pp  # noqa: E402
 
+
+# Take the fraction of the data to be used
+# as the first input argument
+
+sample_pct = float(sys.argv[1])
+
+
 # ---------------------------------------------
 # Preprocessing
 # ---------------------------------------------
@@ -123,7 +130,6 @@ model = SpectralClustering(
 )
 
 # Train on only a subset of the data, limited by the high memory cost of spectral clustering
-sample_pct = 0.02
 mask = np.random.permutation(features.shape[0])[: int(sample_pct * features.shape[0])]
 features_sc = features[mask, :]
 model.fit_predict(features_sc[:, :6])
