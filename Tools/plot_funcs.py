@@ -1031,3 +1031,46 @@ def plot_clustering_space_geo(
         plt.show()
     else:
         plt.close()
+
+
+def plot_clusters_eit(cluster_idx, Lx, nx, Ly, ny, n_clusters, show=True):
+    """Plot the clustering for the EIT balance in physical space.
+
+    Args:
+    - balance_idx: balance index, np.array [ny, nx]
+    - Lx: length of the domain in x-direction, float
+    - nx: number of grid points in x-direction, int
+    - Ly: length of the domain in y-direction, float
+    - ny: number of grid points in y-direction, int
+    - n_clusters: number of clusters, int
+    """
+
+    plt.figure(figsize=(15, 5))
+
+    X, Y = np.meshgrid(np.linspace(0, Lx, nx), np.linspace(-Ly / 2, Ly / 2, ny))
+
+    plt.pcolormesh(X, Y, cluster_idx + 1, cmap=cm, vmin=-0.5, vmax=cm.N - 0.5)
+    plt.colorbar(
+        boundaries=np.arange(0.5, n_clusters + 1.5), ticks=np.arange(0, n_clusters + 1)
+    )
+
+    plt.xlabel("x (in h units)", fontsize=18)
+    plt.ylabel("y (in h units)", fontsize=18)
+    plt.title("EIT Balance Models", fontsize=20)
+
+    plt.grid()
+
+    plt.tight_layout()
+
+    cur_dir = os.getcwd()
+    proj_dir = os.path.dirname(cur_dir)
+    plots_dir = os.path.join(proj_dir, "Plots")
+    os.makedirs(plots_dir, exist_ok=True)
+
+    plot_dir = os.path.join(plots_dir, "clustering_space_eit.png")
+    plt.savefig(plot_dir)
+
+    if show:
+        plt.show()
+    else:
+        plt.close()
