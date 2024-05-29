@@ -223,6 +223,8 @@ def plot_cov_mat(model, nfeatures, n_clusters, labels, algorithm, show=True):
         plt.subplot(3, 3, i + 1)
         if algorithm == "GMM":
             C = model.covariances_[i, :, :]
+        elif algorithm == "customGMM":
+            C = model.covariances[i, :, :]
         else:
             C = model[i, :, :]
 
