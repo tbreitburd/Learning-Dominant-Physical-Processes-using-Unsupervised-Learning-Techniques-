@@ -1,7 +1,9 @@
 import numpy as np
 from scipy.stats import multivariate_normal
+from sklearn.cluster import KMeans
 
 # https://towardsdatascience.com/how-to-code-gaussian-mixture-models-from-scratch-in-python-9e7975df5252
+# https://scikit-learn.org/stable/modules/generated/sklearn.mixture.GaussianMixture.html
 
 
 class CustomGMM:
@@ -26,14 +28,29 @@ class CustomGMM:
         # Initialise the weights as uniform
         self.weights = np.ones(self.n_components) / self.n_components
 
-        # Initialise the means as random samples from the features
-        mean_samples = np.random.choice(
-            range(features.shape[0]), size=self.n_components
-        )
-        self.means = features[mean_samples]
+        # Initialise the means using k-means, as done in sklearn
+        kmeans = KMeans(n_clusters=self.n_components, random_state=self.random_state)
+        kmeans.fit(features)
+        self.means = kmeans.cluster_centers_
 
-        # Initialise the covariances, as (conservative choice) identity matrices
-        self.covariances = np.array([np.eye(self.n_features)] * self.n_components)
+        print(self.means)
+        print(self.means.shape)
+
+        # Initialise the covariances, based on the k-means clusters
+        labels = kmeans.predict(features)
+
+        print("labels predicted")
+
+        self.covariances = np.zeros(
+            (self.n_components, self.n_features, self.n_features)
+        )
+
+        for i in range(self.n_components):
+            cluster = features[labels == i]
+            self.covariances[i] = np.cov(cluster, rowvar=False)
+
+        print(self.covariances)
+        print(self.covariances.shape)
 
     def expectation_step(self, features):
         # Initialise the likelihoods
