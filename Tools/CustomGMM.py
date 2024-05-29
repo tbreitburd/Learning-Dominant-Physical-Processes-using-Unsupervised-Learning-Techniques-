@@ -9,9 +9,9 @@ class CustomGMM:
         self,
         n_components: int,
         n_features: int,
-        max_iter: int,
-        tolerance: 1e-6 | float,
-        random_state: None | int,
+        max_iter: int = 1000,
+        tolerance: float = 1e-6,
+        random_state: None | int = None,
     ):
         self.n_components = n_components
         self.n_features = n_features
