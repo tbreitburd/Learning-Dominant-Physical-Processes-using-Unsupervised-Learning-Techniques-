@@ -27,7 +27,9 @@ class CustomGMM:
         self.weights = np.ones(self.n_components) / self.n_components
 
         # Initialise the means as random samples from the features
-        mean_samples = np.random.choice(range(features.shape[0]), self.n_components)
+        mean_samples = np.random.choice(
+            range(features.shape[0]), size=self.n_components
+        )
         self.means = features[mean_samples]
 
         # Initialise the covariances, as (conservative choice) identity matrices
@@ -45,7 +47,7 @@ class CustomGMM:
 
         # Calc likelihood of sample belonging to certain component
         # by calc likelihood for component k/sum of likelihoods for all components
-        total_likelihoods = likelihoods.sum(axis=1).reshape(-1, 1)
+        total_likelihoods = np.array([likelihoods.sum(axis=1)] * self.n_components).T
         probabilities = likelihoods / total_likelihoods
 
         return probabilities
@@ -60,14 +62,17 @@ class CustomGMM:
         # Update the covariances
         for i in range(self.n_components):
             self.covariances[i] = (
-                np.sum(
-                    probabilities[:, i].reshape(-1, 1)
-                    * (features - self.means[i])
-                    * (features - self.means[i]),
-                    axis=0,
+                np.dot(
+                    probabilities[:, i] * (features - self.means[i]).T,
+                    (features - self.means[i]),
                 )
                 / probabilities[:, i].sum()
             )
+        print(self.weights)
+        print(self.means)
+        print(self.means.shape)
+        print(self.covariances)
+        print(self.covariances.shape)
 
     def fit(self, features):
         # Initialise the parameters
@@ -75,12 +80,15 @@ class CustomGMM:
 
         # Calc first log likelihood
         probabilities = self.expectation_step(features)
-        log_likelihood = np.sum(np.log(np.sum(probabilities, axis=0)))
+        # log_likelihood = np.sum(np.log(np.sum(probabilities, axis=0)))
+        log_likelihood = 0
+
         # loop over iterations
         for i in range(self.max_iter):
             # Expectation step
             # Calculate the probability of each component for each sample
             probabilities = self.expectation_step(features)
+            print(probabilities.shape)
 
             # Maximisation step
             # Update the weights
@@ -94,7 +102,6 @@ class CustomGMM:
 
     def predict(self, features):
         # for each sample, calculate the probability of each component
-        probs = None  # evaluate each multivariate normal distribution for each sample
-        # return the component with the highest probability
+        probabilites = self.expectation_step(features)
 
-        return np.argmax(probs)
+        return np.argmax(probabilites, axis=1)
