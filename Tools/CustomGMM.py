@@ -24,7 +24,7 @@ class CustomGMM:
 
     def _initialise_parameters(self, features):
         # Initialise the weights as uniform
-        self.weights_ = np.ones(self.n_components) / self.n_components
+        self.weights = np.ones(self.n_components) / self.n_components
 
         # Initialise the means as random samples from the features
         mean_samples = np.random.choice(range(features.shape[0]), self.n_components)
@@ -39,31 +39,31 @@ class CustomGMM:
 
         # Calculate the likelihood of each sample for each component
         for i in range(self.n_components):
-            likelihoods[:, i] = self.weights_[i] * multivariate_normal.pdf(
+            likelihoods[:, i] = self.weights[i] * multivariate_normal.pdf(
                 features, self.means[i], self.covariances[i]
             )
 
         # Calc likelihood of sample belonging to certain component
         # by calc likelihood for component k/sum of likelihoods for all components
-        total_likelihoods = likelihoods.sum(axis=1)
+        total_likelihoods = likelihoods.sum(axis=1).reshape(-1, 1)
         probabilities = likelihoods / total_likelihoods
 
         return probabilities
 
     def maximisation_step(self, features, probabilities):
         # Update the weights
-        self.weights_ = probabilities.mean(axis=0)
+        self.weights = probabilities.mean(axis=0)
 
         # Update the means, dot product takes care of element-wise multiplication and sum
         self.means = np.dot(probabilities.T, features) / probabilities.sum(axis=0)
 
         # Update the covariances
         for i in range(self.n_components):
-            self.covariances_[i] = (
+            self.covariances[i] = (
                 np.sum(
-                    probabilities[:, i]
-                    * (features - self.means_[i]).T
-                    * (features - self.means_[i]),
+                    probabilities[:, i].reshape(-1, 1)
+                    * (features - self.means[i])
+                    * (features - self.means[i]),
                     axis=0,
                 )
                 / probabilities[:, i].sum()
