@@ -70,6 +70,9 @@ class CustomGMM:
             )
 
     def fit(self, features):
+        # Initialise the parameters
+        self._initialise_parameters(features)
+
         # Calc first log likelihood
         probabilities = self.expectation_step(features)
         log_likelihood = np.sum(np.log(np.sum(probabilities, axis=0)))
