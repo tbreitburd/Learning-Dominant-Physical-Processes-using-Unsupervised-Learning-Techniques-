@@ -11,8 +11,8 @@ class CustomGMM:
         self,
         n_components: int,
         n_features: int,
-        max_iter: int = 1000,
-        tolerance: float = 1e-6,
+        max_iter: int = 100,
+        tolerance: float = 1e-10,
         random_state: None | int = None,
     ):
         self.n_components = n_components
@@ -33,13 +33,8 @@ class CustomGMM:
         kmeans.fit(features)
         self.means = kmeans.cluster_centers_
 
-        print(self.means)
-        print(self.means.shape)
-
         # Initialise the covariances, based on the k-means clusters
         labels = kmeans.predict(features)
-
-        print("labels predicted")
 
         self.covariances = np.zeros(
             (self.n_components, self.n_features, self.n_features)
@@ -48,9 +43,6 @@ class CustomGMM:
         for i in range(self.n_components):
             cluster = features[labels == i]
             self.covariances[i] = np.cov(cluster, rowvar=False)
-
-        print(self.covariances)
-        print(self.covariances.shape)
 
     def expectation_step(self, features):
         # Initialise the likelihoods
@@ -73,11 +65,13 @@ class CustomGMM:
         # Update the weights
         self.weights = probabilities.mean(axis=0)
 
-        # Update the means, dot product takes care of element-wise multiplication and sum
-        self.means = np.dot(probabilities.T, features) / probabilities.sum(axis=0)
-
-        # Update the covariances
         for i in range(self.n_components):
+            # Update the means, dot product takes care of element-wise multiplication and sum
+            self.means[i] = np.dot(probabilities[:, i], features) / probabilities[
+                :, i
+            ].sum(axis=0)
+
+            # Update the covariances
             self.covariances[i] = (
                 np.dot(
                     probabilities[:, i] * (features - self.means[i]).T,
@@ -85,11 +79,6 @@ class CustomGMM:
                 )
                 / probabilities[:, i].sum()
             )
-        print(self.weights)
-        print(self.means)
-        print(self.means.shape)
-        print(self.covariances)
-        print(self.covariances.shape)
 
     def fit(self, features):
         # Initialise the parameters
@@ -105,7 +94,6 @@ class CustomGMM:
             # Expectation step
             # Calculate the probability of each component for each sample
             probabilities = self.expectation_step(features)
-            print(probabilities.shape)
 
             # Maximisation step
             # Update the weights
@@ -114,6 +102,7 @@ class CustomGMM:
             # Check the tolerance
             new_log_likelihood = np.sum(np.log(np.sum(probabilities, axis=0)))
             if new_log_likelihood - log_likelihood < self.tolerance:
+                print(f"Converged after {i} iterations")
                 break
             log_likelihood = new_log_likelihood
 
