@@ -583,44 +583,33 @@ def plot_feature_space(features, balance_idx, show=True):
     - balance_idx: balance model that the data point belongs to, np.array [n]
     """
 
-    fontsize = 20
-    size = 1
-
-    # Plot order of the terms for best visibility
-    order = [3, 0, 4, 1, 2]
-
     fig, ax = plt.subplots(2, 2, figsize=(8, 8))
 
     # Plot each balance model in the feature space,
     # in an order that makes the the balance models visible
-    for k in order:
-        plt_ = np.nonzero(balance_idx[:] == k)
-        c = np.array(cm(k + 1))[None, :]
-        ax[0, 0].scatter(features[plt_, 0], features[plt_, 4], s=size, c=c)
-        ax[0, 1].scatter(features[plt_, 0], features[plt_, 1], s=size, c=c)
-        ax[1, 0].scatter(features[plt_, 0], features[plt_, 3], s=size, c=c)
-        ax[1, 1].scatter(features[plt_, 4], features[plt_, 3], s=size, c=c)
 
-    ax[0, 0].set_xlabel(labels[0], fontsize=fontsize)
-    ax[0, 0].set_ylabel(labels[4], fontsize=fontsize)
+    c = np.array(cm(balance_idx + 1))
 
-    ax[0, 1].set_xlabel(labels[0], fontsize=fontsize)
-    ax[0, 1].set_ylabel(labels[1], fontsize=fontsize)
+    ax[0, 0].scatter(features[:, 0], features[:, 4], s=1, c=c)
+    ax[0, 0].grid()
+    ax[0, 1].scatter(features[:, 0], features[:, 1], s=1, c=c)
+    ax[0, 1].grid()
+    ax[1, 0].scatter(features[:, 0], features[:, 3], s=1, c=c)
+    ax[1, 0].grid()
+    ax[1, 1].scatter(features[:, 4], features[:, 3], s=1, c=c)
+    ax[1, 1].grid()
 
-    ax[1, 0].set_xlabel(labels[0], fontsize=fontsize)
-    ax[1, 0].set_ylabel(labels[3], fontsize=fontsize)
+    ax[0, 0].set_xlabel(labels[0], fontsize=15)
+    ax[0, 0].set_ylabel(labels[4], fontsize=15)
 
-    ax[1, 1].set_xlabel(labels[4], fontsize=fontsize)
-    ax[1, 1].set_ylabel(labels[3], fontsize=fontsize)
+    ax[0, 1].set_xlabel(labels[0], fontsize=15)
+    ax[0, 1].set_ylabel(labels[1], fontsize=15)
 
-    for i in [0, 1]:
-        for j in [0, 1]:
-            ax[i, j].grid()
+    ax[1, 0].set_xlabel(labels[0], fontsize=15)
+    ax[1, 0].set_ylabel(labels[3], fontsize=15)
 
-            # ax[i,j].set_xticklabels([])
-            # ax[i,j].set_yticklabels([])
-            # ax[i,j].tick_params(axis='x', length=10, width=0)
-            # ax[i,j].tick_params(axis='y', length=0)
+    ax[1, 1].set_xlabel(labels[4], fontsize=15)
+    ax[1, 1].set_ylabel(labels[3], fontsize=15)
 
     plt.subplots_adjust(
         left=None, bottom=None, right=None, top=None, wspace=0.3, hspace=0.3
