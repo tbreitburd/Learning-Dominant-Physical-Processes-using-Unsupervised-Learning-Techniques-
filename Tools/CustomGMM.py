@@ -92,10 +92,20 @@ class CustomGMM:
                 "n_features must be at least 1-dimensional but has been given:",
                 self.n_features,
             )
+        if not isinstance(self.n_features, int):
+            raise TypeError(
+                "n_features must be an integer, but is type:", type(self.n_features)
+            )
+
         if self.max_iter < 1:
             raise ValueError(
                 "max_iter must be at least 1, but has been given:", self.max_iter
             )
+        if not isinstance(self.max_iter, int):
+            raise TypeError(
+                "max_iter must be an integer, but is type:", type(self.max_iter)
+            )
+
         if self.tolerance <= 0:
             raise ValueError(
                 "tolerance must be at greater than 0, but has been given:",
@@ -109,6 +119,44 @@ class CustomGMM:
 
     # Initialise the parameters
     def _initialise_parameters(self, features):
+        # Check the shape of the features
+        if features.shape[1] != self.n_features:
+            raise ValueError(
+                "The number of features in the data does not match the number of features"
+                + "given in the CustomGMM object. Expected",
+                self.n_features,
+                "but got",
+                features.shape[1],
+            )
+
+        if features.shape[0] < self.n_components:
+            raise ValueError(
+                "The number of samples in the data is less than the number of components"
+                + "given in the CustomGMM object. Expected at least",
+                self.n_components,
+                "but got",
+                features.shape[0],
+                "\n Try reducing the number of components.",
+            )
+
+        # Check for nan, inf and complex values
+        if np.isnan(features).any():
+            raise ValueError(
+                "Invalid value in features: nan. \n Make sure there are no ",
+                "nan values in the features.",
+            )
+
+        if np.isinf(features).any():
+            raise ValueError(
+                "Invalid value in features: inf. \n Check for inf values in the features."
+            )
+
+        if np.iscomplex(features).any():
+            raise ValueError(
+                "The GMM algorithm cannot handle complex values. \n",
+                " Check for complex values in the features.",
+            )
+
         # Initialise the weights as uniform
         self.weights = np.ones(self.n_components) / self.n_components
 
@@ -119,11 +167,9 @@ class CustomGMM:
 
         # Initialise the covariances, based on the k-means clusters
         labels = kmeans.predict(features)
-
         self.covariances = np.zeros(
             (self.n_components, self.n_features, self.n_features)
         )
-
         for i in range(self.n_components):
             cluster = features[labels == i]
             self.covariances[i] = np.cov(cluster, rowvar=False)
