@@ -174,7 +174,7 @@ class CustomGMM:
             cluster = features[labels == i]
             self.covariances[i] = np.cov(cluster, rowvar=False)
 
-    def expectation_step(self, features):
+    def _expectation_step(self, features):
         # Initialise the likelihoods
         likelihoods = np.zeros((features.shape[0], self.n_components))
 
@@ -184,14 +184,13 @@ class CustomGMM:
                 features, self.means[i], self.covariances[i]
             )
 
-        # Calc likelihood of sample belonging to certain component
-        # by calc likelihood for component k/sum of likelihoods for all components
+        # Calc likelihood of sample belonging to certain component:
         total_likelihoods = np.array([likelihoods.sum(axis=1)] * self.n_components).T
         probabilities = likelihoods / total_likelihoods
 
         return probabilities
 
-    def maximisation_step(self, features, probabilities):
+    def _maximisation_step(self, features, probabilities):
         # Update the weights
         self.weights = probabilities.mean(axis=0)
 
@@ -211,23 +210,32 @@ class CustomGMM:
             )
 
     def fit(self, features):
+        """!@brief Fit the Gaussian Mixture Model to the data using the E-M algorithm.
+
+        @details This method fits the Gaussian Mixture Model to the data using the
+        Expectation-Maximisation algorithm. The method initialises the parameters,
+        calculates the log likelihood, and then loops over the iterations, calculating
+        the probabilities of each component for each sample, and updating the weights,
+        means, and covariances of the components. The method stops when the log likelihood
+        converges or the maximum number of iterations is reached.
+
+        @param features The data to fit the model to
+        """
         # Initialise the parameters
         self._initialise_parameters(features)
 
         # Calc first log likelihood
-        probabilities = self.expectation_step(features)
+        probabilities = self._expectation_step(features)
         # log_likelihood = np.sum(np.log(np.sum(probabilities, axis=0)))
         log_likelihood = 0
 
         # loop over iterations
         for i in range(self.max_iter):
-            # Expectation step
-            # Calculate the probability of each component for each sample
-            probabilities = self.expectation_step(features)
+            # Expectation step:
+            probabilities = self._expectation_step(features)
 
-            # Maximisation step
-            # Update the weights
-            self.maximisation_step(features, probabilities)
+            # Maximisation step:
+            self._maximisation_step(features, probabilities)
 
             # Check the tolerance
             new_log_likelihood = np.sum(np.log(np.sum(probabilities, axis=0)))
@@ -237,7 +245,18 @@ class CustomGMM:
             log_likelihood = new_log_likelihood
 
     def predict(self, features):
-        # for each sample, calculate the probability of each component
-        probabilites = self.expectation_step(features)
+        """!@brief Predict the cluster a certain sample in the same feature space belongs to.
 
-        return np.argmax(probabilites, axis=1)
+        @details This method predicts the cluster a certain sample in the same feature space
+        belongs to. The method calculates the probability of each component for each sample,
+        and returns the component with the highest probability.
+
+        @param features The data to predict the cluster for
+
+        @return The cluster the sample belongs to
+        """
+
+        # For each sample, calculate the probability of each component
+        probabilities = self._expectation_step(features)
+
+        return np.argmax(probabilities, axis=1)
