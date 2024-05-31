@@ -1,6 +1,16 @@
-"""In this plot_funcs file are defined multiple plotting functions
-used in the project."""
+"""!@bfile plot_funcs.py
 
+@brief Module containing tools for plotting the results of the Boundery-Layer case,
+EIT case, and other cases.
+
+@details This module contains tools to plot the results of the Boundary-Layer case,
+EIT case, and other cases. Some of the functions are specific to the Boundary-Layer
+case, such as the plotting of the Reynolds stress term, the RANS equation terms. But
+others can be used for any case, such as the plotting of the covariance matrices
+(plot_cov_mat()). The functions are made to be useable for notebooks and scripts,
+with the show argument.
+
+@author Created by T.Breitburd on 29/01/2023"""
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -37,7 +47,7 @@ labels = [
 ]
 
 
-def plot_reynolds_stress(x, y, X, Y, u, Reynold_stress, show=True):
+def plot_reynolds_stress(x, y, X, Y, u, Reynold_stress, path, show=True):
     """Plot the Reynolds stress term, with a line of the 99th percentile
     of the mean streamwise velocity.
 
@@ -68,7 +78,7 @@ def plot_reynolds_stress(x, y, X, Y, u, Reynold_stress, show=True):
     plots_dir = os.path.join(proj_dir, "Plots")
     os.makedirs(plots_dir, exist_ok=True)
 
-    plot_dir = os.path.join(plots_dir, "reynolds_stresses.png")
+    plot_dir = os.path.join(plots_dir, path)
     plt.savefig(plot_dir)
 
     if show:
@@ -91,6 +101,7 @@ def plot_equation_terms_bound_lay(
     p_grad_x,
     nu,
     lap_u,
+    path,
     show=True,
 ):
     """Plot physical space fields of each of the RANS equation terms
@@ -197,7 +208,7 @@ def plot_equation_terms_bound_lay(
     plots_dir = os.path.join(proj_dir, "Plots")
     os.makedirs(plots_dir, exist_ok=True)
 
-    plot_dir = os.path.join(plots_dir, "equation_terms_bound_lay.png")
+    plot_dir = os.path.join(plots_dir, path)
     plt.savefig(plot_dir)
 
     if show:
@@ -206,7 +217,7 @@ def plot_equation_terms_bound_lay(
         plt.close()
 
 
-def plot_cov_mat(model, nfeatures, n_clusters, labels, algorithm, show=True):
+def plot_cov_mat(model, nfeatures, n_clusters, labels, algorithm, path, show=True):
     """Plot the covariance matrix of the GMM model.
 
     Args:
@@ -250,7 +261,7 @@ def plot_cov_mat(model, nfeatures, n_clusters, labels, algorithm, show=True):
     plots_dir = os.path.join(proj_dir, "Plots")
     os.makedirs(plots_dir, exist_ok=True)
 
-    plot_dir = os.path.join(plots_dir, "cov_mat_bound_lay.png")
+    plot_dir = os.path.join(plots_dir, path)
     plt.savefig(plot_dir)
 
     if show:
@@ -259,7 +270,7 @@ def plot_cov_mat(model, nfeatures, n_clusters, labels, algorithm, show=True):
         plt.close()
 
 
-def plot_clustering_2d_eq_space(features, cluster_idx, n_clusters, show=True):
+def plot_clustering_2d_eq_space(features, cluster_idx, n_clusters, path, show=True):
     """Plot the clustering in the 2D equation space. If the features data is masked, make sure
     that the cluster index is masked as well.
 
@@ -337,7 +348,7 @@ def plot_clustering_2d_eq_space(features, cluster_idx, n_clusters, show=True):
     plots_dir = os.path.join(proj_dir, "Plots")
     os.makedirs(plots_dir, exist_ok=True)
 
-    plot_dir = os.path.join(plots_dir, "clustering_2d_eq_space.png")
+    plot_dir = os.path.join(plots_dir, path)
     plt.savefig(plot_dir)
 
     if show:
@@ -347,7 +358,7 @@ def plot_clustering_2d_eq_space(features, cluster_idx, n_clusters, show=True):
 
 
 def plot_clustering_space(
-    clustermap, x, y, X, Y, num_x, num_y, n_clusters, u, U_inf, show=True
+    clustermap, x, y, X, Y, num_x, num_y, n_clusters, u, U_inf, path, show=True
 ):
     """Plot the clustering in physical space.
 
@@ -392,7 +403,7 @@ def plot_clustering_space(
     plots_dir = os.path.join(proj_dir, "Plots")
     os.makedirs(plots_dir, exist_ok=True)
 
-    plot_dir = os.path.join(plots_dir, "clustering_space.png")
+    plot_dir = os.path.join(plots_dir, path)
     plt.savefig(plot_dir)
 
     if show:
@@ -401,7 +412,7 @@ def plot_clustering_space(
         plt.close()
 
 
-def plot_active_terms(spca_model, labels, show=True):
+def plot_active_terms(spca_model, labels, path, show=True):
     """Plot a table of the active terms for each cluster
 
     Args:
@@ -440,7 +451,7 @@ def plot_active_terms(spca_model, labels, show=True):
     plots_dir = os.path.join(proj_dir, "Plots")
     os.makedirs(plots_dir, exist_ok=True)
 
-    plot_dir = os.path.join(plots_dir, "active_terms.png")
+    plot_dir = os.path.join(plots_dir, path)
     plt.savefig(plot_dir)
 
     if show:
@@ -449,7 +460,7 @@ def plot_active_terms(spca_model, labels, show=True):
         plt.close()
 
 
-def plot_spca_residuals(alphas, error, show=True):
+def plot_spca_residuals(alphas, error, path, show=True):
     """Plot the residuals of the inactive terms in the SPCA model.
 
     Args:
@@ -475,7 +486,7 @@ def plot_spca_residuals(alphas, error, show=True):
     plots_dir = os.path.join(proj_dir, "Plots")
     os.makedirs(plots_dir, exist_ok=True)
 
-    plot_dir = os.path.join(plots_dir, "spca_residuals.png")
+    plot_dir = os.path.join(plots_dir, path)
     plt.savefig(plot_dir)
 
     if show:
@@ -484,7 +495,7 @@ def plot_spca_residuals(alphas, error, show=True):
         plt.close()
 
 
-def plot_balance_models(gridmap, grid_labels, show=True):
+def plot_balance_models(gridmap, grid_labels, path, show=True):
     """Plot a table of the balance models.
 
     Args:
@@ -518,7 +529,7 @@ def plot_balance_models(gridmap, grid_labels, show=True):
     plots_dir = os.path.join(proj_dir, "Plots")
     os.makedirs(plots_dir, exist_ok=True)
 
-    plot_dir = os.path.join(plots_dir, "balance_models.png")
+    plot_dir = os.path.join(plots_dir, path)
     plt.savefig(plot_dir)
 
     if show:
@@ -527,7 +538,7 @@ def plot_balance_models(gridmap, grid_labels, show=True):
         plt.close()
 
 
-def plot_spca_reduced_clustering(x, y, balancemap, show=True):
+def plot_spca_reduced_clustering(x, y, balancemap, path, show=True):
     """Plot the reduced clustering using SPCA.
 
     Args:
@@ -564,7 +575,7 @@ def plot_spca_reduced_clustering(x, y, balancemap, show=True):
     plots_dir = os.path.join(proj_dir, "Plots")
     os.makedirs(plots_dir, exist_ok=True)
 
-    plot_dir = os.path.join(plots_dir, "spca_reduced_clustering.png")
+    plot_dir = os.path.join(plots_dir, path)
     plt.savefig(plot_dir)
 
     if show:
@@ -573,7 +584,7 @@ def plot_spca_reduced_clustering(x, y, balancemap, show=True):
         plt.close()
 
 
-def plot_feature_space(features, balance_idx, show=True):
+def plot_feature_space(features, balance_idx, path, show=True):
     """Plot the points in feature space, coloured according to
     the balance model they belong to. If the features data is masked, make sure
     that the balance index is masked as well.
@@ -621,7 +632,7 @@ def plot_feature_space(features, balance_idx, show=True):
     plots_dir = os.path.join(proj_dir, "Plots")
     os.makedirs(plots_dir, exist_ok=True)
 
-    plot_dir = os.path.join(plots_dir, "feature_space.png")
+    plot_dir = os.path.join(plots_dir, path)
     plt.savefig(plot_dir)
 
     if show:
@@ -631,7 +642,7 @@ def plot_feature_space(features, balance_idx, show=True):
 
 
 def plot_sublayer_scaling(
-    x, y, balancemap, delta, x_layer, gmm_fit, p_gmm, to_fit, show=True
+    x, y, balancemap, delta, x_layer, gmm_fit, p_gmm, to_fit, path, show=True
 ):
     """Plot the inertial sublayer scaling.
 
@@ -673,7 +684,7 @@ def plot_sublayer_scaling(
     plots_dir = os.path.join(proj_dir, "Plots")
     os.makedirs(plots_dir, exist_ok=True)
 
-    plot_dir = os.path.join(plots_dir, "sublay_scaling.png")
+    plot_dir = os.path.join(plots_dir, path)
     plt.savefig(plot_dir)
 
     if show:
@@ -682,9 +693,7 @@ def plot_sublayer_scaling(
         plt.close()
 
 
-def plot_self_similarity(
-    x, visc_bal_idx, y_plus, u_plus, balancemap, spectral=False, show=True
-):
+def plot_self_similarity(x, visc_bal_idx, y_plus, u_plus, balancemap, path, show=True):
     """Plot the self-similarity of the wall region.
 
     Args:
@@ -756,7 +765,7 @@ def plot_self_similarity(
     plots_dir = os.path.join(proj_dir, "Plots")
     os.makedirs(plots_dir, exist_ok=True)
 
-    plot_dir = os.path.join(plots_dir, "self_simil.png")
+    plot_dir = os.path.join(plots_dir, path)
     plt.savefig(plot_dir)
 
     if show:
@@ -765,7 +774,7 @@ def plot_self_similarity(
         plt.close()
 
 
-def plot_blasius_solution(eta, f, show=True):
+def plot_blasius_solution(eta, f, path, show=True):
     """Plot the Blasius solution.
 
     Args:
@@ -788,7 +797,7 @@ def plot_blasius_solution(eta, f, show=True):
     plots_dir = os.path.join(proj_dir, "Plots")
     os.makedirs(plots_dir, exist_ok=True)
 
-    plot_dir = os.path.join(plots_dir, "blasius_solution.png")
+    plot_dir = os.path.join(plots_dir, path)
     plt.savefig(plot_dir)
 
     if show:
@@ -797,7 +806,21 @@ def plot_blasius_solution(eta, f, show=True):
         plt.close()
 
 
-def plot_blasius_deviation(x, y, nx, ny, u, eta, f, U_inf, nu, show=True):
+def plot_blasius_deviation(x, y, nx, ny, u, eta, f, U_inf, nu, path, show=True):
+    """Plot the deviation of the Blasius solution.
+
+    Args:
+    - x: x-coordinates of the grid
+    - y: y-coordinates of the grid
+    - nx: number of grid points in x-direction
+    - ny: number of grid points in y-direction
+    - u: mean streamwise velocity
+    - eta: similarity parameter
+    - f: Blasius solution
+    - U_inf: free stream velocity
+    - nu: kinematic viscosity
+    """
+
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 6))
     u_map = np.reshape(u, [ny, nx], order="F")
 
@@ -838,7 +861,7 @@ def plot_blasius_deviation(x, y, nx, ny, u, eta, f, U_inf, nu, show=True):
     plots_dir = os.path.join(proj_dir, "Plots")
     os.makedirs(plots_dir, exist_ok=True)
 
-    plot_dir = os.path.join(plots_dir, "blasius_deviation.png")
+    plot_dir = os.path.join(plots_dir, path)
     plt.savefig(plot_dir)
 
     if show:
@@ -847,7 +870,7 @@ def plot_blasius_deviation(x, y, nx, ny, u, eta, f, U_inf, nu, show=True):
         plt.close()
 
 
-def scatter_clustering_space(x, y, cluster_idx, show=True):
+def scatter_clustering_space(x, y, cluster_idx, path, show=True):
     plt.figure(figsize=(15, 5))
     plt.scatter(
         x,
@@ -876,7 +899,7 @@ def scatter_clustering_space(x, y, cluster_idx, show=True):
     plots_dir = os.path.join(proj_dir, "Plots")
     os.makedirs(plots_dir, exist_ok=True)
 
-    plot_dir = os.path.join(plots_dir, "scatter_space_clustering.png")
+    plot_dir = os.path.join(plots_dir, path)
     plt.savefig(plot_dir)
 
     if show:
@@ -885,7 +908,7 @@ def scatter_clustering_space(x, y, cluster_idx, show=True):
         plt.close()
 
 
-def scatter_spca_reduced_clustering(x, y, balance_idx, show=True):
+def scatter_spca_reduced_clustering(x, y, balance_idx, path, show=True):
     plt.figure(figsize=(15, 5))
     plt.scatter(
         x,
@@ -910,7 +933,7 @@ def scatter_spca_reduced_clustering(x, y, balance_idx, show=True):
     plots_dir = os.path.join(proj_dir, "Plots")
     os.makedirs(plots_dir, exist_ok=True)
 
-    plot_dir = os.path.join(plots_dir, "spca_reduced_scatter_clustering.png")
+    plot_dir = os.path.join(plots_dir, path)
     plt.savefig(plot_dir)
 
     if show:
@@ -920,7 +943,7 @@ def scatter_spca_reduced_clustering(x, y, balance_idx, show=True):
 
 
 def scatter_sublayer_scaling(
-    x, x_sc, y_sc, balancemap, delta, x_layer, gmm_fit, x_to_fit, show=True
+    x, x_sc, y_sc, balancemap, delta, x_layer, gmm_fit, x_to_fit, path, show=True
 ):
     """Plot the inertial sublayer scaling.
 
@@ -962,7 +985,7 @@ def scatter_sublayer_scaling(
     plots_dir = os.path.join(proj_dir, "Plots")
     os.makedirs(plots_dir, exist_ok=True)
 
-    plot_dir = os.path.join(plots_dir, "scatter_sublay_scaling.png")
+    plot_dir = os.path.join(plots_dir, path)
     plt.savefig(plot_dir)
 
     if show:
@@ -972,7 +995,7 @@ def scatter_sublayer_scaling(
 
 
 def plot_clustering_space_geo(
-    clustermap_mer, clustermap_zon, x, y, n_clusters, show=True
+    clustermap_mer, clustermap_zon, x, y, n_clusters, path, show=True
 ):
     """Plot the clustering for the geostrophic balance in physical space.
 
@@ -1015,7 +1038,7 @@ def plot_clustering_space_geo(
     plots_dir = os.path.join(proj_dir, "Plots")
     os.makedirs(plots_dir, exist_ok=True)
 
-    plot_dir = os.path.join(plots_dir, "clustering_space_geo.png")
+    plot_dir = os.path.join(plots_dir, path)
     plt.savefig(plot_dir)
 
     if show:
@@ -1024,7 +1047,7 @@ def plot_clustering_space_geo(
         plt.close()
 
 
-def plot_clusters_eit(cluster_idx, Lx, nx, Ly, ny, n_clusters, show=True):
+def plot_clusters_eit(cluster_idx, Lx, nx, Ly, ny, n_clusters, path, show=True):
     """Plot the clustering for the EIT balance in physical space.
 
     Args:
@@ -1058,7 +1081,7 @@ def plot_clusters_eit(cluster_idx, Lx, nx, Ly, ny, n_clusters, show=True):
     plots_dir = os.path.join(proj_dir, "Plots")
     os.makedirs(plots_dir, exist_ok=True)
 
-    plot_dir = os.path.join(plots_dir, "clustering_space_eit.png")
+    plot_dir = os.path.join(plots_dir, path)
     plt.savefig(plot_dir)
 
     if show:
