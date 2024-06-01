@@ -55,6 +55,7 @@ print("Getting derivatives")
 print("----------------------------------")
 
 method = sys.argv[1]
+print(f"Method: {method}")
 
 # Get space steps
 dx = x[1] - x[0]
@@ -95,7 +96,7 @@ else:
     dy = np.diff(y[::-1])
     dy = np.append(dy, dy[-1])
 
-    # Get the gradients
+    # Get the derivatives
     u_x, u_y, lap_u, v_y, p_x, R_uux, R_uvy = pp.get_derivatives_numpy(
         nx, ny, dx, y, u_bar, y, p_bar, R_uu, R_uv
     )
@@ -106,6 +107,15 @@ else:
     p_bar = p_bar.flatten("F")
     R_uu = R_uu.flatten("F")
     R_uv = R_uv.flatten("F")
+
+# Flatten the derivative terms arrays for the rest of the notebook
+lap_u = lap_u.flatten("F")
+R_uux = R_uux.flatten("F")
+R_uvy = R_uvy.flatten("F")
+u_x = u_x.flatten("F")
+u_y = u_y.flatten("F")
+v_y = v_y.flatten("F")
+p_x = p_x.flatten("F")
 
 # ---------------------------------------------
 # Visualising the RANS equation
@@ -157,9 +167,12 @@ print("----------------------------------")
 print("Clustering with GMM")
 print("----------------------------------")
 
+# Number of clusters
+nc = int(sys.argv[2])
+print(f"Number of clusters: {nc}")
+
 if method == "original":
     # Fit Gaussian mixture model
-    nc = 6  # Number of clusters
     seed = 76016  # Set a seed for debugging/plotting
     model = GaussianMixture(n_components=nc, random_state=seed)
 
@@ -189,20 +202,19 @@ else:
     nfeatures = 6
 
     # Fit Gaussian mixture model
-    nc = 7  # Number of clusters
     seed = 75016  # Set a seed for debugging/plotting
     np.random.seed(seed)
     model = CustomGMM(n_components=nc, n_features=nfeatures, random_state=seed)
 
     # Train on only a subset (10%) of the data
     sample_pct = 0.1
-    features_train, _ = sk.model_selection.train_test_split(
-        features, train_size=sample_pct, random_state=seed
+    mask, _ = sk.model_selection.train_test_split(
+        range(features.shape[0]), train_size=sample_pct, random_state=seed
     )
-    model.fit(features_train)
-    clustering_train = model.predict(features_train)
+    model.fit(features[mask, :])
+    clustering_train = model.predict(features[mask, :])
 
-    algo = "Custom_GMM"
+    algo = "CustomGMM"
     path = "BL/custom_GMM_cov_mat.png"
 
 # Plot the covariance matrices between terms for each of the GMM cluster
@@ -222,11 +234,11 @@ if method == "original":
 else:
     path = "BL/custom_GMM_2D_eq_space.png"
 
-pf.plot_clustering_2d_eq_space(features, cluster_idx, nc, path, False)
+pf.plot_clustering_2d_eq_space(features[mask, :], cluster_idx[mask], nc, path, False)
 
 # Assign points in space to each cluster
-cluster_idx_space = cluster_idx - 1
-clustermap = np.reshape(cluster_idx_space, [ny, nx], order="F")
+cluster_idx = cluster_idx - 1
+clustermap = np.reshape(cluster_idx, [ny, nx], order="F")
 
 # Visualize the clustering in space
 if method == "original":
@@ -306,7 +318,8 @@ pf.plot_spca_residuals(alphas, err, path, False)
 
 
 # Now with optimal alpha, get the active terms in each cluster
-alpha_opt = 10  # Optimal alpha value
+alpha_opt = int(sys.argv[3])  # Optimal alpha value
+print(f"Optimal alpha: {alpha_opt}")
 
 spca_model = np.zeros([nc, nfeatures])  # Store the active terms for each cluster
 
@@ -338,7 +351,7 @@ if method == "original":
 else:
     path = "BL/custom_GMM_active_terms.png"
 
-pf.plot_balance_models(spca_model, labels, False, path)
+pf.plot_balance_models(spca_model, labels, False, path, False)
 
 
 # ---------------------------------------------
@@ -393,7 +406,7 @@ else:
     path = "BL/custom_GMM_balance_models.png"
 
 # Plot the balance models in a grid
-pf.plot_balance_models(balancemap, labels, True, path, False)
+pf.plot_balance_models(balance_models, labels, True, path, False)
 
 # Plot the clustering in space after SPCA
 if method == "original":
@@ -422,14 +435,17 @@ print("----------------------------------")
 # The length scale of the outer layer should scale with: l ~ x^(4/5)
 print("----- Outer layer scaling -----")
 
-# Define some variables
-u_map = np.reshape(u_bar, (ny, nx), order="F")  # Reshape u to 2D
+# Create a u_bar field:
+u_map = np.reshape(u_bar, (ny, nx), order="F")
 
-# Based on the obtained balance models:
+# Find which cluster is the inertial sublayer.
+inert_sub_idx = np.where(np.all(balance_models == [1, 0, 0, 0, 1, 0], axis=1))[0]
+print(inert_sub_idx)
+
+# Define some variables
 x_min = 110  # Where inertial balance begins
 x_turb = 500  # Where transitional region ends
 
-# Find the x index where the inertial balance begins
 x_idx = np.nonzero(x > x_min)[0]
 x_layer = x[x_idx]
 
@@ -438,7 +454,7 @@ y_gmm = np.zeros(len(x_idx))
 # Loop through wall-normal direction until the balance changes
 for i in range(len(x_idx)):
     j = len(y) - 1
-    while balancemap[j, x_idx[i]] == 2:
+    while balancemap[j, x_idx[i]] == inert_sub_idx:
         j -= 1
     y_gmm[i] = y[j]  # Store upper value of inertial balance
 
@@ -451,11 +467,11 @@ for i in range(len(x)):
         j += 1
     delta[i] = y[j - 1]
 
-# Finally, fit inertial balance to power law
+# Fit inertial balance to power law
 power_law = lambda x, a, b: a * x**b  # noqa: E731
 
 x_to_fit = x_layer > x_turb  # End of transitional region
-p_gmm, cov = curve_fit(power_law, x_layer[x_to_fit], y_gmm[x_to_fit])  # Fit power law
+p_gmm, cov = curve_fit(power_law, x_layer[x_to_fit], y_gmm[x_to_fit])
 gmm_fit = power_law(x_layer, *p_gmm)
 print("Fitted parameters for the power law:")
 print(p_gmm)  # Print the fit parameters
