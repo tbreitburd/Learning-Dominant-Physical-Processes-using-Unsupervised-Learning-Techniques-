@@ -240,7 +240,7 @@ def plot_cov_mat(
 
     if algorithm == "GMM":
         C = model_or_cov.covariances_[:, :, :].copy()
-    elif algorithm == "customGMM":
+    elif algorithm == "CustomGMM":
         C = model_or_cov.covariances[:, :, :].copy()
     else:
         C = model_or_cov[:, :, :].copy()
@@ -262,7 +262,6 @@ def plot_cov_mat(
         plt.pcolor(
             C_, vmin=-max(abs(C_.flatten())), vmax=max(abs(C_.flatten())), cmap="RdBu"
         )
-
         plt.gca().set_xticks(np.arange(0.5, nfeatures + 0.5))
         plt.gca().set_xticklabels(labels, fontsize=12)
         plt.gca().set_yticks(np.arange(0.5, nfeatures + 0.5))
@@ -842,7 +841,7 @@ def plot_blasius_deviation(x, y, nx, ny, u, eta, f, U_inf, nu, path, show=True):
         plt.close()
 
 
-def scatter_clustering_space(x, y, cluster_idx, path, show=True):
+def scatter_clustering_space(x, y, cluster_idx, n_clusters, path, show=True):
     """!@brief Plot the clustering in physical space, using a scatter plot.
     This is useful for reduced datasets, as they can't be visualised in space on a grid.
 
@@ -871,7 +870,6 @@ def scatter_clustering_space(x, y, cluster_idx, path, show=True):
     ax.set_facecolor("#000000")
 
     # Define the colorbar
-    n_clusters = cluster_idx.max()
     plt.colorbar(
         boundaries=np.arange(0.5, n_clusters + 1.5), ticks=np.arange(1, n_clusters + 1)
     )
