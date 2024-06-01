@@ -43,7 +43,7 @@ U_inf = 1
 nu = 1 / 800
 Re = (U_inf / nu) * x
 
-pf.plot_reynolds_stress(x, y, X, Y, u, Ruv, False)
+pf.plot_reynolds_stress(x, y, X, Y, u, Ruv, "BL/Rey_stress_uv.png", False)
 
 # ------- Get the derivatives --------
 print("----------------------------------")
@@ -101,7 +101,7 @@ labels = [
 
 # Plot all six terms in the RANS equation
 pf.plot_equation_terms_bound_lay(
-    x, y, nx, ny, u, ux, uy, v, Ruvy, Ruux, px, nu, lap_u, False
+    x, y, nx, ny, u, ux, uy, v, Ruvy, Ruux, px, nu, lap_u, "BL/RANS_terms.png", False
 )
 
 
@@ -132,7 +132,7 @@ mask = np.random.permutation(features.shape[0])[: int(sample_pct * features.shap
 model.fit(features[mask, :])
 
 # Plot the covariance matrices between terms for each of the GMM cluster
-pf.plot_cov_mat(model, nfeatures, nc, "GMM", False)
+pf.plot_cov_mat(model, nfeatures, nc, labels, "GMM", "BL/GMM_cov_mat.png", False)
 
 # ---------------------------------------------
 # Cluster the data and visualise:
@@ -143,14 +143,18 @@ pf.plot_cov_mat(model, nfeatures, nc, "GMM", False)
 cluster_idx = model.predict(features) + 1
 
 # Plot the clusters in equation space with 2D projections
-pf.plot_clustering_2d_eq_space(features, cluster_idx, nc, False)
+pf.plot_clustering_2d_eq_space(
+    features, cluster_idx, nc, "BL/GMM_2D_eq_space.png", False
+)
 
 # Assign points in space to each cluster
 cluster_idx_space = cluster_idx - 1
 clustermap = np.reshape(cluster_idx_space, [ny, nx], order="F")
 
 # Visualize the clustering in space
-pf.plot_clustering_space(clustermap, x, y, X, Y, nx, ny, nc, u, U_inf, False)
+pf.plot_clustering_space(
+    clustermap, x, y, X, Y, nx, ny, nc, u, U_inf, "BL/GMM_clustering_space.png", False
+)
 
 # ---------------------------------------------
 # Sparse Principal Component Analysis (SPCA)
@@ -183,7 +187,7 @@ for k in range(len(alphas)):
         # Calculate the error, as the sum of the norms of the inactive terms
         err[k] += np.linalg.norm(cluster_features[:, inactive_terms])
 
-pf.plot_spca_residuals(alphas, err, False)
+pf.plot_spca_residuals(alphas, err, "BL/custom_GMM_spca_residuals.png", False)
 
 
 # Now with optimal alpha, get the active terms in each cluster
@@ -203,7 +207,7 @@ for i in range(nc):
         spca_model[i, active_terms] = 1  # Set the active terms to 1
 
 # Plot the active terms in each cluster
-pf.plot_active_terms(spca_model, labels, False)
+pf.plot_balance_models(spca_model, labels, False, "BL/GMM_active_terms.png", False)
 
 
 # ---------------------------------------------
@@ -222,25 +226,29 @@ nmodels = balance_models.shape[0]
 balance_idx = np.array([model_index[i] for i in cluster_idx_space])
 balancemap = np.reshape(balance_idx, [ny, nx], order="F")
 
-# Plot a grid with active terms in each cluster
-gridmap = balance_models.copy()
-gridmask = gridmap == 0
-gridmap = (gridmap.T * np.arange(nmodels)).T + 1
-gridmap[gridmask] = 0
-
-# Remove terms that are never used
-grid_mask = np.nonzero(np.all(gridmap == 0, axis=0))[0]
-gridmap = np.delete(gridmap, grid_mask, axis=1)
-grid_labels = np.delete(labels, grid_mask)
-
 # Plot the balance models in a grid
-pf.plot_balance_models(gridmap, grid_labels, False)
+pf.plot_balance_models(balancemap, labels, True, "BL/GMM_balance_models.png", False)
 
 # Plot the clustering in space after SPCA
-pf.plot_spca_reduced_clustering(x, y, balancemap, False)
+pf.plot_clustering_space(
+    balancemap,
+    x,
+    y,
+    X,
+    Y,
+    nx,
+    ny,
+    nc,
+    u,
+    U_inf,
+    "BL/GMM_spca_clustering_space.png",
+    False,
+)
 
 # Visualize the clusters in equation space with 2D projections
-pf.plot_feature_space(features[mask, :], balance_idx[mask], False)
+pf.plot_feature_space(
+    features[mask, :], balance_idx[mask], "BL/GMM_feature_space_clustering", False
+)
 
 # ---------------------------------------------
 # Validate the balance models with some diagnostics
@@ -293,7 +301,16 @@ print(p_gmm)  # Print the fit parameters
 
 # Plot the inertial sublayer scaling
 pf.plot_sublayer_scaling(
-    x, y, balancemap, delta, x_layer, gmm_fit, p_gmm, x_to_fit, False
+    x,
+    y,
+    balancemap,
+    delta,
+    x_layer,
+    gmm_fit,
+    p_gmm,
+    x_to_fit,
+    "BL/GMM_sublayer_scaling.png",
+    False,
 )
 
 # ----- Self-similarity -----
@@ -311,7 +328,9 @@ u_plus = np.reshape(u, [ny, nx], order="F") / u_tau
 
 # Plot the self-similarity of the flow
 print("y+ coordinates where the balance ends:")
-pf.plot_self_similarity(x, 0, y_plus, u_plus, balancemap, show=False)
+pf.plot_self_similarity(
+    x, 0, y_plus, u_plus, balancemap, "BL/GMM_self_similarity.png", show=False
+)
 
 # ----- Blasius Solution in laminar regime -----
 # There is an inflow region with negligible Reynolds stresses (left boundary),
@@ -337,7 +356,9 @@ F0 = [0, 0, opt_res.x[2]]
 # Evaluate with resulting initial conditions
 f = odeint(lambda y, t: bs.blasius_rhs(y), F0, eta)
 
-pf.plot_blasius_solution(eta, f, False)
+pf.plot_blasius_solution(eta, f, "BL/blasius_solution.png", False)
 
 # Then, compare inflow profile to this Blasius Solution.
-pf.plot_blasius_deviation(x, y, nx, ny, u, eta, f, U_inf, nu, False)
+pf.plot_blasius_deviation(
+    x, y, nx, ny, u, eta, f, U_inf, nu, "BL/blasius_deviation.png", False
+)
