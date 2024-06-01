@@ -26,24 +26,21 @@ file = h5py.File("../Data/Transition_BL_Time_Averaged_Profiles.h5", "r")
 # Get arrays for variables and the Reynold's averages
 x = np.array(file["x_coor"])
 y = np.array(file["y_coor"])
-u = np.array(file["um"])
-v = np.array(file["vm"])
-p = np.array(file["pm"])
-Ruu = np.array(file["uum"]) - u**2
-Ruv = np.array(file["uvm"]) - u * v
-Rvv = np.array(file["uvm"]) - v**2
+u_bar = np.array(file["um"])
+v_bar = np.array(file["vm"])
+p_bar = np.array(file["pm"])
+R_uu = np.array(file["uum"]) - u_bar**2
+R_uv = np.array(file["uvm"]) - u_bar * v_bar
+R_vv = np.array(file["uvm"]) - v_bar**2
 
 
 # Visualize the wall-normal Reynolds stress
 X, Y = np.meshgrid(x, y)
 
-# Include line of 99% of free flow mean velocity
-# Values from http://turbulence.pha.jhu.edu/docs/README-transition_bl.pdf
+# Define some variables
 U_inf = 1
 nu = 1 / 800
 Re = (U_inf / nu) * x
-
-pf.plot_reynolds_stress(x, y, X, Y, u, Ruv, False)
 
 # ------- Get the derivatives --------
 print("----------------------------------")
@@ -57,32 +54,26 @@ dy = y[1:] - y[:-1]
 nx = len(x)  # Number of points in x
 ny = len(y)  # Number of points in y
 
-Dx, Dy = pp.get_derivatives(nx, ny, dx, dy)
+# Get the derivatives
+u_x, u_y, lap_u, v_y, p_x, R_uux, R_uvy = pp.get_derivatives_numpy(
+    nx, ny, dx, y, u_bar, y, p_bar, R_uu, R_uv
+)
 
-# Get double derivatives
+# Flatten arrays for matrix multiplication, using fortran ordering
+u_bar = u_bar.flatten("F")
+v_bar = v_bar.flatten("F")
+p_bar = p_bar.flatten("F")
+R_uu = R_uu.flatten("F")
+R_uv = R_uv.flatten("F")
 
-Dxx = 2 * (Dx @ Dx)
-Dyy = 2 * (Dy @ Dy)
-
-# Flatten arrays for matrix multiplication, using FORTRAN ordering
-
-u = u.flatten("F")
-v = v.flatten("F")
-p = p.flatten("F")
-Ruu = Ruu.flatten("F")
-Ruv = Ruv.flatten("F")
-
-# Get derivatives of variables
-
-ux = Dx @ u
-uy = Dy @ u
-vx = Dx @ v
-vy = Dy @ v
-px = Dx @ p
-py = Dy @ p
-lap_u = (Dxx + Dyy) @ u
-Ruux = Dx @ Ruu
-Ruvy = Dy @ Ruv
+# Flatten the derivative terms arrays for the rest of the notebook
+lap_u = lap_u.flatten("F")
+R_uux = R_uux.flatten("F")
+R_uvy = R_uvy.flatten("F")
+u_x = u_x.flatten("F")
+u_y = u_y.flatten("F")
+v_y = v_y.flatten("F")
+p_x = p_x.flatten("F")
 
 # Labels of terms in the RANS equation
 labels = [
@@ -100,7 +91,7 @@ labels = [
 # ---------------------------------------------
 
 # Gather the terms into an array of features
-features = 1e3 * np.vstack([u * ux, v * uy, px, nu * lap_u, Ruvy, Ruux]).T
+features = 1e3 * np.vstack([u_bar * u_x, v_bar * u_y, p_x, nu * lap_u, R_uvy, R_uux]).T
 nfeatures = features.shape[1]
 
 # ---------------------------------------------
@@ -111,7 +102,7 @@ print("Clustering with K-Means")
 print("----------------------------------")
 
 # Fit Gaussian mixture model
-nc = 6  # Number of clusters
+nc = int(sys.argv[1])  # Number of clusters
 seed = 76016  # Set a seed for debugging/plotting
 model = KMeans(n_clusters=nc, n_init=10, random_state=seed)
 
@@ -128,8 +119,10 @@ covs = np.zeros((nc, nfeatures, nfeatures))
 for i in range(nc):
     mask_ = clustering == i
     covs[i, :, :] = np.cov(features[mask_, :].T)
+
 # Plot the covariance matrices between terms for each of the K-Means cluster
-pf.plot_cov_mat(covs, nfeatures, nc, "Other", False)
+if nc < 10:
+    pf.plot_cov_mat(covs, nfeatures, nc, labels, "Other", "BL/KMeans_CovMat", False)
 
 # ---------------------------------------------
 # Cluster the data and visualise:
@@ -140,14 +133,29 @@ pf.plot_cov_mat(covs, nfeatures, nc, "Other", False)
 cluster_idx = clustering + 1
 
 # Plot the clusters in equation space with 2D projections
-pf.plot_clustering_2d_eq_space(features, cluster_idx, nc, False)
+pf.plot_clustering_2d_eq_space(
+    features, cluster_idx, nc, "BL/KMeans_2D_eq_space.png", False
+)
 
 # Assign points in space to each cluster
 cluster_idx = clustering
 clustermap = np.reshape(cluster_idx, [ny, nx], order="F")
 
 # Visualize the clustering in space
-pf.plot_clustering_space(clustermap, x, y, X, Y, nx, ny, nc, u, U_inf, False)
+pf.plot_clustering_space(
+    clustermap,
+    x,
+    y,
+    X,
+    Y,
+    nx,
+    ny,
+    nc,
+    u_bar,
+    U_inf,
+    "BL/KMeans_Clustering_Space.png",
+    False,
+)
 
 # ---------------------------------------------
 # Sparse Principal Component Analysis (SPCA)
@@ -180,11 +188,11 @@ for k in range(len(alphas)):
         # Calculate the error, as the sum of the norms of the inactive terms
         err[k] += np.linalg.norm(cluster_features[:, inactive_terms])
 
-pf.plot_spca_residuals(alphas, err, False)
+pf.plot_spca_residuals(alphas, err, "BL/KMeans_spca_residuals.png", False)
 
 
 # Now with optimal alpha, get the active terms in each cluster
-alpha_opt = 10  # Optimal alpha value
+alpha_opt = int(sys.argv[2])  # Optimal alpha value
 
 spca_model = np.zeros([nc, nfeatures])  # Store the active terms for each cluster
 
@@ -200,7 +208,7 @@ for i in range(nc):
         spca_model[i, active_terms] = 1  # Set the active terms to 1
 
 # Plot the active terms in each cluster
-pf.plot_active_terms(spca_model, labels, False)
+pf.plot_balance_models(spca_model, labels, False, "BL/KMeans_active_terms.png", False)
 
 
 # ---------------------------------------------
@@ -219,25 +227,30 @@ nmodels = balance_models.shape[0]
 balance_idx = np.array([model_index[i] for i in cluster_idx])
 balancemap = np.reshape(balance_idx, [ny, nx], order="F")
 
-# Plot a grid with active terms in each cluster
-gridmap = balance_models.copy()
-gridmask = gridmap == 0
-gridmap = (gridmap.T * np.arange(nmodels)).T + 1
-gridmap[gridmask] = 0
-
-# Remove terms that are never used
-grid_mask = np.nonzero(np.all(gridmap == 0, axis=0))[0]
-gridmap = np.delete(gridmap, grid_mask, axis=1)
-grid_labels = np.delete(labels, grid_mask)
-
 # Plot the balance models in a grid
-pf.plot_balance_models(gridmap, grid_labels, False)
+pf.plot_balance_models(
+    balance_models, labels, True, "BL/KMeans_balance_models.png", False
+)
 
 # Plot the clustering in space after SPCA
-pf.plot_spca_reduced_clustering(x, y, balancemap, False)
-
+pf.plot_clustering_space(
+    balancemap,
+    x,
+    y,
+    X,
+    Y,
+    nx,
+    ny,
+    nmodels,
+    u_bar,
+    U_inf,
+    "BL/KMeans_spca_clustering.png",
+    False,
+)
 # Visualize the clusters in equation space with 2D projections
-pf.plot_feature_space(features[mask, :], balance_idx[mask], False)
+pf.plot_feature_space(
+    features[mask, :], balance_idx[mask], "BL/KMeans_feature_space.png", False
+)
 
 # ---------------------------------------------
 # Validate the balance models with some diagnostics
@@ -250,14 +263,17 @@ print("----------------------------------")
 # The length scale of the outer layer should scale with: l ~ x^(4/5)
 print("----- Outer layer scaling -----")
 
+# Create a u_bar field:
+u_map = np.reshape(u_bar, (ny, nx), order="F")
+
+# Find which cluster is the inertial sublayer.
+inert_sub_idx = np.where(np.all(balance_models == [1, 0, 0, 0, 1, 0], axis=1))[0]
+
+
 # Define some variables
-u_map = np.reshape(u, (ny, nx), order="F")  # Reshape u to 2D
-
-# Based on the obtained balance models:
 x_min = 110  # Where inertial balance begins
-x_turb = 500  # Where transitional region ends (based on GMM results)
+x_turb = 500  # Where transitional region ends
 
-# Find the x index where the inertial balance begins
 x_idx = np.nonzero(x > x_min)[0]
 x_layer = x[x_idx]
 
@@ -266,9 +282,13 @@ y_gmm = np.zeros(len(x_idx))
 # Loop through wall-normal direction until the balance changes
 for i in range(len(x_idx)):
     j = len(y) - 1
-    while balancemap[j, x_idx[i]] == 3:
-        j -= 1
-    y_gmm[i] = y[j]  # Store upper value of inertial balance
+    if inert_sub_idx.size == 0:
+        y_gmm[i] = y[-1]
+        continue
+    else:
+        while balancemap[j, x_idx[i]] == inert_sub_idx:
+            j -= 1
+        y_gmm[i] = y[j]  # Store upper value of inertial balance
 
 # Next, find the 99% of free stream velocity line
 delta = np.zeros(len(x))
@@ -279,19 +299,29 @@ for i in range(len(x)):
         j += 1
     delta[i] = y[j - 1]
 
-# Finally, fit inertial balance to power law
+# Fit inertial balance to power law
 power_law = lambda x, a, b: a * x**b  # noqa: E731
 
 x_to_fit = x_layer > x_turb  # End of transitional region
-p_gmm, cov = curve_fit(power_law, x_layer[x_to_fit], y_gmm[x_to_fit])  # Fit power law
+p_gmm, cov = curve_fit(power_law, x_layer[x_to_fit], y_gmm[x_to_fit])
 gmm_fit = power_law(x_layer, *p_gmm)
 print("Fitted parameters for the power law:")
 print(p_gmm)  # Print the fit parameters
 
 # Plot the inertial sublayer scaling
 pf.plot_sublayer_scaling(
-    x, y, balancemap, delta, x_layer, gmm_fit, p_gmm, x_to_fit, show=False
+    x,
+    y,
+    balancemap,
+    delta,
+    x_layer,
+    gmm_fit,
+    p_gmm,
+    x_to_fit,
+    "BL/KMeans_sublayer_scaling.png",
+    False,
 )
+
 
 # ----- Self-similarity -----
 # In the near-wall region, the wall-normal profiles of velocity should be self-similar
@@ -301,12 +331,14 @@ pf.plot_sublayer_scaling(
 print("----- Self-similarity test -----")
 
 # Compute friction velocity with an estimate of the wall shear stress
-u_tau = np.sqrt(nu * uy[::ny])
+u_tau = np.sqrt(nu * u_y[::ny])
 
 # Define wall units
 y_plus = np.outer(y, u_tau / nu)
-u_plus = np.reshape(u, [ny, nx], order="F") / u_tau
+u_plus = np.reshape(u_bar, [ny, nx], order="F") / u_tau
 
 # Plot the self-similarity of the flow
 print("y+ coordinates where the balance ends:")
-pf.plot_self_similarity(x, 0, y_plus, u_plus, balancemap, show=False)
+pf.plot_self_similarity(
+    x, 0, y_plus, u_plus, balancemap, "BL/KMeans_self_similarity.png", show=False
+)
