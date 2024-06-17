@@ -2,7 +2,7 @@
 \usepackage{epigraph}
 \usepackage{geometry}
 \usepackage{setspace} % Add the setspace package
-
+\usepackage{titlesec} % Add the titlesec package for customizing titles
 
 % Optional: customize the style of epigraphs
 \setlength{\epigraphwidth}{0.5\textwidth} % Adjust the width of the epigraph
@@ -60,6 +60,7 @@
 
 \setlength{\headheight}{14.49998pt}
 \addtolength{\topmargin}{-2.49998pt}
+
 % Define colors for code listings
 \definecolor{codegreen}{rgb}{0,0.6,0}
 \definecolor{codegray}{rgb}{0.5,0.5,0.5}
@@ -127,10 +128,18 @@
     {\begin{examplebox}}
     {\end{examplebox}}
 
-
 \onehalfspacing
 
 \geometry{top=1.5in} % Adjust the value as needed
+
+% Customization for chapter titles
+\titleformat{\chapter}[display] % Use 'display' to put number and title on separate lines
+  {\normalfont\LARGE\bfseries} % Format for the chapter title
+  {Chapter \thechapter} % Display "Chapter X"
+  {0.5em} % Space between "Chapter X" and the title
+  {\Huge} % Chapter title format
+\titlespacing*{\chapter}{0pt}{-20pt}{20pt} % Adjust spacing around chapter title
+
 % ----------------------------------------------------------------
 
 
@@ -157,57 +166,66 @@
 \chapter{Introduction}
 
 
-One of the key steps of scientific method is reproducibility. Results must be reproducible by others, ensuring that the same conclusions can be drawn multiple times. If a result cannot be reproduced, it may be considered erroneous, or simply a random occurence. An important aspect of this project will be to evaluate the reproducibility of the results of Callaham et al. (2021)\cite{callaham2021learning} and to test the robustness of their method.
+One of the key steps of scientific method is reproducibility. Results must be reproducible by others, ensuring that the same conclusions can be drawn multiple times. If a result cannot be reproduced, it may be considered erroneous, or simply a random occurence. This project therefore has for a core aim to evaluate the reproducibility of the results of the Callaham et al. (2021)\cite{callaham2021learning} paper and to test the robustness of their method.
 
-For many problems in engineering and physical sciences, equations involve a large number of terms and complex differential equations. Simulating them can be computationally expensive or unnecessarily so, due to multiple asymptotic local behaviours where the system is dominated by a subset of the terms. In such cases, one can simplify the equations to a balance between these dominant terms, and simulate the system with sufficient accuracy and relatively lower computational cost (REFERENCE FOR THIS). This method, known as dominant balance or scale analysis, has been a powerful tool in physics.
+\vspace{5mm}
 
-And though extremely useful, dominant balance also requires expertise and is usually done by hand in time-consuming proofs. This report discusses and verifies a novel approach, developped by Callaham et al. (2021)\cite{callaham2021learning}, an applies it to new data. First, this report will focus on the paper and the research surrounding it. Delving into what the rationale behind the method is, and how it performed on a series of case studies, as well as verifying it through reproducing the results with alternative code. This will be done primarily focusing on one of the case studies, but also for most of the others. Additionally, other algorithms than the method's chosen one are used to test the robustness of the method. Second, the method will be used on a new dataset, from simulations of elasto-inertial turbulence, a property of of polymer laden flow.
+For many problems in engineering and physical sciences, equations involve a large number of terms and complex differential equations. Simulating them can be computationally expensive or unnecessarily so, due to multiple asymptotic local behaviours where the system is dominated by a subset of the terms. In such cases, one can simplify the equations to a balance between these dominant terms, and simulate the system with sufficient accuracy and relatively lower computational cost \cite{charney1990scale}. This method, known as dominant balance or scale analysis, has been a powerful tool in physics.
+
+\vspace{5mm}
+
+And though extremely useful, dominant balance also requires expertise and is usually done by hand in time-consuming proofs. This report discusses and verifies a novel approach, developped by Callaham et al. (2021)\cite{callaham2021learning}, which explores using data from a physical system and machine learning methods to identify dominant balances algorithmically. First, this report will focus on the paper and the research surrounding it. Delving into what the rationale behind the method is, and how it performed on a series of case studies, as well as verifying it through reproducing the results with alternative code. This will be done primarily focusing on one of the case studies, but also for most of the others. Additionally, other algorithms than the method's chosen one are used to test the robustness of the method. Second, the method will be used on a new dataset, from simulations of elasto-inertial turbulence, a property of polymer laden flow.
 
 
 \chapter{Background}
 
 
+As aforementionned, dominant balance or scale analysis is a powerful tool in simplifying the modelling of physical processes. Importantly, it helps better understand the physics at play in a system by identifying the subset of terms that truly matter in an equation for a given asymptotic case. Simplifying the equations also leads to easier computations by avoiding unnecessary complications of the model. Taking the example of meteorology, where modelling the entire atmosphere from the full Navier-Stokes equations of motion would have an immense computational cost. And a large part of improvements in numerical weather predictions can be attributed to scale analysis \cite{charney1947dynamics, phillips1963geostrophic, burger1958scale, yano2009scale}.
 
-Dominant balance is a powerful tool in simplifying the modelling of physical processes. Importantly, it helps better understand the physics at play in a system by identifying the subset of terms that matter in an equation for a specific asymptotic case. This understanding of interactions between terms and the physics they represent can be illustrated through examples in multiple fields of physics.
+\vspace{5mm}
 
-Taking the example of:
+However, this process can be slow as it requires considerable expertise from researchers. And for most of the well studied physical systems, this was done by hand a few decades ago. But with the wealth of computational power and data science techniques there is today, an attempt at automating dominant balance can be made. First is the Portwood et al. (2016)\cite{portwood2016robust} paper which used a cumulative distribution function on local density gradients to separate each region of a stratified turbulent flow. But the method used is highly tailored for its case study, as the gradient of one of the terms is used, knowing it has dynamics discerning qualities. Further, the results are interpreted through expert analysis of the identified regions. Second is the work carried out in Lee \& Zaki (2018)\cite{lee2018detection} where an algorithm to detect different dynamical regions is introduced. But again it is through the use of case-specific variables (vorticity), which restrict the use of this algorithm to certain flows. Finally, Sonnewald et al. (2019)\cite{sonnewald2019unsupervised} used a K-Means clustering algorithm to identify dynamically distinct regions in the ocean. And though they do introduce the concept of using the terms in the governing equations as features, the identification of active terms is done through comparison of the magnitudes of each term in the equation. In other words, identifciation of dominant terms is not done algorithmically but ``manually''. Thus, these methods are mostly designed for specific case studies and partly rely on expert knowledge to interpret the results.
 
+\vspace{5mm}
 
+A similar challenge in data science and machine learning has been to directly find the laws and equations that govern a system from data. Schmidt \& Lipson (2009)\cite{schmidt2009distilling} contributed to a breakthrough using symbolic regression to find linear and non-linear differential equations. And this was improved in Brunton et al. (2016)\cite{brunton2016discovering}. As symbolic regression is expensive, the problem was approached with sparse regression, which for high-dimensional problems means identifying a sparse governing equation. The rationale behind this is that governing equations usually having only a subset of terms being important, as in dominant balance. Lejarza \& Baldea (2022) further advanced this by using multiple basis functions and a non-linear moving horizon optimization to learn governing equations from noisy data. Deep learning methods have also been used in this effort. First, where the lagrangians are learned, therefore learning how to model complex physical systems, and learning symmetries and conservation laws, where other networks failed \cite{cranmer2020discovering}. Second, deep learning (Graph Neural Network) and symbolic regression are combined to create a general framework to recover equations of physical systems \cite{cranmer2020lagrangian}. This method has the advantage of being generalisable and therefore useable to extract plausible governing equations for unknown systems.
 
-There has been some research to automate the process of finding the dominant balance in a system. First is the Portwood et al. (2016)\cite{portwood2016robust} paper which uses a cumulative distribution function on the local density gradient to separate each region. THis method is then highly tailored to this case, where a gradient of one of the terms is used, knowing it can help discern dynamically distinct regions, and then interprets many results from expert analysis of the identified regions. Second is the Lee \& Zaki (2018)\cite{lee2018detection} which introduces an algorithm to detect different dynamical regions, but again through the use of case-specific varaibles (vorticity), which restrict the use of this algorithm to specific flows. Finally, the Sonnewald et al. (2019)\cite{sonnewald2019unsupervised} paper which uses a K-Means clustering algorithm to identify different regions in the ocean. And they do introduce the concept of using the terms in the governing equations as features, but identification of active terms is done through comparison of the magnitudes of each term in the equation. In other words, identifciation of dominant terms is not done algorithmically but ``manually''.
-They either focused on a specific application and used expert-knowledge on it or only clustered the data and then relied on expert knowledge to determine which terms were active in that cluster.
+\vspace{5mm}
 
-``Automating the process of finding the dominant balance in a system has been the focus of several studies. For instance, Portwood et al. (2016) use a cumulative distribution function on the local density gradient to separate regions dynamically, tailored to their specific case. Lee \& Zaki (2018) introduce an algorithm to detect different dynamical regions using vorticity, but this is also specific to certain flows. Sonnewald et al. (2019) use a K-Means clustering algorithm to identify different regions in the ocean, employing terms in the governing equations as features. However, the identification of dominant terms is done manually by comparing magnitudes.''
-
-
-
-A similar interesting data science and machien learning challenge has been to directly find the laws and equations that govern a system from data. Schmidt \& Lipson (2009)\cite{schmidt2009distilling} contributed to a breakthrough using symbolic regression to find linear and non-linear differential equations. Brunton et al. (2016)\cite{brunton2016discovering} is another example of this, improving on Schmidt \& Lipson's (2009)\cite{schmidt2009distilling} work. As symbolic regression is expensive, the problem was now approahced with sparse regression, which for high-diemensioanl problems means identifying a sparse governing equation and this makes use of the governing equations usually having only a subset of terms being important. In Lejarza \& Baldea (2022)\cite{lejarza2022data}, the governing equations are learned from noisy data using multiple basis functions, and a non-linear moving horizon optimization. Though it can only handle ODEs, it provides an approach for thresholding hte basis functions that result in the found governing equation are of lower complexity than those obtained thorugh sparse regression based approches.
-
-``A similar challenge in data science and machine learning is to directly find the laws and equations that govern a system from data. Schmidt \& Lipson (2009) used symbolic regression to find differential equations, followed by Brunton et al. (2016) who improved on this work using sparse regression. This approach is efficient for high-dimensional problems, as it identifies a sparse governing equation where only a subset of terms are important. Lejarza \& Baldea (2022) further advanced this by using multiple basis functions and a non-linear moving horizon optimization to learn governing equations from noisy data''
-
-
-
-Much like in more recent work where neural networks are used to determine hte physics at play from data \cite{cranmer2020discovering}\cite{cranmer2020lagrangian}.
-
-The method developped by Callaham et al. (2021)\cite{callaham2021learning} is a novel approach to finding the dominant balance in a system. And it could be used in conjunction with the above governing equation identifying methods. But just like Schmidt \& Lipson (2009)\cite{schmidt2009distilling} points out for their own work, this method should not be considered as a perfect tool to find all the dominant physical processes in a certin case study but rather as a guiding tool to help indicate where scientists should focus their attention.
-``The method developed by Callaham et al. (2021) is a novel approach to finding the dominant balance in a system. It could be used alongside other methods for identifying governing equations. However, as Schmidt \& Lipson (2009) noted for their work, this method should be seen as a guiding tool to help indicate where scientists should focus their attention, rather than a perfect tool for finding all dominant physical processes in a given case study.''
-
-
-
+This generalisable quality is precisely the gap that Callaham et al. (2021)\cite{callaham2021learning} attempt to fill in the identification of dominant balance models. They propose a novel approach to take in simulated or measured data from a physical system, and extract dominant balance models with minimal user input. This means one could use it in conjunction with the above governing equation identifying methods, and essentially automatically learn the governing equations and asymptotic regimes of that equation for any given physical system. This is a very powerful result however, as Schmidt \& Lipson (2009) noted for their work, this method should be seen as a guiding tool to help indicate where scientists should focus their attention, rather than a definitive answer. This is an important point which will be further discussed in this report.
 
 
 \chapter{Methodology}
 
+The method proposed by Callaham et al. (2021)\cite{callaham2021learning} can be summarized in three steps.First, representing the data in an equation space, with the terms as features. So that, second, the Gaussian Mixture Model clustering algorithm can be used to identify groups with a similar balance of terms. And finally, using Sparce Principal Component Analysis to identify the active terms in each cluster.
 
-Get simulated data of the terms in the equation of physical variables from which terms in the equation can be derived
+\section{Data \& Equation Space Reprensentation}
 
-Group the data into feature space, with each term as a feature
+As previously mentionned, obtaining the data can be done through simulations or measurements, with almost no restrictions as to what equations can be studied. The data comes in the form of space-time fields of physical variables: $u(\vec{x}, t)$, where $u$ is the physical variable considered (e.g. $\vec{u}$, $p$, etc. for the Navier-Stokes equations). The variables must be sufficient so that one may derive the terms of the equation from them. One important requirement is that the computed must all balance out to 0 for each point in time and space. And this comes down to computing the terms as they are in the equation, since this results in a linear covariance structure, as each term is balanced by a linear combination of the other terms\cite[Supplementary Information]{callaham2021learning}.
 
-Cluster the data using GMM
+% INCLUDE: flow chart map of getting the terms from the data?
 
-SPCA to identify which terms are active in each cluster
+The main idea of the method proposed here is to reorganize these physical space fields into an equation space where each coordinate is one of the term in the equation, and each sample is a point in space and time. Thus each sample will be a vector $\vec{f} \in \mathbb{R}^k$ where $k$ is the number of terms in the equation, such that:
 
-Group together clusters that have the same active terms
+\begin{equation}
+    \vec{f} = \begin{bmatrix} f_1(u(\vec{x}, t), \hdots) \\ f_2(u(\vec{x}, t), \hdots) \\ \vdots \\ f_k(u(\vec{x}, t), \hdots) \end{bmatrix}
+\end{equation}
+
+Where $f_i$ is the $i^{th}$ term in the equation, itself a function of the physical variables. Again, one must make sure that for each sample, the terms all balance out to 0.
+
+
+\section{Gaussian Mixture Model Clustering}
+
+Geometrically, by clustering points in this equation space, one can identify groups of points which have a similar balance of terms. Here the algorithm chosen is the Gaussian Mixture Model (GMM) clustering algorithm. This algorithm relies on the assumption that the data has been generated from a mixture of a finite number of Gaussian distributions with unknown parameters\cite{mit2015algorithmic}. It has the advantage of being able to identify clusters of with varying shapes and sizes. It only requires one hyperparameter which is the number of clusters one wants the algorithm to find, and therefore how many gaussian distributions the data is assumed to have been generated from\cite{sklearnGMM}.
+
+The way GMMs fit to the data is by using the Expectation-Maximisation algorithm. This algorithm starts from an initial guess for the parameters of the gaussian distributions, the iteratively evaluates the posterior probability of each point belonging to each cluster, and updates the parameters with weighted averages\cite{dempster1977maximum}. This converges to the maximum likelihood estimates of the parameters. The algorithm is explained in greater detail in Algorithm 1 in the Appendix.
+
+Another key output of the GMM is that its probabilistic nature allows for the identification of covariances between the terms in each cluster, as these are defined by a gaussian distribution and its covariance matrix.
+
+
+\section{Sparse Principal Component Analysis}
+
+With the points grouped in clusters of similar balance of terms, the next step is to identify which are active and which can be dropped to simply the equation. This is done through Sparse Principal Component Analysis (SPCA). Principal Component Analysis (PCA) is a method that is usually used to reduce the dimensionality of the data, whilst maximising the information kept. The new dimensions onto which the data is projected are called principal components and are the directions in which the data has the greatest variance\cite{lever2017principal}. SPCA differs from PCA in that it adds a sparsity constraint to the principal components, meaning that the components are sparse, i.e. most of the coefficients are zero. This is done by adding a L1 penalty to the objective function of PCA\cite{zou2006sparse}.
 
 
 \chapter{Conducted research}
