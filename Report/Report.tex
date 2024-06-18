@@ -225,18 +225,24 @@ Another key output of the GMM is that its probabilistic nature allows for the id
 
 \section{Sparse Principal Component Analysis}
 
-With the points grouped in clusters of similar balance of terms, the next step is to identify which are active and which can be dropped to simply the equation. This is done through Sparse Principal Component Analysis (SPCA). Principal Component Analysis (PCA) is a method that is usually used to reduce the dimensionality of the data, whilst maximising the information kept. The new dimensions onto which the data is projected are called principal components and are the directions in which the data has the greatest variance\cite{lever2017principal}. SPCA differs from PCA in that it adds a sparsity constraint to the principal components, meaning that the components are sparse, i.e. most of the coefficients are zero. This is done by adding a L1 penalty to the objective function of PCA\cite{zou2006sparse}.
+With the points grouped in clusters of similar balance of terms, the next step is to identify which are active and which can be dropped to simply the equation. This is done through Sparse Principal Component Analysis (SPCA). Principal Component Analysis (PCA) is a method that is usually used to reduce the dimensionality of the data, whilst maximising the information kept. The new dimensions onto which the data is projected are called principal components and are the directions in which the data has the greatest variance\cite{lever2017principal}. SPCA differs from PCA in that it adds a sparsity constraint to the principal components, resulting in most coefficients of the PCs being zero. This is done by adding a L1 penalty to the objective function of PCA, which leads to some coefficients being shrunk down to 0\cite{zou2006sparse}. Again, SPCA is explained in greater detail in Algorithm 2 in the Appendix.
 
 
 \chapter{Conducted research}
 
-Callaham has used the algorithm in a few different cases to validate how it functions.
-
-
+To test and validate this method Callaham et al. used a series of case studies\cite{callaham2021learning}. While some were well studied physical systems whose dominant balance regimes were well known (Turbulent boundary layer, Geostrophic balance currents), others were more complex and less understood (Optical pulse generation, rotating detonation engine). For these latter cases, the paper therefore presents a first plausible identification of dominant balance regimes. In this chapter, the aim is to discuss the reproducibility of the results of the paper, as well as testing and discussing the drawbacks of the method.
 
 \section{Portability of the code}
 
+One great quality of the Callaham et al. (2021)\cite{callaham2021learning} is the sharing of their code in the form of runnable notebooks. With the overarching motivation for this project being the importance of reproducibility in todays code-rich research environment, it is key that scientists share their code, so one may verify how the results were obtained. This is also a great asset as it allows for a more useful reproduction of the results, where explicitely different results can be tested.
+
+Overall, the code is of great quality, though some portability issues were encountered. Some of the dependencies were not stated in their README. More importantly, it seemed some of the data generating code was modified between running their final notebook versions and their uploading to the repository. This lead to some troubleshooting to get the data to be the same as the one used in the paper. And for the flow past a cylinder case, a file needed in the setup of the Nek5000 simulation software was missing\cite{nek5000setup}. For the bursitng neuron case, the time for which the data was generated was wrongly set. Similarly for the gesotrophic current data, the remote reading code was selecting snapshots of the data that did not match the ones used in the paper, and the first 45 were set to zero, which had no real use. Further, the results in the paper are actually obtained from a different snapshot than the one stated in the paper. For this report, the data was simply downloaded from the HYCOM database \cite{hycom} and the time was set to the same as the one used in the paper.
+
+Nevertheless, the code was otherwise easy to run and the notebook format was very useful to follow the logic of the code. From this, the code was first written for the turbulent boundary layer case. Explicitely alternative code was then written to test the reproducibility of the results.
+
 \section{Reproducibility of the results}
+
+
 
 \section{Exploration of other algorithms}
 
@@ -262,7 +268,7 @@ Callaham has used the algorithm in a few different cases to validate how it func
 
 \section{Discussion}
 
-\chapter{Data analysis pipeline}
+\chapter{Conclusion}
 
 
 \bibliographystyle{plain}
