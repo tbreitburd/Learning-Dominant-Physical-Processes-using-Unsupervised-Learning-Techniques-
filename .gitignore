@@ -3,5 +3,8 @@ Report/*
 !Report/Report.pdf
 .DS_Store
 Data/*
+!Data/README.md
+!Data/gnlse/
+!Data/neuron/
 Plots/
 Tools/__pycache__
