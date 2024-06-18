@@ -5,6 +5,7 @@ Report/*
 Data/*
 !Data/README.md
 !Data/gnlse/
+Data/gnlse/gnlse.mat
 !Data/neuron/
 Plots/
 Tools/__pycache__
