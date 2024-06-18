@@ -2,7 +2,7 @@
 % Jared Callaham, 2019
 
 clear all; close all; clc;
-load('gnlse_nondim.mat')
+load('../gnlse_nondim.mat')
 
 %%
 order=10; % Highest derivative to include
@@ -92,4 +92,4 @@ raman = fft( dt*fftshift(rhs_nonlinear, 2), n, 2) - kerr;  % Raman term (without
 
 
 %% NEED TO CLEAN UP... just save for now
-save('./gnlse_nondim.mat', 'u', 'ux', 'du_dt', 'kerr', 'raman', 'x', 't', 'alphas')
+save('../gnlse_nondim.mat', 'u', 'ux', 'du_dt', 'kerr', 'raman', 'x', 't', 'alphas')

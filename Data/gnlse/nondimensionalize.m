@@ -60,5 +60,5 @@ colorbar()
 
 %% Save output
 
-save('gnlse_nondim.mat', 'x', 't', 'u', 'c', 'w0', 'rt', 'alphas',...
+save('../gnlse_nondim.mat', 'x', 't', 'u', 'c', 'w0', 'rt', 'alphas',...
     'tau1', 'tau2', 'fr', 'gamma', 'wavelength', 'A0', 'T0', 'Z0')
