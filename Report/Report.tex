@@ -19,6 +19,9 @@
 \usepackage{fancyhdr}
 \usepackage{tikz}
 \usepackage{cite}
+\usepackage{algpseudocode}
+\usepackage{subcaption}
+\usepackage{cleveref}
 \usetikzlibrary{shapes.geometric, arrows, positioning}
 
 \tikzstyle{startstop} = [rectangle, rounded corners, text centered, draw=black, fill=red!30]
@@ -238,10 +241,84 @@ One great quality of the Callaham et al. (2021)\cite{callaham2021learning} is th
 
 Overall, the code is of great quality, though some portability issues were encountered. Some of the dependencies were not stated in their README. More importantly, it seemed some of the data generating code was modified between running their final notebook versions and their uploading to the repository. This lead to some troubleshooting to get the data to be the same as the one used in the paper. And for the flow past a cylinder case, a file needed in the setup of the Nek5000 simulation software was missing\cite{nek5000setup}. For the bursitng neuron case, the time for which the data was generated was wrongly set. Similarly for the gesotrophic current data, the remote reading code was selecting snapshots of the data that did not match the ones used in the paper, and the first 45 were set to zero, which had no real use. Further, the results in the paper are actually obtained from a different snapshot than the one stated in the paper. For this report, the data was simply downloaded from the HYCOM database \cite{hycom} and the time was set to the same as the one used in the paper.
 
-Nevertheless, the code was otherwise easy to run and the notebook format was very useful to follow the logic of the code. From this, the code was first written for the turbulent boundary layer case. Explicitely alternative code was then written to test the reproducibility of the results.
+Nevertheless, the code was otherwise easy to run and the notebook format was very useful to follow the logic of the code. From this, the code was first written for the turbulent boundary layer case. And explicitely alternative code was then written to test the reproducibility of the results.
 
-\section{Reproducibility of the results}
+\section{Reproducing of the results}
 
+\subsection{Turbulent Boundary Layer}
+
+Because the underlying method is the same for all case studies. The choice was made to put particular focus on just on of the cases, and less so on the others. The test cases study chosen is the turbulent boundary layer case.
+
+The data for this case study is obtained from the John Hopkins database, which ran a direct numerical simulation of this boundary layer over a stationary plate\cite{jhtdb}. In this database are given the x and y coordinates as well as the following variables: $u$, the streamwise component of velocity, $v$, the wall-normal component of velocity, $p$, the fluid pressure, and $(\overline{u' v'})$ \& $(\overline{u'^2})$, the wall-normal and streamwise Reynolds' stress term. From these variables, the terms of the streamwise component of the Reynolds Averaged Navier-Stokes Equation need to be calculated:
+
+\begin{equation}
+  \bar{u} \bar{u}_x + \bar{v} \bar{u}_y = \rho^{-1} \bar{p}_x + \nu \nabla^2 \bar{u}  - (\overline{u' v'})_y - (\overline{u'^2})_x
+\end{equation}
+
+In order to get the derivative terms, the method employed by Callaham et al. makes use of \texttt{scipy.sparse}'s sparse matrices. These sparse matrices are built so that when computing the matrix product with the fields or variables, the 2nd order forward/central/backward difference derivative following the method described in 'Fundamentals of Numerical Computations'. Though it has the advantage of being portable for all variables, it is much slower than using the \texttt{numpy.gradient} function which does the same computation, when setting the \texttt{edge\_order} argument to 2. With the derivatives computed, space fields of each term in the equation can be plotted (see Fig. \ref{fig:RANS_terms})
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.8\textwidth]{../Plots/BL/RANS_terms.png}
+  \caption{Plot of the 6 terms in the RANS equation (Eq 5.1)}
+  \label{fig:RANS_terms}
+\end{figure}
+
+GMM clustering:
+Sklearn vs using your own, following algorithm \dots and REFERENCE
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.8\textwidth]{../Plots/BL/GMM_cov_mat.png}
+  \caption{Covariance matrix of for each of the clusters found by the GMM algorithm (\texttt{sklearn}), when using the original Callaham et al. code}
+  \label{fig:GMM_cov_mat}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.8\textwidth]{../Plots/BL/custom_GMM_cov_mat.png}
+  \caption{Covariance matrix of for each of the clusters found by the GMM algorithm (custom code), when using an alternative code}
+  \label{fig:custom_GMM_cov_mat}
+\end{figure}
+
+SPCA:
+Sklearn vs your own?
+
+\begin{figure}
+  \centering
+  \begin{subfigure}[b]{0.45\textwidth}
+      \includegraphics[width=\textwidth]{../Plots/BL/GMM_spca_residuals.png}
+      \caption{}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.45\textwidth}
+      \includegraphics[width=\textwidth]{../Plots/BL/custom_GMM_spca_residuals.png}
+      \caption{}
+  \end{subfigure}
+  \caption{Plot of the residuals of the SPCA algorithm, when using the original Callaham et al. code (a) and an alternative code (b)}
+  \label{fig:SPCA_residuals}
+\end{figure}
+
+
+One can see the active for the 2 codes in Fig. \ref{fig:active_terms}
+
+
+\begin{figure}[htbp]
+  \centering
+  \begin{subfigure}[b]{0.45\textwidth}
+      \includegraphics[width=\textwidth]{../Plots/BL/GMM_active_terms.png}
+      \caption{}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.45\textwidth}
+      \includegraphics[width=\textwidth]{../Plots/BL/custom_GMM_active_terms.png}
+      \caption{}
+  \end{subfigure}
+
+  \caption{Plot of the terms identified as active by the SPCA algorithm, when using the original Callaham et al. code (a) and an alternative code (b)}
+
+\label{fig:active_terms}
+\end{figure}
 
 
 \section{Exploration of other algorithms}
