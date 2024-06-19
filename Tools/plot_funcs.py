@@ -1059,3 +1059,71 @@ def plot_clusters_eit(cluster_idx, Lx, nx, Ly, ny, n_clusters, path, show=True):
         plt.show()
     else:
         plt.close()
+
+
+def plot_clusters_neuron(t, V, cluster, path="Burst_Neur/cluster.png", show=True):
+    """!@brief Plot the clustering in the time-membrane potential space.
+
+    @param t: time, np.array [n]
+    @param V: membrane potential, np.array [n]
+    @param cluster: cluster index, np.array [n]
+    @param path: path to save the plot, str
+    @param show: whether to show the plot or not, default is True, bool
+    """
+
+    plt.figure(figsize=(10, 3))
+    plt.scatter(t, V, c=cluster + 1, vmin=-0.5, vmax=cm.N - 0.5, cmap=cm, s=30)
+    plt.xlabel("$t$ (in ms)")
+    plt.ylabel("$V$ (in mV)")
+    plt.grid()
+
+    # Save the plot
+    cur_dir = os.getcwd()
+    proj_dir = os.path.dirname(cur_dir)
+    plots_dir = os.path.join(proj_dir, "Plots")
+    os.makedirs(plots_dir, exist_ok=True)
+
+    plot_dir = os.path.join(plots_dir, path)
+    plt.savefig(plot_dir)
+
+    # Show the plot?
+    if show:
+        plt.show()
+    else:
+        plt.close()
+
+
+def plot_clusters_neuron_terms(
+    term_1, term_2, label_1, label_2, cluster, path, show=True
+):
+    """!@brief Plot the clustering in the equation space.
+
+    @param term_1: first term, np.array [n]
+    @param term_2: second term, np.array [n]
+    @param label_1: label for the first term, str
+    @param label_2: label for the second term, str
+    @param cluster: cluster index, np.array [n]
+    @param path: path to save the plot, str
+    @param show: whether to show the plot or not, default is True, bool
+    """
+
+    plt.figure(figsize=(5, 5))
+    plt.scatter(term_1, term_2, c=cluster + 1, vmin=-0.5, vmax=cm.N - 0.5, cmap=cm, s=3)
+    plt.xlabel(r"{0}".format(label_1))
+    plt.ylabel(r"{0}".format(label_2))
+    plt.grid()
+
+    # Save the plot
+    cur_dir = os.getcwd()
+    proj_dir = os.path.dirname(cur_dir)
+    plots_dir = os.path.join(proj_dir, "Plots")
+    os.makedirs(plots_dir, exist_ok=True)
+
+    plot_dir = os.path.join(plots_dir, path)
+    plt.savefig(plot_dir)
+
+    # Show the plot?
+    if show:
+        plt.show()
+    else:
+        plt.close()
