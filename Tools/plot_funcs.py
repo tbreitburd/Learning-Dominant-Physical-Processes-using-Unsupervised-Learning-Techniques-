@@ -1127,3 +1127,101 @@ def plot_clusters_neuron_terms(
         plt.show()
     else:
         plt.close()
+
+
+def plot_clustering_optics(clustermap, x, t, n_clusters, path, show=True):
+    """!@brief Plot the clustering in the time-distance space.
+
+    @param clustermap: cluster map, np.array [num_x, num_t]
+    @param x: x-coordinates of the grid, np.array [num_x]
+    @param t: t-coordinates of the grid, np.array [num_t]
+    @param n_clusters: number of clusters, int
+    @param path: path to save the plot, str
+    @param show: whether to show the plot or not, default is True, bool
+    """
+
+    plt.figure(figsize=(7, 6))
+    plt.pcolormesh(t, x, clustermap + 1, cmap=cm, vmin=-0.5, vmax=cm.N - 0.5)
+    cbar = plt.colorbar(
+        boundaries=np.arange(0.5, n_clusters + 1.5), ticks=np.arange(0, n_clusters + 1)
+    )
+    cbar.set_label("Cluster index")
+    plt.xlim([-50, 1500])
+    plt.xlabel("Time (in picoseconds)")
+    plt.ylabel("Distance (in meters)")
+    plt.title("GMM Clustering")
+
+    # Save the plot
+    cur_dir = os.getcwd()
+    proj_dir = os.path.dirname(cur_dir)
+    plots_dir = os.path.join(proj_dir, "Plots")
+    os.makedirs(plots_dir, exist_ok=True)
+
+    plot_dir = os.path.join(plots_dir, path)
+    plt.savefig(plot_dir)
+
+    # Show the plot?
+    if show:
+        plt.show()
+    else:
+        plt.close()
+
+
+def plot_optical_pulse_3D(x, t, field, balance_clustermap, path, show=True):
+    """!@brief Plot the optical pulse in 3D space.
+
+    @param x: x-coordinates of the grid, np.array [num_x, num_t]
+    @param t: t-coordinates of the grid, np.array [num_x, num_t]
+    @param field: field intensity, np.array [num_x, num_t]
+    @param balance_clustermap: balance cluster map, np.array [num_x, num_t]
+    @param path: path to save the plot, str
+    @param show: whether to show the plot or not, default is True, bool
+    """
+
+    t_idx = np.where(t > -200)[1][0]
+    x_idx = np.where(x > 70)[0][0]
+
+    T, X = np.meshgrid(t[0, t_idx:], x[x_idx:])
+
+    t_flat = T.flatten()
+    x_flat = X.flatten()
+    field_flat = field[x_idx:, t_idx:].flatten()
+    balance_clustermap_flat = balance_clustermap[x_idx:, :].flatten()
+
+    fig = plt.figure(figsize=(10, 8))
+    ax = fig.add_subplot(111, projection="3d")
+
+    ax.scatter(
+        t_flat,
+        x_flat,
+        field_flat,
+        c=balance_clustermap_flat + 1,
+        vmin=-0.5,
+        vmax=cm.N - 0.5,
+        cmap=cm,
+        s=0.02,
+    )
+
+    ax.set_xlabel("Time (in picoseconds)")
+    ax.set_ylabel("Distance (in meters)")
+    ax.set_zlabel("Intensity [dB]")
+
+    ax.set_ylim([70, 130])
+    ax.set_zlim([-120, 0])
+
+    ax.view_init(25, 265)
+
+    # Save the plot
+    cur_dir = os.getcwd()
+    proj_dir = os.path.dirname(cur_dir)
+    plots_dir = os.path.join(proj_dir, "Plots")
+    os.makedirs(plots_dir, exist_ok=True)
+
+    plot_dir = os.path.join(plots_dir, path)
+    plt.savefig(plot_dir)
+
+    # Show the plot?
+    if show:
+        plt.show()
+    else:
+        plt.close()
