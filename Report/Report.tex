@@ -100,6 +100,7 @@
   title=#1,
   fonttitle=\bfseries,
   enhanced,
+  breakable,
 }
 
 % Definition of the tcolorbox for remarks
@@ -110,6 +111,7 @@
   title=#1,            % Title text for remark box
   fonttitle=\bfseries,      % Bold title font
   enhanced,
+  breakable,
 }
 
 % Definition of the tcolorbox for examples
@@ -120,6 +122,7 @@
   title=#1,         % Title text for example box
   fonttitle=\bfseries,    % Bold title font
   enhanced,
+  breakable,
 }
 
 % Definitions and examples will be put in these environments
@@ -245,17 +248,21 @@ Nevertheless, the code was otherwise easy to run and the notebook format was ver
 
 \section{Reproducing of the results}
 
+Reiterating previously made points, one of the main goals of this project is to verify the results of Callaham et al. (2021)\cite{callaham2021learning}. Not only check that the results can be reproduced but to do so using alternative code. The aim here is to have code differently written which in practice does the same thing. This is to make sure none of the main results from Callaham et al. are due to a "lucky" bug in their code.
+
 \subsection{Turbulent Boundary Layer}
 
-Because the underlying method is the same for all case studies. The choice was made to put particular focus on just on of the cases, and less so on the others. The test cases study chosen is the turbulent boundary layer case.
+Because the underlying method is essentially the same for all case studies. The choice was made to put particular focus on just one of the cases, and less so on the others. The scenario chosen was the boundary layer in transition to turbulence.
 
-The data for this case study is obtained from the John Hopkins database, which ran a direct numerical simulation of this boundary layer over a stationary plate\cite{jhtdb}. In this database are given the x and y coordinates as well as the following variables: $u$, the streamwise component of velocity, $v$, the wall-normal component of velocity, $p$, the fluid pressure, and $(\overline{u' v'})$ \& $(\overline{u'^2})$, the wall-normal and streamwise Reynolds' stress term. From these variables, the terms of the streamwise component of the Reynolds Averaged Navier-Stokes Equation need to be calculated:
+Throughout the Callaham et al. (2021)\cite{callaham2021learning} Notebooks, aside from the 3 main steps of the method, the large majority of the code is the handling of the data, switching from equation space to physical space, and getting the unique balance models. Most of it is written using \texttt{Numpy}, which is the most efficient way. In the alternative code however, \texttt{Pandas} was mostly used. In terms of performance, it is close to \texttt{Numpy}, especially for the size of the data. For some code sections, however, some impractical work arounds were required, particularly to replace the \texttt{numpy.unique} method.
+
+The data for this case study is obtained from the John Hopkins database, which ran a direct numerical simulation of a boundary layer over a stationary plate\cite{jhtdb}. In this database are given the x and y coordinates as well as the following variables: $u$, the streamwise component of velocity, $v$, the wall-normal component of velocity, $p$, the fluid pressure, and $(\overline{u' v'})$ \& $(\overline{u'^2})$, the wall-normal and streamwise Reynolds' stress term. From these variables, the terms of the streamwise component of the Reynolds Averaged Navier-Stokes Equation need to be calculated:
 
 \begin{equation}
   \bar{u} \bar{u}_x + \bar{v} \bar{u}_y = \rho^{-1} \bar{p}_x + \nu \nabla^2 \bar{u}  - (\overline{u' v'})_y - (\overline{u'^2})_x
 \end{equation}
 
-In order to get the derivative terms, the method employed by Callaham et al. makes use of \texttt{scipy.sparse}'s sparse matrices. These sparse matrices are built so that when computing the matrix product with the fields or variables, the 2nd order forward/central/backward difference derivative following the method described in 'Fundamentals of Numerical Computations'. Though it has the advantage of being portable for all variables, it is much slower than using the \texttt{numpy.gradient} function which does the same computation, when setting the \texttt{edge\_order} argument to 2. With the derivatives computed, space fields of each term in the equation can be plotted (see Fig. \ref{fig:RANS_terms})
+In order to get the derivative terms, the method employed by Callaham et al. makes use of \texttt{scipy.sparse}'s sparse matrices. These sparse matrices are built so that when computing the matrix product with the fields or variables, the 2nd order forward/central/backward difference derivative following the method described in 'Fundamentals of Numerical Computations'\cite{finitediff}. Though it has the advantage of being portable for all variables, it is much slower than using the \texttt{numpy.gradient} function which does the same computation but more explicitely, when setting the \texttt{edge\_order} argument to 2. With the derivatives computed, space fields of each term in the equation can be plotted (see Fig. \ref{fig:RANS_terms})
 
 \begin{figure}
   \centering
@@ -264,8 +271,17 @@ In order to get the derivative terms, the method employed by Callaham et al. mak
   \label{fig:RANS_terms}
 \end{figure}
 
-GMM clustering:
-Sklearn vs using your own, following algorithm \dots and REFERENCE
+The next step is to use a Gaussian Mixture Model to cluster the data in equation space. Quite judiciously, Callaham et al. chose to use the \texttt{sklearn} library's implementation of the GMM algorithm. It is likely a very efficient implementation of the algorithm, being written and optimised by experienced developpers. With the arguments chosen, the algorithm is initialised usimg the \texttt{'k-means++'} method. This method initialises the means of the gaussians using the centroids found by the K-Means clustering algorithm (see Algorithm 3), itself initialised based on the empirical probability distributions of the data\cite{arthur2007kmeans}. The covariance matrices are then initialised as the covariance matrices of the clusters found by the K-Means algorithm. The algorithm then uses the Expectation-Maximisation algorithm as expected. Convergence is evaluated using the log-probability of the data, and the algorithm stops when the difference between the new and old log-likelihood is less than $10^{-3}$.
+
+The alternative code written follows the same initialisation, explicitely using \texttt{sklearn}'s K-Means algorithm, with \texttt{'k-means++'} initialisation. The Expectation-Maximisation algorithm is then implemented as described in Algorithm 1, using the total log-likelihood difference as the convergece criterion.
+
+
+SPCA
+
+
+With SPCA done, the active terms cna be identified and from here, the original and alternative code only differ in whihc library they predominantly use. The original code uses mostly \texttt{Numpy}, whilst the alternative code uses \texttt{Pandas}, which sometimes had similar functions and sometimes needed a work around.
+
+
 
 \begin{figure}
   \centering
@@ -281,8 +297,7 @@ Sklearn vs using your own, following algorithm \dots and REFERENCE
   \label{fig:custom_GMM_cov_mat}
 \end{figure}
 
-SPCA:
-Sklearn vs your own?
+
 
 \begin{figure}
   \centering
@@ -346,6 +361,50 @@ One can see the active for the 2 codes in Fig. \ref{fig:active_terms}
 \section{Discussion}
 
 \chapter{Conclusion}
+
+
+\chapter{Appendix}
+
+\section{Algorithms}
+
+
+\begin{definitionbox}{Algorithm 1: Gaussian Mixture Model clustering}
+  \begin{algorithmic}[1]
+    \State Data $\vec{x} \in \mathbb{R}^{n \times n_{features}}$, number of clusters/Gaussians to fit $K$ \Comment{Inputs}
+    \State Cluster assignments $z \in \mathbb{R}^n$ \Comment{Output}
+    \State $w_{k} \gets \frac{1}{k}$ \Comment{Initialisation of the weights}
+    \State $\mathbf{\mu_{k}} \gets \mathbf{c_{k}}$ \Comment{Initialise the means as K-Means centroids}
+    \State $\mathbf{\Sigma_{k}} \gets \mathbf{\Sigma}_{C_{k}}$ \Comment{Initialise as the covariance matrices of the clusters}
+    \State $C_{k} \gets w_{k} \times \mathcal{N}(\mathbf{\mu_{k}}, \mathbf{\Sigma_{k}})$ \Comment{Initialise the clusters/Gaussians}
+
+    \State \textbf{Expectation-Maximisation:}
+    \State $\mathcal{L} \gets 0$ \Comment{Initialise the log-likelihood}
+    \For{$i < \text{max-iter}$}
+      \State \textbf{Expectation step:}
+      \For{$k \in K$}
+        \State $\mathbf{b_{k}} \gets \frac{w_{k} \times f(\mathbf{x}|\mathbf{\mu_{k}}, \mathbf{\Sigma_{k}})}{\sum_{j=1}^{K} w_{j} \times \mathcal{N}(\mathbf{x}|\mathbf{\mu_{j}}, \mathbf{\Sigma_{j}})}$ \Comment{Compute the responsibilities for each cluster}
+      \EndFor
+      \State \textbf{Maximisation step:}
+      \For{$k \in K$}
+        \State $w_{k} \gets \frac{1}{n} \sum_{i=1}^{n} \mathbf{b}_{k}$ \Comment{Update the weights}
+        \State $\mathbf{\mu_{k}} \gets (\sum \mathbf{b}_{k}\mathbf{x})/\sum \mathbf{b}_{k}$ \Comment{Update the means}
+        \State $\mathbf{\Sigma_{k}} \gets (\sum \mathbf{b}_{k}(\mathbf{x} - \mathbf{\mu}_{k})^{2})/\sum \mathbf{b}_{k}$ \Comment{Update the covariance matrices}
+      \EndFor
+      \State $\mathcal{L}_{\text{new}} \gets \sum_{i=1}^{n} \log(\sum_{k=1}^{K} w_{k} \times f(x_{i}|\mathbf{\mu_{k}}, \mathbf{\Sigma_{k}}))$ \Comment{Compute the log-likelihood}
+      \State $\epsilon \gets \mathcal{L} - \mathcal{L}_{\text{new}}$ \Comment{Compute the difference in log-likelihood}
+      \If{$\epsilon < 10^{-4}$}
+        \State \textbf{break}
+      \EndIf
+      \State $\mathcal{L} \gets \mathcal{L}_{\text{new}}$ \Comment{Update the log-likelihood}
+    \EndFor
+
+
+  \end{algorithmic}
+  Where:
+
+  - $f(\mathbf{x}|\mathbf{\mu_{k}}, \mathbf{\Sigma_{k}})$ is the probability density function of a multivariate normal distribution
+\end{definitionbox}
+
 
 
 \bibliographystyle{plain}
