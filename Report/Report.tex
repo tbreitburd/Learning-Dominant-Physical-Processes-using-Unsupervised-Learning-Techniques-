@@ -285,16 +285,18 @@ With SPCA done, the active terms can be identified and from here, the original a
 
 The first result to check is the terms obtained in Fig. \ref{fig:RANS_terms}. These were obtained with the original code, which made use of \texttt{scipy.sparse}. The alternative code, which used \texttt{numpy.gradient} instead, gave the same results (see Fig. \ref{fig:custom_RANS_terms}). The reason why Callaham et al. used \texttt{scipy.sparse} is likely because it is more generalisable to all variables, however, they also used \texttt{numpy.gradient} for other case studies. And using \texttt{numpy.gradient} leads to considerable speed ups.
 
-\begin{figure}
+\begin{figure}[htbp]
   \centering
   \includegraphics[width=0.8\textwidth]{../Plots/BL/custom_RANS_terms.png}
   \caption{Plot of the 6 terms in the RANS equation (Eq 5.1), using an alternative code}
   \label{fig:custom_RANS_terms}
 \end{figure}
 
-The next step is to cluster the data in equation space. The resulting clusters' covariance matrices were obtained and are plotted in Figure \ref{fig:custom_GMM_cov_mat}. And plotting the current clustering in physical space gives the results in Figure \ref{fig:GMM_clusters}. As can be seen results do differ, with the alternative code needing 7 clusters to identify the transitional layer (instead of 6 for the original code). The difference could be explained by either the different convergence criterion or some of the covariance matrices regularisation that is done in the \texttt{sklearn} implementation\cite{sklearnGMM}.
+\newpage
 
-\begin{figure}
+The next step is to cluster the data in equation space. The resulting clusters' covariance matrices were obtained and are plotted in Figure \ref{fig:GMM_cov_mat}. And plotting the current clustering in physical space gives the results in Figure \ref{fig:GMM_clusters}. As can be seen results do differ, with the alternative code needing 7 clusters to identify the transitional layer (instead of 6 for the original code). The difference could be explained by either the different convergence criterion or some of the covariance matrices regularisation that is done in the \texttt{sklearn} implementation\cite{sklearnGMM}.
+
+\begin{figure}[htbp]
   \centering
   \begin{subfigure}[b]{0.7\textwidth}
       \includegraphics[width=\textwidth]{../Plots/BL/GMM_cov_mat.png}
@@ -305,11 +307,11 @@ The next step is to cluster the data in equation space. The resulting clusters' 
       \caption{}
   \end{subfigure}
   \caption{Covariance matrices of for each of the clusters found by the \texttt{sklearn} (a) and custom (b) GMM algorithm}
-  \label{fig:custom_GMM_cov_mat}
+  \label{fig:GMM_cov_mat}
 \end{figure}
 
 
-\begin{figure}
+\begin{figure}[htbp]
   \centering
   \begin{subfigure}[b]{0.7\textwidth}
       \includegraphics[width=\textwidth]{../Plots/BL/GMM_clustering_space.png}
@@ -319,51 +321,86 @@ The next step is to cluster the data in equation space. The resulting clusters' 
       \includegraphics[width=\textwidth]{../Plots/BL/custom_GMM_clustering_space.png}
       \caption{}
   \end{subfigure}
-  \caption{Plot of the clusters found by the \texttt{sklearn} (a) and custom (b) GMM algorithm}
+  \caption{Plot of the clusters found by the \texttt{sklearn} (a) and custom (b) GMM algorithm. The cluster numbers here match the ones in Figure \ref{fig:GMM_cov_mat}, but not 0 indexed}
   \label{fig:GMM_clusters}
 \end{figure}
 
-Then comes applying SPCA to the points in each cluster to identify which terms are active. In this case, the \texttt{sklearn} function is still used, though with alternative code to handle the results. Due to the different clustering obtained, the optimal alpha values had to be different for each method. For the original code, the optimal alpha value was set to 10, but had to be set to 7 for the alternative code, in order to keep the
+\newpage
+
+Then comes applying SPCA to each cluster to identify which terms are active in it. In this case, the \texttt{sklearn} function is still used, though with alternative code to handle the results. Due to the different clustering obtained, the optimal alpha values had to be different for each method. For the original code, the optimal alpha value was set to 10, but had to be set to 7 for the alternative code, in order to keep the inertial sublayer unique and separate from the background free-stream (see Fig. \ref{fig:balance_model_clusters}). The results of the SPCA algorithm are $n_{clusters}$ sets of active terms. In the case where some clusters have the same active terms, they are combined. This results in a set of unique balance models, which are plotted in Figure \ref{fig:balance_models}. Similarly to in Figure \ref{fig:custom_GMM_cov_mat}, some clusters are well identified by both methods. In both methods, the spatial arrangements of the clusters are the same, though their dynamics sometimes differ, or even switch (free flow vs inertial sublayer in orange). Overall, similar key dynamics are identified in most of the clusters. For example, the viscous sublayer in blue and green has the visous forces and streamwise Reynolds' stress terms as active. The inflow region crucially has the streamwise Reynolds' stress term as active. And in both cases the transitional layer is identical.
 
 
 \begin{figure}[htbp]
   \centering
   \begin{subfigure}[b]{0.45\textwidth}
-      \includegraphics[width=\textwidth]{../Plots/BL/GMM_spca_residuals.png}
+      \includegraphics[width=\textwidth]{../Plots/BL/GMM_balance_models.png}
       \caption{}
   \end{subfigure}
   \hfill
   \begin{subfigure}[b]{0.45\textwidth}
-      \includegraphics[width=\textwidth]{../Plots/BL/custom_GMM_spca_residuals.png}
+      \includegraphics[width=\textwidth]{../Plots/BL/custom_GMM_balance_models.png}
       \caption{}
   \end{subfigure}
-  \caption{Plot of the residuals of the SPCA algorithm, when using the original Callaham et al. code (a) and an alternative code (b)}
-  \label{fig:SPCA_residuals}
+  \caption{Plot of the unique balance models found after applying SPCA, when using the original Callaham et al. code (a) and an alternative code (b). Here, the cluster colors will match the ones in Figure \ref{fig:balance_model_clusters}}
+  \label{fig:balance_models}
 \end{figure}
-
-
-One can see the active for the 2 codes in Fig. \ref{fig:active_terms}
 
 
 \begin{figure}[htbp]
   \centering
-  \begin{subfigure}[b]{0.45\textwidth}
-      \includegraphics[width=\textwidth]{../Plots/BL/GMM_active_terms.png}
+  \begin{subfigure}[b]{0.7\textwidth}
+      \includegraphics[width=\textwidth]{../Plots/BL/GMM_spca_clustering_space.png}
       \caption{}
   \end{subfigure}
-  \hfill
-  \begin{subfigure}[b]{0.45\textwidth}
-      \includegraphics[width=\textwidth]{../Plots/BL/custom_GMM_active_terms.png}
+  \begin{subfigure}[b]{0.7\textwidth}
+      \includegraphics[width=\textwidth]{../Plots/BL/custom_GMM_spca_clustering_space.png}
       \caption{}
   \end{subfigure}
-  \caption{Plot of the terms identified as active by the SPCA algorithm, when using the original Callaham et al. code (a) and an alternative code (b)}
-  \label{fig:active_terms}
+  \caption{Plot of the unique balance model clusters in physical space, when using the original Callaham et al. code (a) and an alternative code (b). \textbf{(a)} Identified balance models include a laminar inflow region (red), a free-stream region (green), an inertial sublayer (orange), a transitional layer (purple), and a viscous sublayer (blue). \textbf{(b)} Identified balance models include an inflow region with low Reynolds' stress (brown), a free-stream region (orange), an inertial sublayer with stream-wise and wall normal inertial forces (red), a transitional layer (purple), and a viscous sublayer (green and blue). The cluster colors here match the ones in Figure \ref{fig:balance_models}}
+  \label{fig:balance_model_clusters}
 \end{figure}
+
+Overall, there is a good agreement between the results considering differences in the specifics of the Gaussian Mixture Modelling clustering algorithm. The alternative code was able to reproduce the identification of important dynamics in the boundary layer. It is also important to note that, though the overall method presented in Callaham et al. (2021)\cite{callaham2021learning} brings large improvements in terms of generalising the identification of dominant balance regimes for different cases, there are still two parameters to set, the number of clusters to find when using the GMM algorithm, and the alpha value for the SPCA algorithm. And these can have a large impact on the results obtained. This is a key point to keep in mind and will be further discussed in the Stability Assessment section.
 
 
 \section{Exploration of other algorithms}
 
+In the interest of further testing Callaham et al.'s method, a ??short discussion?? of the choice of clustering algorithm is carried out in this section.
+
 \subsection{Spectral clustering}
+
+\begin{figure}[ht]
+  \centering
+
+  \begin{minipage}{\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{../Plots/BL/SC_CovMat.png}
+    \subcaption{}
+  \end{minipage}
+
+
+  \begin{minipage}{\textwidth}
+      \begin{minipage}[b]{0.5\textwidth}
+          \centering
+          \includegraphics[width=\textwidth]{../Plots/BL/SC_clustering_space.png}
+          \subcaption{}
+      \end{minipage}
+      \begin{minipage}[b]{0.5\textwidth}
+          \centering
+          \includegraphics[width=\textwidth]{../Plots/BL/SC_balance_models.png}
+          \subcaption{}
+      \end{minipage}
+  \end{minipage}
+
+
+  \begin{minipage}{\textwidth}
+      \centering
+      \includegraphics[width=\textwidth]{../Plots/BL/SC_spca_clustering_space.png}
+      \subcaption{}
+  \end{minipage}
+
+  \caption{Your main caption describing the figure.}
+\end{figure}
 
 \subsection{K-Means}
 
