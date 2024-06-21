@@ -81,7 +81,7 @@ def plot_reynolds_stress(x, y, X, Y, u, Reynold_stress, path, show=True):
     os.makedirs(plots_dir, exist_ok=True)
 
     plot_dir = os.path.join(plots_dir, path)
-    plt.savefig(plot_dir)
+    plt.savefig(plot_dir, bbox_inches="tight")
 
     # Show the plot?
     if show:
@@ -212,7 +212,7 @@ def plot_equation_terms_bound_lay(
     os.makedirs(plots_dir, exist_ok=True)
 
     plot_dir = os.path.join(plots_dir, path)
-    plt.savefig(plot_dir)
+    plt.savefig(plot_dir, bbox_inches="tight")
 
     # Show the plot?
     if show:
@@ -280,7 +280,7 @@ def plot_cov_mat(
     os.makedirs(plots_dir, exist_ok=True)
 
     plot_dir = os.path.join(plots_dir, path)
-    plt.savefig(plot_dir)
+    plt.savefig(plot_dir, bbox_inches="tight")
 
     C = None  # Reset the
     C_ = None  # Reset the covariance matrix
@@ -366,7 +366,7 @@ def plot_clustering_2d_eq_space(features, cluster_idx, n_clusters, path, show=Tr
     os.makedirs(plots_dir, exist_ok=True)
 
     plot_dir = os.path.join(plots_dir, path)
-    plt.savefig(plot_dir)
+    plt.savefig(plot_dir, bbox_inches="tight")
 
     # Show the plot?
     if show:
@@ -425,7 +425,7 @@ def plot_clustering_space(
     os.makedirs(plots_dir, exist_ok=True)
 
     plot_dir = os.path.join(plots_dir, path)
-    plt.savefig(plot_dir)
+    plt.savefig(plot_dir, bbox_inches="tight")
 
     # Show the plot?
     if show:
@@ -463,7 +463,7 @@ def plot_spca_residuals(alphas, error, path, show=True):
     os.makedirs(plots_dir, exist_ok=True)
 
     plot_dir = os.path.join(plots_dir, path)
-    plt.savefig(plot_dir)
+    plt.savefig(plot_dir, bbox_inches="tight")
 
     # Show the plot?
     if show:
@@ -527,7 +527,7 @@ def plot_balance_models(spca_model, labels, color, path, show=True):
     os.makedirs(plots_dir, exist_ok=True)
 
     plot_dir = os.path.join(plots_dir, path)
-    plt.savefig(plot_dir)
+    plt.savefig(plot_dir, bbox_inches="tight")
 
     # Show the plot?
     if show:
@@ -587,7 +587,7 @@ def plot_feature_space(features, balance_idx, path, show=True):
     os.makedirs(plots_dir, exist_ok=True)
 
     plot_dir = os.path.join(plots_dir, path)
-    plt.savefig(plot_dir)
+    plt.savefig(plot_dir, bbox_inches="tight")
 
     # Show the plot?
     if show:
@@ -643,7 +643,7 @@ def plot_sublayer_scaling(
     os.makedirs(plots_dir, exist_ok=True)
 
     plot_dir = os.path.join(plots_dir, path)
-    plt.savefig(plot_dir)
+    plt.savefig(plot_dir, bbox_inches="tight")
 
     # Show the plot?
     if show:
@@ -727,7 +727,7 @@ def plot_self_similarity(x, visc_bal_idx, y_plus, u_plus, balancemap, path, show
     os.makedirs(plots_dir, exist_ok=True)
 
     plot_dir = os.path.join(plots_dir, path)
-    plt.savefig(plot_dir)
+    plt.savefig(plot_dir, bbox_inches="tight")
 
     # Show the plot?
     if show:
@@ -763,7 +763,7 @@ def plot_blasius_solution(eta, f, path, show=True):
     os.makedirs(plots_dir, exist_ok=True)
 
     plot_dir = os.path.join(plots_dir, path)
-    plt.savefig(plot_dir)
+    plt.savefig(plot_dir, bbox_inches="tight")
 
     # Show the plot?
     if show:
@@ -832,7 +832,7 @@ def plot_blasius_deviation(x, y, nx, ny, u, eta, f, U_inf, nu, path, show=True):
     os.makedirs(plots_dir, exist_ok=True)
 
     plot_dir = os.path.join(plots_dir, path)
-    plt.savefig(plot_dir)
+    plt.savefig(plot_dir, bbox_inches="tight")
 
     # Show the plot?
     if show:
@@ -887,7 +887,7 @@ def scatter_clustering_space(x, y, cluster_idx, n_clusters, path, show=True):
     os.makedirs(plots_dir, exist_ok=True)
 
     plot_dir = os.path.join(plots_dir, path)
-    plt.savefig(plot_dir)
+    plt.savefig(plot_dir, bbox_inches="tight")
 
     # Show the plot?
     if show:
@@ -946,7 +946,7 @@ def scatter_sublayer_scaling(
     os.makedirs(plots_dir, exist_ok=True)
 
     plot_dir = os.path.join(plots_dir, path)
-    plt.savefig(plot_dir)
+    plt.savefig(plot_dir, bbox_inches="tight")
 
     # Show the plot?
     if show:
@@ -1004,7 +1004,7 @@ def plot_clustering_space_geo(
     os.makedirs(plots_dir, exist_ok=True)
 
     plot_dir = os.path.join(plots_dir, path)
-    plt.savefig(plot_dir)
+    plt.savefig(plot_dir, bbox_inches="tight")
 
     # Show the plot?
     if show:
@@ -1052,7 +1052,7 @@ def plot_clusters_eit(cluster_idx, Lx, nx, Ly, ny, n_clusters, path, show=True):
     os.makedirs(plots_dir, exist_ok=True)
 
     plot_dir = os.path.join(plots_dir, path)
-    plt.savefig(plot_dir)
+    plt.savefig(plot_dir, bbox_inches="tight")
 
     # Show the plot?
     if show:
@@ -1084,7 +1084,7 @@ def plot_clusters_neuron(t, V, cluster, path="Burst_Neur/cluster.png", show=True
     os.makedirs(plots_dir, exist_ok=True)
 
     plot_dir = os.path.join(plots_dir, path)
-    plt.savefig(plot_dir)
+    plt.savefig(plot_dir, bbox_inches="tight")
 
     # Show the plot?
     if show:
@@ -1120,7 +1120,7 @@ def plot_clusters_neuron_terms(
     os.makedirs(plots_dir, exist_ok=True)
 
     plot_dir = os.path.join(plots_dir, path)
-    plt.savefig(plot_dir)
+    plt.savefig(plot_dir, bbox_inches="tight")
 
     # Show the plot?
     if show:
@@ -1158,7 +1158,7 @@ def plot_clustering_optics(clustermap, x, t, n_clusters, path, show=True):
     os.makedirs(plots_dir, exist_ok=True)
 
     plot_dir = os.path.join(plots_dir, path)
-    plt.savefig(plot_dir)
+    plt.savefig(plot_dir, bbox_inches="tight")
 
     # Show the plot?
     if show:
@@ -1218,7 +1218,7 @@ def plot_optical_pulse_3D(x, t, field, balance_clustermap, path, show=True):
     os.makedirs(plots_dir, exist_ok=True)
 
     plot_dir = os.path.join(plots_dir, path)
-    plt.savefig(plot_dir)
+    plt.savefig(plot_dir, bbox_inches="tight")
 
     # Show the plot?
     if show:
