@@ -132,6 +132,11 @@ labels = [
 ]
 
 # Plot all six terms in the RANS equation
+if method == "original":
+    path = "BL/RANS_terms.png"
+else:
+    path = "BL/custom_RANS_terms.png"
+
 pf.plot_equation_terms_bound_lay(
     x,
     y,
@@ -146,19 +151,10 @@ pf.plot_equation_terms_bound_lay(
     p_x,
     nu,
     lap_u,
-    "BL/RANS_terms.png",
+    path,
     False,
 )
 
-
-# ---------------------------------------------
-# Obtain the equation space representation
-# of the RANS equation
-# ---------------------------------------------
-
-# Gather the terms into an array of features
-features = 1e3 * np.vstack([u_bar * u_x, v_bar * u_y, p_x, nu * lap_u, R_uvy, R_uux]).T
-nfeatures = features.shape[1]
 
 # ---------------------------------------------
 # Cluster using Gaussian Mixture Models (GMM)
@@ -172,6 +168,12 @@ nc = int(sys.argv[2])
 print(f"Number of clusters: {nc}")
 
 if method == "original":
+    # Gather the terms into an array of features
+    features = (
+        1e3 * np.vstack([u_bar * u_x, v_bar * u_y, p_x, nu * lap_u, R_uvy, R_uux]).T
+    )
+    nfeatures = features.shape[1]
+
     # Fit Gaussian mixture model
     seed = 76016  # Set a seed for debugging/plotting
     model = GaussianMixture(n_components=nc, random_state=seed)
@@ -212,7 +214,6 @@ else:
         range(features.shape[0]), train_size=sample_pct, random_state=seed
     )
     model.fit(features[mask, :])
-    clustering_train = model.predict(features[mask, :])
 
     algo = "CustomGMM"
     path = "BL/custom_GMM_cov_mat.png"
@@ -318,7 +319,7 @@ pf.plot_spca_residuals(alphas, err, path, False)
 
 
 # Now with optimal alpha, get the active terms in each cluster
-alpha_opt = int(sys.argv[3])  # Optimal alpha value
+alpha_opt = float(sys.argv[3])  # Optimal alpha value
 print(f"Optimal alpha: {alpha_opt}")
 
 spca_model = np.zeros([nc, nfeatures])  # Store the active terms for each cluster
@@ -439,7 +440,12 @@ print("----- Outer layer scaling -----")
 u_map = np.reshape(u_bar, (ny, nx), order="F")
 
 # Find which cluster is the inertial sublayer.
-inert_sub_idx = np.where(np.all(balance_models == [1, 0, 0, 0, 1, 0], axis=1))[0]
+if method == "original":
+    inert_sub_idx = (
+        np.where(np.all(balance_models == [1, 0, 0, 0, 1, 0], axis=1))[0] + 1
+    )
+else:
+    inert_sub_idx = np.where(np.all(balance_models == [1, 0, 0, 0, 1, 0], axis=1))[0]
 print(inert_sub_idx)
 
 # Define some variables
@@ -504,10 +510,11 @@ print("y+ coordinates where the balance ends:")
 
 if method == "original":
     path = "BL/GMM_self_similarity.png"
+    pf.plot_self_similarity(x, 0, y_plus, u_plus, balancemap, path, show=False)
 else:
     path = "BL/custom_GMM_self_similarity.png"
+    pf.plot_self_similarity(x, 2, y_plus, u_plus, balancemap, path, show=False)
 
-pf.plot_self_similarity(x, 0, y_plus, u_plus, balancemap, path, show=False)
 
 # ----- Blasius Solution in laminar regime -----
 # There is an inflow region with negligible Reynolds stresses (left boundary),
