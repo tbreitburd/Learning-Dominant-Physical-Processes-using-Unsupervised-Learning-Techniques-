@@ -256,7 +256,10 @@ def plot_cov_mat(
 
     # Get the covariance matrix for each cluster
     for i in range(n_clusters):
-        plt.subplot(3, 3, i + 1)
+        if n_clusters < 10:
+            plt.subplot(3, 3, i + 1)
+        else:
+            plt.subplot(5, 4, i + 1)
         C_ = C[i, :, :]
         # Plot a colormap of the covariance matrix
         plt.pcolor(
