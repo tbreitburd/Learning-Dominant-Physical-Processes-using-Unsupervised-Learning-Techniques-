@@ -365,50 +365,143 @@ Overall, there is a good agreement between the results considering differences i
 
 \section{Exploration of other algorithms}
 
-In the interest of further testing Callaham et al.'s method, a ??short discussion?? of the choice of clustering algorithm is carried out in this section.
+In the interest of further testing Callaham et al.'s method, and following the Supplementary Discussion in the Supplementary Information of the paper\cite{callaham2021learning}, other clustering algorithms could be used compared to Gaussian Mixture Models. This section explores a few options, and discusses the results obtained.
 
 \subsection{Spectral clustering}
 
-\begin{figure}[ht]
+Because of the data that is being dealt with, the similarity measure used by the clustering algorithm being Euclidean in nature may not be the most appropriate. As a result, spectral clustering is a convincing candidate for this, and it was also suggested in the Supplementary Discussion of the paper\cite[Supplementary Information]{callaham2021learning}.
+
+\begin{figure}[htbp]
   \centering
 
-  \begin{minipage}{\textwidth}
+  \begin{minipage}{0.7\textwidth}
     \centering
     \includegraphics[width=\textwidth]{../Plots/BL/SC_CovMat.png}
     \subcaption{}
   \end{minipage}
 
-
   \begin{minipage}{\textwidth}
-      \begin{minipage}[b]{0.5\textwidth}
+      \begin{minipage}[b]{0.6\textwidth}
           \centering
           \includegraphics[width=\textwidth]{../Plots/BL/SC_clustering_space.png}
           \subcaption{}
       \end{minipage}
-      \begin{minipage}[b]{0.5\textwidth}
+      \begin{minipage}[b]{0.35\textwidth}
           \centering
           \includegraphics[width=\textwidth]{../Plots/BL/SC_balance_models.png}
           \subcaption{}
       \end{minipage}
   \end{minipage}
 
-
-  \begin{minipage}{\textwidth}
+  \begin{minipage}{0.7\textwidth}
       \centering
       \includegraphics[width=\textwidth]{../Plots/BL/SC_spca_clustering_space.png}
       \subcaption{}
   \end{minipage}
 
-  \caption{Your main caption describing the figure.}
+  \caption{Results of the Spectral Clustering algorithm for the turbulent boundary layer case. \textbf{(a)} Covariance matrices of for each of the clusters found by the Spectral Clustering algorithm. \textbf{(b)} Plot of the clusters found by the Spectral Clustering algorithm. \textbf{(c)} Plot of the unique balance models found after applying SPCA. \textbf{(d)} Plot of the unique balance model clusters in physical space. Identified balance models include....}
+
+  \label{fig:SC_results}
 \end{figure}
+
+Using spectral clustering, the main drawback is the computational complexity $\mathcal{O}(n^3)$, where $n$ is the number of samples. Thus, it is not the most efficient algorithm for larger datasets, which most physical systems likely will be. Furthermore, it is not possible to sequentially add new points to the graph. Training it for a fraction of 0.01 of the full dataset, the results are shown in Figure \ref{fig:SC_results}. Because it is hard to predict cluster membership for all points, the solution was to plot the cluster memberships as a scatter plot. Overall, spectral clustering does deal well with the different shaped clusters, as it can be seen that the same main structure in the flow was captured. However, looking at the dynamics identified, it is once again the case that some of the key dynamics are identified, notably the inertial and viscous sublayers (orange and green). However, the inertial sublayer here extends vertically in the region identified by the original code as the laminar inflow region. Further, a large cluster of which covers the previously identified transitional and laminar inflow region is simply considered to have all terms active (except the wall-normal stress term).
+
+Therefore, though it provides a non-Euclidean based clustering algorithm, spectral clustering is not the most appropriate for this case study, or at least the aims of the method proposed by Callaham et al. (2021)\cite{callaham2021learning}. It is computationally expensive, cannot accept new data points, and additionally can require one extra parameter to set (\texttt{n\_neighbours}), for when using nearest neighbours to build the graph.
+
 
 \subsection{K-Means}
 
+The next algorithm used is the K-Measn algorithm. Compared to spectral clustering it is much less computationally expensive, and is able to accept new data points. The main drawback is that it may not be best suited for any physical system. For example, in the case of the turbulent boundary layer, the clusters are not spherical, but more importantly, a great majority of points is near the origin, and K-Means clustering will struggle to distinguish that group of points as multiple clusters. One work-around used here is to set a higher number of clusters to find which may force the algorithm to find the different clusters in the cloud of points that are near the origin.
+
+\begin{figure}[htbp]
+  \centering
+
+  \begin{minipage}{0.7\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{../Plots/BL/KMeans_CovMat.png}
+    \subcaption{}
+  \end{minipage}
+
+  \begin{minipage}{\textwidth}
+      \begin{minipage}[b]{0.6\textwidth}
+          \centering
+          \includegraphics[width=\textwidth]{../Plots/BL/KMeans_Clustering_space.png}
+          \subcaption{}
+      \end{minipage}
+      \begin{minipage}[b]{0.35\textwidth}
+          \centering
+          \includegraphics[width=\textwidth]{../Plots/BL/KMeans_balance_models.png}
+          \subcaption{}
+      \end{minipage}
+  \end{minipage}
+
+  \begin{minipage}{0.7\textwidth}
+      \centering
+      \includegraphics[width=\textwidth]{../Plots/BL/KMeans_spca_clustering.png}
+      \subcaption{}
+  \end{minipage}
+  \caption{Results of the K-Means algorithm for the turbulent boundary layer case. \textbf{(a)} Covariance matrices of for each of the clusters found by the K-Means algorithm. \textbf{(b)} Plot of the clusters found by the K-Means algorithm. \textbf{(c)} Plot of the unique balance models found after applying SPCA. \textbf{(d)} Plot of the unique balance model clusters in physical space. Identified balance models include....}
+
+  \label{fig:KMeans_results}
+\end{figure}
+
+The results of the K-Means algorithm are shown in Figure \ref{fig:KMeans_results}. Using the larger cluster number did help in identifying distinct regions however, the dominant balance regimes identified in them do differ significantly from the ones identified by the original code. Again, clusters with similar dominant balances than originally identified extend in other regions which had been identified ot have very different dominant balance regimes (orange cluster in Fig. \ref{fig:KMeans_results}).
+
 \subsection{Weighted K-Means}
+
+One solution to K-Means relying solely on Euclidean distance is to apply a weight to the samples. This is done in order to give more importance to the samples that are closer to the origin, essentially mimicking the effect of spreading them apart. This should encourage the algorithm to identify multiple clusters in the cloud of points near the origin. The weights are set as follows:
+
+\begin{equation}
+  w_i = 1 - (\text{tanh}^{2}(\frac{1}{2}|\vec{OX}|)) \text{, where } \vec{OX} \text{ is the vector from the origin to the sample} x_i
+\end{equation}
+
+\begin{figure}[htbp]
+  \centering
+
+  \begin{minipage}{0.7\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{../Plots/BL/WKMeans_CovMat.png}
+    \subcaption{}
+  \end{minipage}
+
+  \begin{minipage}{\textwidth}
+      \begin{minipage}[b]{0.6\textwidth}
+          \centering
+          \includegraphics[width=\textwidth]{../Plots/BL/WKMeans_clustering_cpace.png}
+          \subcaption{}
+      \end{minipage}
+      \begin{minipage}[b]{0.35\textwidth}
+          \centering
+          \includegraphics[width=\textwidth]{../Plots/BL/WKMeans_balance_models.png}
+          \subcaption{}
+      \end{minipage}
+  \end{minipage}
+
+  \begin{minipage}{0.7\textwidth}
+      \centering
+      \includegraphics[width=\textwidth]{../Plots/BL/WKMeans_spca_clustering_space.png}
+      \subcaption{}
+  \end{minipage}
+  \caption{Results of the Weighted K-Means algorithm for the turbulent boundary layer case. \textbf{(a)} Covariance matrices of for each of the clusters found by the Weighted K-Means algorithm. \textbf{(b)} Plot of the clusters found by the Weighted K-Means algorithm. \textbf{(c)} Plot of the unique balance models found after applying SPCA. \textbf{(d)} Plot of the unique balance model clusters in physical space. Identified balance models include....}
+
+  \label{fig:WKMeans_results}
+\end{figure}
+
+The results of the Weighted K-Means algorithm are shown in Figure \ref{fig:WKMeans_results}. The results are quite similar to standard K-Means however, they were obtained by having the GMM find 6 clusters only. Once again some of the key dominant balance regimes are identified but they are mot assigned to the same locations as in the original code.
+
+\subsection{Summary}
+
+Overall, the Guassian Mixture Model clusteirng algorithm offers really good flexibility thanks to its small amounts of hyperparameters, and for adding new data points. Additionally, it is able to identify clusters of different shapes and sizes, which is important when differentiating differend dominant balances close to the origin. Another possible path to explore could be a mixture of other distributions, e.g. Cauchy.
 
 \section{Stability Assessment}
 
+Though Callaham et al. (2021)\cite{callaham2021learning} presents a well generalisable method for unsupervised identification of dominant balance regimes, there are still two hyperparameters to set, the number of clusters to find when using the GMM algorithm, and the alpha value for the SPCA algorithm. These can have a large impact on the results obtained. This section aims to explore the stability of the results obtained when changing these hyperparameters, and discuss the implications of this when using the method for previously unstudied physical systems.
+
 \subsection{Under different number of clusters set}
+
+The first test that can be carried out is
+
+\subsection{Under different alpha values}
 
 \subsection{Under different training set size}
 
