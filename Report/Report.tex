@@ -203,66 +203,77 @@ This generalisable quality is precisely the gap that Callaham et al. (2021)\cite
 
 \chapter{Methodology}
 
-The method proposed by Callaham et al. (2021)\cite{callaham2021learning} can be summarized in three steps.First, representing the data in an equation space, with the terms as features. So that, second, the Gaussian Mixture Model clustering algorithm can be used to identify groups with a similar balance of terms. And finally, using Sparce Principal Component Analysis to identify the active terms in each cluster.
+The method proposed by Callaham et al. (2021)\cite{callaham2021learning} can be summarized in three steps. First, representing the data in an equation space, with the terms as features. Second, using the Gaussian Mixture Model clustering algorithm to identify groups with a similar balance of terms. Finally, using Sparse Principal Component Analysis to identify the active terms in each cluster. This section will delve into the details of each of these steps, with a summary flow chart in Figure \ref{fig:method_flowchart}.
 
 \section{Data \& Equation Space Reprensentation}
 
-As previously mentionned, obtaining the data can be done through simulations or measurements, with almost no restrictions as to what equations can be studied. The data comes in the form of space-time fields of physical variables: $u(\vec{x}, t)$, where $u$ is the physical variable considered (e.g. $\vec{u}$, $p$, etc. for the Navier-Stokes equations). The variables must be sufficient so that one may derive the terms of the equation from them. One important requirement is that the computed must all balance out to 0 for each point in time and space. And this comes down to computing the terms as they are in the equation, since this results in a linear covariance structure, as each term is balanced by a linear combination of the other terms\cite[Supplementary Information]{callaham2021learning}.
+As previously mentionned, obtaining the data can be done through simulations or measurements, with almost no restrictions as to what equations can be studied. The data comes in the form of space-time fields of physical variables: $u(\vec{x}, t)$, where $u$ is the physical variable considered (e.g. $\vec{u}$, $p$, etc. for the Navier-Stokes equations). The variables must be sufficient so that one may derive all the terms of the equation from them. One important requirement is that the computed terms must all balance out to 0 for each point in time and space. This comes down to how one computes said terms. They must be as they are in the equation, since this results in a linear covariance structure, as each term is balanced by a linear combination of the other terms\cite[Supplementary Information]{callaham2021learning}. For example, if a term is a squared comnbination of variables, it must be computed as such, and not as the combination of variables.
 
-% INCLUDE: flow chart map of getting the terms from the data?
+\vspace{5mm}
 
-The main idea of the method proposed here is to reorganize these physical space fields into an equation space where each coordinate is one of the term in the equation, and each sample is a point in space and time. Thus each sample will be a vector $\vec{f} \in \mathbb{R}^k$ where $k$ is the number of terms in the equation, such that:
+The fundamental idea of the Callaham et al. (2021) method is to take these physical-space fields of terms and organize them into an equation space where each dimension is one of the terms in the equation, and each sample is a point in space and time. Thus, each sample will be a vector $\vec{f} \in \mathbb{R}^k$ where $k$ is the number of terms in the equation, such that:
 
 \begin{equation}
     \vec{f} = \begin{bmatrix} f_1(u(\vec{x}, t), \hdots) \\ f_2(u(\vec{x}, t), \hdots) \\ \vdots \\ f_k(u(\vec{x}, t), \hdots) \end{bmatrix}
 \end{equation}
 
-Where $f_i$ is the $i^{th}$ term in the equation, itself a function of the physical variables. Again, one must make sure that for each sample, the terms all balance out to 0.
+Where $f_i$ is the $i^{th}$ term in the equation, itself a function of the physical variables. Again, one must ensure that for each sample, the terms all balance out to 0, or that the residual is several orders of magnitude smaller than the terms themselves. This is in order to make sure that the equation studied or data used is not invalid.
 
 
 \section{Gaussian Mixture Model Clustering}
 
-Geometrically, by clustering points in this equation space, one can identify groups of points which have a similar balance of terms. Here the algorithm chosen is the Gaussian Mixture Model (GMM) clustering algorithm. This algorithm relies on the assumption that the data has been generated from a mixture of a finite number of Gaussian distributions with unknown parameters\cite{mit2015algorithmic}. It has the advantage of being able to identify clusters of with varying shapes and sizes. It only requires one hyperparameter which is the number of clusters one wants the algorithm to find, and therefore how many gaussian distributions the data is assumed to have been generated from\cite{sklearnGMM}.
+Geometrically, by clustering points in this equation space, one can identify groups of points that have a similar balance of terms. Here, the chosen algorithm is the Gaussian Mixture Model (GMM) clustering algorithm. This algorithm relies on the assumption that the data has been generated from a mixture of a finite number of Gaussian distributions with unknown parameters\cite{mit2015algorithmic}. It has the advantage of being able to identify clusters with varying shapes and sizes. It only requires one hyperparameter, which is the number of clusters one wants the algorithm to find, and therefore how many Gaussian distributions the data is assumed to have been generated from\cite{sklearnGMM}. Thus, for each case study, a number of clusters to identify needs to be chosen. Generally, the choice should be conservative, aiming for a number of clusters that is likely to be greater than the true/expected number of dominant balance regimes in the system.
 
-The way GMMs fit to the data is by using the Expectation-Maximisation algorithm. This algorithm starts from an initial guess for the parameters of the gaussian distributions, the iteratively evaluates the posterior probability of each point belonging to each cluster, and updates the parameters with weighted averages\cite{dempster1977maximum}. This converges to the maximum likelihood estimates of the parameters. The algorithm is explained in greater detail in Algorithm 1 in the Appendix.
+\vspace{5mm}
 
-Another key output of the GMM is that its probabilistic nature allows for the identification of covariances between the terms in each cluster, as these are defined by a gaussian distribution and its covariance matrix.
+The way GMMs fit to the data is by using the Expectation-Maximisation algorithm. This algorithm starts from an initial guess for the parameters of the gaussian distributions. The expectation step then evaluates the sum posterior probability of each point belonging to each cluster. And the maximisation step updates the parameters with weighted averages of those posterior probabilities\cite{dempster1977maximum} (see Alg. 1, in section \ref{alg:GMM}). This converges to the maximum likelihood estimates of the parameters (see Fig. \ref{fig:GMM_example}). Once fitted, cluster membership of new data points can be determined by taking the cluster with the highest probability at that point.
 
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.4\textwidth]{./GMMexample 1.png}
+  \includegraphics[width=0.4\textwidth]{./GMM example 2.png}
+  \includegraphics[width=0.4\textwidth]{./GMM example 3.png}
+  \includegraphics[width=0.4\textwidth]{./GMM example 4.png}
+  \caption{Example of a Gaussian Mixture Model fit to data. The data is generated from 3 Gaussian distributions, and the GMM algorithm fits 3 Gaussians to it. \cite[1D Example Notebook]{gmm_towardsdatascience}}
+  \label{fig:GMM_example}
+\end{figure}
+
+Another key output of the GMM is in its probabilistic nature which has the covariance matrix of each cluster/Gaussian as part of its output, thus describing the covariance between each term in the equation within that cluster. This gives insight into which terms could be active in each cluster, and also helps illustrate how the method can identify active terms geometrically. If only a subset of the terms in a cluster have non-zero covariance, then it means that it is only along that subset of dimensions that the cluster varies, and hence the terms are non-negligible.
 
 \section{Sparse Principal Component Analysis}
 
-With the points grouped in clusters of similar balance of terms, the next step is to identify which are active and which can be dropped to simply the equation. This is done through Sparse Principal Component Analysis (SPCA). Principal Component Analysis (PCA) is a method that is usually used to reduce the dimensionality of the data, whilst maximising the information kept. The new dimensions onto which the data is projected are called principal components and are the directions in which the data has the greatest variance\cite{lever2017principal}. SPCA differs from PCA in that it adds a sparsity constraint to the principal components, resulting in most coefficients of the PCs being zero. This is done by adding a L1 penalty to the objective function of PCA, which leads to some coefficients being shrunk down to 0\cite{zou2006sparse}. Again, SPCA is explained in greater detail in Algorithm 2 in the Appendix.
+With the points grouped in clusters of similar balance of terms, the next step is to identify which terms are active and which can be dropped to simplify the equation for that cluster. This is done through Sparse Principal Component Analysis (SPCA). Principal Component Analysis (PCA) is a method that is usually used to reduce the dimensionality of the data, whilst maximising the information retained. The new dimensions onto which the data is projected are called principal components and are the directions in which the data has the greatest variance\cite{lever2017principal}. SPCA differs from PCA in that it adds a sparsity constraint to the principal components, resulting in most coefficients of the PCs being zero. This is done by adding a L1 penalty to the objective function of PCA for the number of non-zero coefficients, leading to some coefficients being shrunk down to 0\cite{zou2006sparse} (see Alg. 2, in section \ref{alg:SPCA}).
 
 
 \chapter{Conducted research}
 
-To test and validate this method Callaham et al. used a series of case studies\cite{callaham2021learning}. While some were well studied physical systems whose dominant balance regimes were well known (Turbulent boundary layer, Geostrophic balance currents), others were more complex and less understood (Optical pulse generation, rotating detonation engine). For these latter cases, the paper therefore presents a first plausible identification of dominant balance regimes. In this chapter, the aim is to discuss the reproducibility of the results of the paper, as well as testing and discussing the drawbacks of the method.
+To test and validate this method, Callaham et al.\ used a series of case studies\cite{callaham2021learning}. While some were well-studied physical systems with well-known dominant balance regimes (e.g., turbulent boundary layer, geostrophic balance currents), others were more complex and less understood (e.g., optical pulse generation, rotating detonation engine). For these latter cases, the paper presents a first plausible identification of dominant balance regimes. In this chapter, the aim is to discuss the reproducibility of the results presented in the paper, as well as to test and discuss the limitations of the method.
 
 \section{Portability of the code}
 
-One great quality of the Callaham et al. (2021)\cite{callaham2021learning} is the sharing of their code in the form of runnable notebooks. With the overarching motivation for this project being the importance of reproducibility in todays code-rich research environment, it is key that scientists share their code, so one may verify how the results were obtained. This is also a great asset as it allows for a more useful reproduction of the results, where explicitely different results can be tested.
+One great quality of Callaham et al. (2021)\cite{callaham2021learning} is the sharing of their code in the form of runnable notebooks. With the overarching motivation for this project being the importance of reproducibility in today’s code-rich research environment, it is key that scientists share their code so one may verify how the results were obtained. This is also a great asset as it allows for a more useful reproduction of the results, where explicitly different results can be tested.
 
-Overall, the code is of great quality, though some portability issues were encountered. Some of the dependencies were not stated in their README. More importantly, it seemed some of the data generating code was modified between running their final notebook versions and their uploading to the repository. This lead to some troubleshooting to get the data to be the same as the one used in the paper. And for the flow past a cylinder case, a file needed in the setup of the Nek5000 simulation software was missing\cite{nek5000setup}. For the bursitng neuron case, the time for which the data was generated was wrongly set. Similarly for the gesotrophic current data, the remote reading code was selecting snapshots of the data that did not match the ones used in the paper, and the first 45 were set to zero, which had no real use. Further, the results in the paper are actually obtained from a different snapshot than the one stated in the paper. For this report, the data was simply downloaded from the HYCOM database \cite{hycom} and the time was set to the same as the one used in the paper.
+Overall, the code is of great quality, though some portability issues were encountered. Some of the dependencies were not stated in their README. More importantly, it seemed some of the data-generating code was modified between running their final notebook versions and their uploading to the repository. This led to some troubleshooting to get the data to match the data used in the paper. For the flow past a cylinder case, a file needed in the setup of the Nek5000 simulation software was missing\cite{nek5000setup}. For the bursting neuron case, the times for which the data was generated was wrongly set. Similarly, for the geostrophic current data, the remote reading code was selecting snapshots of the data that did not match the ones used in the paper, and the first 45 were set to zero, which had no real use. Further, the results in the paper are actually obtained from a different snapshot than the one stated in the paper. For this report, the data was simply downloaded from the HYCOM database \cite{hycom}, and the time was set to the same as the one used in the paper.
 
-Nevertheless, the code was otherwise easy to run and the notebook format was very useful to follow the logic of the code. From this, the code was first written for the turbulent boundary layer case. And explicitely alternative code was then written to test the reproducibility of the results.
+Nevertheless, the code was otherwise easy to run, and the notebook format was very useful for following the logic of the code. From this notebook, the code was first written for the turbulent boundary layer case. Explicitly alternative code was then written to test the reproducibility of the results.
 
 \section{Reproducing of the results}
 
-Reiterating previously made points, one of the main goals of this project is to verify the results of Callaham et al. (2021)\cite{callaham2021learning}. Not only check that the results can be reproduced but to do so using alternative code. The aim here is to have code differently written which in practice does the same thing. This is to make sure none of the main results from Callaham et al. are due to a "lucky" bug in their code.
+Reiterating previously made points, one of the main goals of this project is to verify the results of Callaham et al. (2021)\cite{callaham2021learning}. The objective is not only to check that the results can be reproduced but to do so using alternative code. The aim here is to have code written differently that, in practice, performs the same functions. This is to ensure that none of the main results from Callaham et al. are due to a “lucky” bug in their code, and were obtained through random chance.
 
 \subsection{Turbulent Boundary Layer}
 
-Because the underlying method is essentially the same for all case studies. The choice was made to put particular focus on just one of the cases, and less so on the others. The scenario chosen was the boundary layer in transition to turbulence.
+Because the underlying method is essentially the same for all case studies, the choice was made to put particular focus on just one of the cases, and less so on the others. The scenario chosen was the boundary layer in transition to turbulence.
 
-Throughout the Callaham et al. (2021)\cite{callaham2021learning} Notebooks, aside from the 3 main steps of the method, the large majority of the code is the handling of the data, switching from equation space to physical space, and getting the unique balance models. Most of it is written using \texttt{Numpy}, which is the most efficient way. In the alternative code however, \texttt{Pandas} was mostly used. In terms of performance, it is close to \texttt{Numpy}, especially for the size of the data. For some code sections, however, some impractical work arounds were required, particularly to replace the \texttt{numpy.unique} method.
+Throughout the Callaham et al. (2021)\cite{callaham2021learning} notebooks, aside from the three main steps of the method, the large majority of the code involves handling the data, switching from equation space to physical space, and obtaining the unique balance models. Most of it is written using \texttt{Numpy}, which is the most efficient way. In the alternative code, however, \texttt{Pandas} was primarily used. In terms of performance, it is close to \texttt{Numpy}, especially for the size of the data in this study. For some code sections, however, impractical workarounds were required, particularly to replace the \texttt{numpy.unique} method.
 
-The data for this case study is obtained from the John Hopkins database, which ran a direct numerical simulation of a boundary layer over a stationary plate\cite{jhtdb}. In this database are given the x and y coordinates as well as the following variables: $u$, the streamwise component of velocity, $v$, the wall-normal component of velocity, $p$, the fluid pressure, and $(\overline{u' v'})$ \& $(\overline{u'^2})$, the wall-normal and streamwise Reynolds' stress term. From these variables, the terms of the streamwise component of the Reynolds Averaged Navier-Stokes Equation need to be calculated:
+The data for this case study is obtained from the John Hopkins database, which conducted a direct numerical simulation of a boundary layer over a stationary plate\cite{jhtdb}. This database provides the $x$ and $y$ coordinates as well as the following variables: $u$, the streamwise component of velocity;  $v$, the wall-normal component of velocity;  $p$, the fluid pressure; and $(\overline{u{\prime} v{\prime}})$ and $(\overline{u{\prime}^2})$, the wall-normal and streamwise Reynolds stress terms, respectively. From these variables, the terms of the streamwise component of the Reynolds-Averaged Navier-Stokes (RANS) equations need to be calculated:
 
 \begin{equation}
   \bar{u} \bar{u}_x + \bar{v} \bar{u}_y = \rho^{-1} \bar{p}_x + \nu \nabla^2 \bar{u}  - (\overline{u' v'})_y - (\overline{u'^2})_x
 \end{equation}
 
-In order to get the derivative terms, the method employed by Callaham et al. makes use of \texttt{scipy.sparse}'s sparse matrices. These sparse matrices are built so that when computing the matrix product with the fields or variables, the 2nd order forward/central/backward difference derivative following the method described in 'Fundamentals of Numerical Computations'\cite{finitediff}. Though it has the advantage of being portable for all variables, it is much slower than using the \texttt{numpy.gradient} function which does the same computation but more explicitely, when setting the \texttt{edge\_order} argument to 2. With the derivatives computed, space fields of each term in the equation can be plotted (see Fig. \ref{fig:RANS_terms})
+To compute the derivative terms, the method employed by Callaham et al. uses \texttt{scipy.sparse}’s sparse matrices. These sparse matrices are constructed so that when computing the matrix product with the fields or variables, the second-order forward/central/backward difference derivative is obtained, following the method described in ‘Fundamentals of Numerical Computations’\cite{finitediff}. Though it has the advantage of being portable for all variables, it is much slower than using the \texttt{numpy.gradient} function, which performs the same computation more explicitly when setting the \texttt{edge\_order} argument to 2. With the derivatives computed, spatial fields of each term in the equation can be plotted (see Fig. \ref{fig:RANS_terms}).
 
 \begin{figure}
   \centering
@@ -271,19 +282,24 @@ In order to get the derivative terms, the method employed by Callaham et al. mak
   \label{fig:RANS_terms}
 \end{figure}
 
-The next step is to use a Gaussian Mixture Model to cluster the data in equation space. Quite judiciously, Callaham et al. chose to use the \texttt{sklearn} library's implementation of the GMM algorithm. It is likely a very efficient implementation of the algorithm, being written and optimised by experienced developpers. With the arguments chosen, the algorithm is initialised usimg the \texttt{'k-means++'} method. This method initialises the means of the gaussians using the centroids found by the K-Means clustering algorithm (see Algorithm 3), itself initialised based on the empirical probability distributions of the data\cite{arthur2007kmeans}. The covariance matrices are then initialised as the covariance matrices of the clusters found by the K-Means algorithm. The algorithm then uses the Expectation-Maximisation algorithm as expected. Convergence is evaluated using the log-probability of the data, and the algorithm stops when the difference between the new and old log-likelihood is less than $10^{-3}$.
+The next step is to use a Gaussian Mixture Model (GMM) to cluster the data in equation space. Callaham et al. judiciously chose to use the \texttt{sklearn} library’s implementation of the GMM algorithm. This implementation is likely very efficient, being written and optimized by experienced developers. With the chosen arguments, the algorithm is initialized using the \texttt{‘k-means++’} method. This method initializes the means of the Gaussians using the centroids found by the K-Means clustering algorithm (see Algorithm 3), which is itself initialized based on the empirical probability distributions of the data\cite{arthur2007kmeans}. The covariance matrices are then initialized as the covariance matrices of the clusters found by the K-Means algorithm. The algorithm then uses the Expectation-Maximisation algorithm as expected. Convergence is evaluated using the log-probability of the data:
 
-The alternative code written follows the same initialisation, explicitely using \texttt{sklearn}'s K-Means algorithm, with \texttt{'k-means++'} initialisation. The Expectation-Maximisation algorithm is then implemented as described in Algorithm 1, using the total log-likelihood difference as the convergence criterion.
+\begin{equation}
+  \log \mathcal{L}(\vec{X} | \vec{\theta}) = \sum_{i=1}^{N} \log \left( \sum_{k=1}^{K} w_k \mathcal{N}(\vec{x}_i | \vec{\mu}_k, \vec{\Sigma}_k) \right)
+\end{equation}
 
-For Sparse principal component analysis, the \texttt{sklearn} library's implementation is used. The method used is based on an extension of space PCA, which makes use of structured regularization to constrain the sparsity patterns
+The algorithm stops when the difference between the new and old log-likelihood is less than $10^{-3}$.
 
-With SPCA done, the active terms can be identified and from here, the original and alternative code only differ in whihc library they predominantly use. The original code uses mostly \texttt{Numpy}, whilst the alternative code uses \texttt{Pandas}, which sometimes had similar functions and sometimes needed a work around.
+The alternative code was thus written to follow the same initialization, explicitly using \texttt{sklearn}’s K-Means algorithm with \texttt{‘k-means++’} initialization. The Expectation-Maximization algorithm is then implemented as described in Algorithm 1, using the total log-likelihood difference as the convergence criterion.
+
+For Sparse Principal Component Analysis (SPCA), the \texttt{sklearn} library’s implementation is used. The method employed is based on an extension of sparse PCA, which utilizes structured regularization to constrain the sparsity patterns.
+
+With SPCA completed, the active terms can be identified. From this point, the original and alternative code only differ in which library they predominantly use. The original code primarily uses \texttt{Numpy}, while the alternative code uses \texttt{Pandas}, which sometimes has similar functions and sometimes requires workarounds.
 
 
 \subsection{Results}
 
-
-The first result to check is the terms obtained in Fig. \ref{fig:RANS_terms}. These were obtained with the original code, which made use of \texttt{scipy.sparse}. The alternative code, which used \texttt{numpy.gradient} instead, gave the same results (see Fig. \ref{fig:custom_RANS_terms}). The reason why Callaham et al. used \texttt{scipy.sparse} is likely because it is more generalisable to all variables, however, they also used \texttt{numpy.gradient} for other case studies. And using \texttt{numpy.gradient} leads to considerable speed ups.
+The first result to check is the terms obtained in Fig. \ref{fig:RANS_terms}. These were obtained with the original code, which made use of \texttt{scipy.sparse}. The alternative code, which used \texttt{numpy.gradient} instead, gave the same results (see Fig. \ref{fig:custom_RANS_terms}). The reason Callaham et al. likely used \texttt{scipy.sparse} is because it is more generalizable to all variables; however, they also used \texttt{numpy.gradient} for other case studies. Using \texttt{numpy.gradient} also leads to considerable speedups.
 
 \begin{figure}[htbp]
   \centering
@@ -294,7 +310,7 @@ The first result to check is the terms obtained in Fig. \ref{fig:RANS_terms}. Th
 
 \newpage
 
-The next step is to cluster the data in equation space. The resulting clusters' covariance matrices were obtained and are plotted in Figure \ref{fig:GMM_cov_mat}. And plotting the current clustering in physical space gives the results in Figure \ref{fig:GMM_clusters}. As can be seen results do differ, with the alternative code needing 7 clusters to identify the transitional layer (instead of 6 for the original code). The difference could be explained by either the different convergence criterion or some of the covariance matrices regularisation that is done in the \texttt{sklearn} implementation\cite{sklearnGMM}.
+The next step is to cluster the data in equation space. The resulting clusters’ covariance matrices were obtained and are plotted in Figure \ref{fig:GMM_cov_mat}. Plotting the current clustering in physical space gives the results in Figure \ref{fig:GMM_clusters}. As can be seen, the results do differ, with the alternative code needing 7 clusters to identify the transitional layer (instead of 6 for the original code). The difference could be explained by either the different convergence criteria or some of the covariance matrix regularizations performed in the \texttt{sklearn} implementation\cite{sklearnGMM}.
 
 \begin{figure}[htbp]
   \centering
@@ -327,8 +343,7 @@ The next step is to cluster the data in equation space. The resulting clusters' 
 
 \newpage
 
-Then comes applying SPCA to each cluster to identify which terms are active in it. In this case, the \texttt{sklearn} function is still used, though with alternative code to handle the results. Due to the different clustering obtained, the optimal alpha values had to be different for each method. For the original code, the optimal alpha value was set to 10, but had to be set to 7 for the alternative code, in order to keep the inertial sublayer unique and separate from the background free-stream (see Fig. \ref{fig:balance_model_clusters}). The results of the SPCA algorithm are $n_{clusters}$ sets of active terms. In the case where some clusters have the same active terms, they are combined. This results in a set of unique balance models, which are plotted in Figure \ref{fig:balance_models}. Similarly to in Figure \ref{fig:custom_GMM_cov_mat}, some clusters are well identified by both methods. In both methods, the spatial arrangements of the clusters are the same, though their dynamics sometimes differ, or even switch (free flow vs inertial sublayer in orange). Overall, similar key dynamics are identified in most of the clusters. For example, the viscous sublayer in blue and green has the visous forces and streamwise Reynolds' stress terms as active. The inflow region crucially has the streamwise Reynolds' stress term as active. And in both cases the transitional layer is identical.
-
+Then comes applying SPCA to each cluster to identify which terms are active in it. In this case, the \texttt{sklearn} function is still used, though with alternative code to handle the results. Due to the different clustering obtained, the optimal alpha values had to be different for each method. For the original code, the optimal alpha value was set to 10, but had to be set to 7 for the alternative code, in order to keep the inertial sublayer unique and separate from the background free-stream (see Fig. \ref{fig:balance_model_clusters}). The results of the SPCA algorithm are $n_{clusters}$  sets of active terms. In the case where some clusters have the same active terms, they are combined. This results in a set of unique balance models, which are plotted in Figure \ref{fig:balance_models}. Similarly to Figure \ref{fig:custom_GMM_cov_mat}, some clusters are well identified by both methods. In both methods, the spatial arrangements of the clusters are the same, though their dynamics sometimes differ, or even switch (free flow vs. inertial sublayer in orange). Overall, similar key dynamics are identified in most of the clusters. For example, the viscous sublayer in blue and green has the viscous forces and streamwise Reynolds’ stress terms as active. The inflow region crucially has the streamwise Reynolds’ stress term as active. And in both cases, the transitional layer is identical.
 
 \begin{figure}[htbp]
   \centering
@@ -360,16 +375,16 @@ Then comes applying SPCA to each cluster to identify which terms are active in i
   \label{fig:balance_model_clusters}
 \end{figure}
 
-Overall, there is a good agreement between the results considering differences in the specifics of the Gaussian Mixture Modelling clustering algorithm. The alternative code was able to reproduce the identification of important dynamics in the boundary layer. It is also important to note that, though the overall method presented in Callaham et al. (2021)\cite{callaham2021learning} brings large improvements in terms of generalising the identification of dominant balance regimes for different cases, there are still two parameters to set, the number of clusters to find when using the GMM algorithm, and the alpha value for the SPCA algorithm. And these can have a large impact on the results obtained. This is a key point to keep in mind and will be further discussed in the Stability Assessment section.
+Overall, there is a good agreement between the results, considering differences in the specifics of the Gaussian Mixture Modelling clustering algorithm. The alternative code was able to reproduce the identification of important dynamics in the boundary layer. It is also important to note that, though the overall method presented in Callaham et al. (2021)\cite{callaham2021learning} brings large improvements in terms of generalizing the identification of dominant balance regimes for different cases, there are still two parameters to set: the number of clusters to find when using the GMM algorithm, and the alpha value for the SPCA algorithm. These parameters can have a large impact on the results obtained. This is a key point to keep in mind and will be further discussed in the Stability Assessment section.
 
 
 \section{Exploration of other algorithms}
 
-In the interest of further testing Callaham et al.'s method, and following the Supplementary Discussion in the Supplementary Information of the paper\cite{callaham2021learning}, other clustering algorithms could be used compared to Gaussian Mixture Models. This section explores a few options, and discusses the results obtained.
+In the interest of further testing Callaham et al.’s method, and following the Supplementary Discussion in the Supplementary Information of the paper\cite{callaham2021learning}, other clustering algorithms could be used compared to Gaussian Mixture Models. This section explores a few options and discusses the results obtained.
 
 \subsection{Spectral clustering}
 
-Because of the data that is being dealt with, the similarity measure used by the clustering algorithm being Euclidean in nature may not be the most appropriate. As a result, spectral clustering is a convincing candidate for this, and it was also suggested in the Supplementary Discussion of the paper\cite[Supplementary Information]{callaham2021learning}.
+Because of the nature of the data being dealt with, the similarity measure used by the clustering algorithm being Euclidean may not be the most appropriate. As a result, spectral clustering is a convincing candidate for this, and it was also suggested in the Supplementary Discussion of the paper\cite[Supplementary Information]{callaham2021learning}.
 
 \begin{figure}[htbp]
   \centering
@@ -404,14 +419,14 @@ Because of the data that is being dealt with, the similarity measure used by the
   \label{fig:SC_results}
 \end{figure}
 
-Using spectral clustering, the main drawback is the computational complexity $\mathcal{O}(n^3)$, where $n$ is the number of samples. Thus, it is not the most efficient algorithm for larger datasets, which most physical systems likely will be. Furthermore, it is not possible to sequentially add new points to the graph. Training it for a fraction of 0.01 of the full dataset, the results are shown in Figure \ref{fig:SC_results}. Because it is hard to predict cluster membership for all points, the solution was to plot the cluster memberships as a scatter plot. Overall, spectral clustering does deal well with the different shaped clusters, as it can be seen that the same main structure in the flow was captured. However, looking at the dynamics identified, it is once again the case that some of the key dynamics are identified, notably the inertial and viscous sublayers (orange and green). However, the inertial sublayer here extends vertically in the region identified by the original code as the laminar inflow region. Further, a large cluster of which covers the previously identified transitional and laminar inflow region is simply considered to have all terms active (except the wall-normal stress term).
+Using spectral clustering, the main drawback is the computational complexity $\mathcal{O}(n^3)$, where $n$ is the number of samples. Thus, it is not the most efficient algorithm for larger datasets, which most physical systems likely will be. Furthermore, it is not possible to sequentially add new points to the graph. Training it on a fraction of 0.01 of the full dataset, the results are shown in Figure \ref{fig:SC_results}. Because it is hard to predict cluster membership for all points, the solution was to plot the cluster memberships as a scatter plot. Overall, spectral clustering deals well with the different-shaped clusters, as it can be seen that the same main structure in the flow was captured. However, looking at the dynamics identified, it is once again the case that some of the key dynamics are identified, notably the inertial and viscous sublayers (orange and green). However, the inertial sublayer here extends vertically into the region identified by the original code as the laminar inflow region. Furthermore, a large cluster, which covers the previously identified transitional and laminar inflow region, is simply considered to have all terms active (except the wall-normal stress term).
 
-Therefore, though it provides a non-Euclidean based clustering algorithm, spectral clustering is not the most appropriate for this case study, or at least the aims of the method proposed by Callaham et al. (2021)\cite{callaham2021learning}. It is computationally expensive, cannot accept new data points, and additionally can require one extra parameter to set (\texttt{n\_neighbours}), for when using nearest neighbours to build the graph.
+Therefore, though it provides a non-Euclidean based clustering algorithm, spectral clustering is not the most appropriate for this case study, or at least the aims of the method proposed by Callaham et al. (2021)\cite{callaham2021learning}. It is computationally expensive, cannot accept new data points, and additionally can require one extra parameter to set (\texttt{n\_neighbours}) when using nearest neighbors to build the graph.
 
 
 \subsection{K-Means}
 
-The next algorithm used is the K-Measn algorithm. Compared to spectral clustering it is much less computationally expensive, and is able to accept new data points. The main drawback is that it may not be best suited for any physical system. For example, in the case of the turbulent boundary layer, the clusters are not spherical, but more importantly, a great majority of points is near the origin, and K-Means clustering will struggle to distinguish that group of points as multiple clusters. One work-around used here is to set a higher number of clusters to find which may force the algorithm to find the different clusters in the cloud of points that are near the origin.
+The next algorithm used is the K-Means algorithm. Compared to spectral clustering, it is much less computationally expensive and is able to accept new data points. The main drawback is that it may not be best suited for any physical system. For example, in the case of the turbulent boundary layer, the clusters are not spherical. More importantly, a great majority of points are near the origin, and K-Means clustering will struggle to distinguish that group of points as multiple clusters. One workaround used here is to set a higher number of clusters to find, which may force the algorithm to identify the different clusters in the cloud of points near the origin.
 
 \begin{figure}[htbp]
   \centering
@@ -445,11 +460,11 @@ The next algorithm used is the K-Measn algorithm. Compared to spectral clusterin
   \label{fig:KMeans_results}
 \end{figure}
 
-The results of the K-Means algorithm are shown in Figure \ref{fig:KMeans_results}. Using the larger cluster number did help in identifying distinct regions however, the dominant balance regimes identified in them do differ significantly from the ones identified by the original code. Again, clusters with similar dominant balances than originally identified extend in other regions which had been identified ot have very different dominant balance regimes (orange cluster in Fig. \ref{fig:KMeans_results}).
+The results of the K-Means algorithm are shown in Figure \ref{fig:KMeans_results}. Using the larger cluster number did help in identifying distinct regions; however, the dominant balance regimes identified in them do differ significantly from the ones identified by the original code. Again, clusters with similar dominant balances to those originally identified extend into other regions that had been identified to have very different dominant balance regimes (orange cluster in Figure \ref{fig:KMeans_results}).
 
 \subsection{Weighted K-Means}
 
-One solution to K-Means relying solely on Euclidean distance is to apply a weight to the samples. This is done in order to give more importance to the samples that are closer to the origin, essentially mimicking the effect of spreading them apart. This should encourage the algorithm to identify multiple clusters in the cloud of points near the origin. The weights are set as follows:
+One solution to K-Means relying solely on Euclidean distance is to apply a weight to the samples. This is done to give more importance to the samples that are closer to the origin, essentially mimicking the effect of spreading them apart. This should encourage the algorithm to identify multiple clusters in the cloud of points near the origin. The weights are set as follows:
 
 \begin{equation}
   w_i = 1 - (\text{tanh}^{2}(\frac{1}{2}|\vec{OX}|)) \text{, where } \vec{OX} \text{ is the vector from the origin to the sample} x_i
@@ -487,23 +502,36 @@ One solution to K-Means relying solely on Euclidean distance is to apply a weigh
   \label{fig:WKMeans_results}
 \end{figure}
 
-The results of the Weighted K-Means algorithm are shown in Figure \ref{fig:WKMeans_results}. The results are quite similar to standard K-Means however, they were obtained by having the GMM find 6 clusters only. Once again some of the key dominant balance regimes are identified but they are mot assigned to the same locations as in the original code.
+The results of the Weighted K-Means algorithm are shown in Figure \ref{fig:WKMeans_results}. The results are quite similar to standard K-Means; however, they were obtained by having the GMM find 6 clusters only. Once again, some of the key dominant balance regimes are identified, but they are not assigned to the same locations as in the original code.
 
 \subsection{Summary}
 
-Overall, the Guassian Mixture Model clusteirng algorithm offers really good flexibility thanks to its small amounts of hyperparameters, and for adding new data points. Additionally, it is able to identify clusters of different shapes and sizes, which is important when differentiating differend dominant balances close to the origin. Another possible path to explore could be a mixture of other distributions, e.g. Cauchy.
+Overall, the Gaussian Mixture Model clustering algorithm offers really good flexibility thanks to its small number of hyperparameters, and for adding new data points. Additionally, it is able to identify clusters of different shapes and sizes, which is important when differentiating different dominant balances close to the origin. Another possible path to explore could be a mixture of other distributions, e.g., Cauchy.
 
 \section{Stability Assessment}
 
-Though Callaham et al. (2021)\cite{callaham2021learning} presents a well generalisable method for unsupervised identification of dominant balance regimes, there are still two hyperparameters to set, the number of clusters to find when using the GMM algorithm, and the alpha value for the SPCA algorithm. These can have a large impact on the results obtained. This section aims to explore the stability of the results obtained when changing these hyperparameters, and discuss the implications of this when using the method for previously unstudied physical systems.
+Though Callaham et al. (2021)\cite{callaham2021learning} presents a well-generalizable method for unsupervised identification of dominant balance regimes, there are still two hyperparameters to set: the number of clusters to find when using the GMM algorithm, and the alpha value for the SPCA algorithm. These can have a large impact on the results obtained. This section aims to explore the stability of the results obtained when changing these hyperparameters and discuss the implications of this when using the method for previously unstudied physical systems.
 
 \subsection{Under different number of clusters set}
 
-The first test that can be carried out is
+The first test that can be carried out is to see how results differ when setting a different number of clusters. Ideally, the cluster number set should not matter greatly. With the exception of very small numbers and approaching the limit: $n_{clusters} \approx n_{samples}$,  the results should be similar thanks to applying Sparse PCA and combining clusters with identical dominant balances. However, this is not guaranteed. If one were to combine two clusters with 2 terms active, and one shared active term, the resulting cluster would have the 3 terms active. Inversely, by increasing the number of initial clusters, this could result in dividing clusters into smaller, unidentically balanced clusters.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{../Plots/Stab_Ass/different_cluster_numbers_bal_mods.png}
+  \caption{Plot of the obtained balance models for different initial cluster number}
+  \label{fig:diff_clust_num_bal_mods}
+\end{figure}
+
+The algorithm was run for multiple cluster numbers, and the balance models were obtained for each case. These are all plotted in Figure \ref{fig:diff_clust_num_bal_mods}. It can be seen that the results are mostly stable, with a slow increase in the number of final unique balance models found. However, checking the actual clustering in space and comparing to the balance models obtained…
 
 \subsection{Under different alpha values}
 
+
+
 \subsection{Under different training set size}
+
+\subsection{discussion}
 
 \chapter{Elasto-inertial turbulence}
 
@@ -553,13 +581,50 @@ The first test that can be carried out is
       \State $\mathcal{L} \gets \mathcal{L}_{\text{new}}$ \Comment{Update the log-likelihood}
     \EndFor
 
-
   \end{algorithmic}
   Where:
 
   - $f(\mathbf{x}|\mathbf{\mu_{k}}, \mathbf{\Sigma_{k}})$ is the probability density function of a multivariate normal distribution
+
+  \label{alg:GMM}
 \end{definitionbox}
 
+\newpage
+
+\begin{definitionbox}{Algorithm 2: Sparse PCA Algorithm}
+  \begin{algorithmic}[1]
+    \State Data matrix $\mathbf{X} \in \mathbb{R}^{n \times p}$ (n: samples, p: features), number of components $k$, sparsity controlling parameter $\alpha$, maximum iterations $\text{max\_iter}$, tolerance $\text{tol}$ \Comment{Inputs}
+    \State Sparse components $\mathbf{V} \in \mathbb{R}^{p \times k}$ \Comment{Outputs}
+    \State Initialize $\mathbf{V} \gets \text{random}$, $\mathbf{U} \gets \text{random}$ \Comment{Initialization}
+
+    \State \textbf{Initialization:}
+    \State Center the data matrix $\mathbf{X}$ by subtracting the mean of each column
+    \State Initialize $\mathbf{V}$ with random values
+
+    \For{$i = 1$ to $\text{max\_iter}$} \Comment{Iterate to optimize components and loadings}
+      \State \textbf{Update Loadings:}
+      \For{$j = 1$ to $k$} \Comment{Update each loading vector}
+        \State $\mathbf{u}_j \gets \arg \min_{\mathbf{u} \in \mathbb{R}^n} \frac{1}{2} \|\mathbf{X} - \mathbf{U} \mathbf{V}^T\|_F^2 + \alpha \|\mathbf{u}_j\|_1$
+      \EndFor
+
+      \State \textbf{Update Components:}
+      \For{$j = 1$ to $k$} \Comment{Update each component vector}
+        \State $\mathbf{v}_j \gets \arg \min_{\mathbf{v} \in \mathbb{R}^p} \frac{1}{2} \|\mathbf{X} - \mathbf{U} \mathbf{V}^T\|_F^2 + \alpha \|\mathbf{v}_j\|_1$
+      \EndFor
+
+      \State \textbf{Convergence Check:}
+      \State Compute the reconstruction error: $\text{error} \gets \|\mathbf{X} - \mathbf{U} \mathbf{V}^T\|_F$
+      \If{$\text{error} < \text{tol}$}
+        \State \textbf{break}
+      \EndIf
+    \EndFor
+
+    \State \textbf{Return:} Sparse components $\mathbf{V}$
+
+  \end{algorithmic}
+  In practice, \texttt{sklearn} uses a dictionary learning for sparse coding\cite{mairal2010online}, and structured sparse PCA\cite{jenatton2010structured} for the sparse PCA algorithm. But both are attempting to solve the optimization problem: $(U^*, V^*) = \arg_{U, V} \text{min } \frac{1}{2} ||X-UV||_{\text{Fro}}^2+\alpha||V||_{1,1} \text{subject to } ||U_k||_2 <= 1 \text{ for all } 0 \leq k < n_{components}$
+  \label{alg:SPCA}
+\end{definitionbox}
 
 
 \bibliographystyle{plain}
