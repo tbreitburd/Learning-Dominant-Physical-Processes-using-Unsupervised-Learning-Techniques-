@@ -506,6 +506,7 @@ y_plus = np.outer(y, u_tau / nu)
 u_plus = np.reshape(u_bar, [ny, nx], order="F") / u_tau
 
 # Plot the self-similarity of the flow
+print("You may have to change the chosen index of the vicous sublayer balance model")
 print("y+ coordinates where the balance ends:")
 
 if method == "original":
