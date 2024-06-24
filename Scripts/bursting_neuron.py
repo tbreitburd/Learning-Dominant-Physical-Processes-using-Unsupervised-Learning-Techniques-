@@ -84,7 +84,7 @@ features_train, _ = sk.model_selection.train_test_split(
     features, train_size=frac, random_state=seed
 )
 
-n_clusters = 9
+n_clusters = int(sys.argv[1])
 model = GaussianMixture(n_components=n_clusters, random_state=seed)
 model.fit(features_train)
 
@@ -162,7 +162,7 @@ pf.plot_spca_residuals(alphas, err, "Burst_Neur/spca_residuals.png", False)
 
 print("Applying Sparse PCA for optimal alpha...")
 # Set the alpha regularization term to 110
-alpha = 110
+alpha = float(sys.argv[2])
 # Initialize the sparse PCA model
 spca_model = np.zeros((n_clusters, nfeatures))
 
