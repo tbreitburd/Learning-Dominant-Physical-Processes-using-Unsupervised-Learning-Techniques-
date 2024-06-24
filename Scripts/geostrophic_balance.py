@@ -118,6 +118,7 @@ for i in range(ny):
     x[i, :] = np.cumsum(np.concatenate(([0], np.repeat(dx[i], nx - 1))))
 dy = (1 / 25) * (1 / 360) * 2 * np.pi * R  # Assuming constant Earth radius meriodionaly
 
+print("Data loaded")
 
 # ---------------------------------------------
 # Get the derivatives
@@ -142,6 +143,7 @@ f_v = f * v[0]
 p_x = -rho * (u_t + u_grad_u + f_v)
 p_y = -rho * (v_t + u_grad_v + f_u)
 
+print("Derivatives calculated")
 # ---------------------------------------------
 # Define the features
 # ---------------------------------------------
@@ -200,6 +202,7 @@ features = np.concatenate((features_mer, features_zon), axis=0)
 # Scale the features for better GMM performance
 features = features * 1e5
 
+print("Features computed")
 
 # ---------------------------------------------
 # Gaussian Mixture Model Clustering
@@ -214,7 +217,7 @@ features_train, _ = sk.model_selection.train_test_split(
     features, train_size=frac, random_state=seed
 )
 
-n_clusters = 6
+n_clusters = int(sys.argv[1])
 model = GaussianMixture(n_components=n_clusters, random_state=seed)
 model.fit(features_train)
 
@@ -251,7 +254,7 @@ pf.plot_clustering_space_geo(
     clustermap_mer, clustermap_zon, lon, lat, n_clusters, "Geos_Bal/clusters.png", False
 )
 
-
+print("Clusters computed")
 # ---------------------------------------------
 # Sparse PCA identification of active terms
 # ---------------------------------------------
@@ -287,7 +290,7 @@ err = Parallel(n_jobs=4)(
 pf.plot_spca_residuals(alphas, err, "Geos_Bal/spca_residuals.png", False)
 
 # Set the alpha regularization term to 40
-alpha = 40
+alpha = float(sys.argv[2])
 
 # Initialize the sparse PCA model
 spca_model = np.zeros((n_clusters, nfeatures))
@@ -304,6 +307,8 @@ for i in range(n_clusters):
         spca_model[i, active_terms] = 1  # Set the active terms to 1
 
 pf.plot_balance_models(spca_model, labels, False, "Geos_Bal/active_terms.png", False)
+
+print("Sparse PCA applied")
 
 # ---------------------------------------------
 # Get Unique Dominant Balance Models
@@ -362,6 +367,7 @@ balance_idx_zon[~zon_nan] = balance_idx[n_meridional:]
 balancemap_mer = balance_idx_mer.reshape(ny, nx)
 balancemap_zon = balance_idx_zon.reshape(ny, nx)
 
+print("Unique balance models computed")
 
 # Plot the balance models in space
 pf.plot_clustering_space_geo(
