@@ -223,7 +223,13 @@ model.fit(features_train)
 
 # Plot the covariance matrix for each cluster
 pf.plot_cov_mat(
-    model, nfeatures, n_clusters, labels, "GMM", "Geos_Bal/cov_mat.png", False
+    model,
+    nfeatures,
+    n_clusters,
+    labels,
+    "GMM",
+    f"Geos_Bal/cov_mat_{n_clusters}.png",
+    False,
 )
 
 # Predict clusters for the entire dataset, for a single snapshot
@@ -251,7 +257,13 @@ clustermap_zon = cluster_idx_zon.reshape(ny, nx)
 
 # Plot the clusters in space
 pf.plot_clustering_space_geo(
-    clustermap_mer, clustermap_zon, lon, lat, n_clusters, "Geos_Bal/clusters.png", False
+    clustermap_mer,
+    clustermap_zon,
+    lon,
+    lat,
+    n_clusters,
+    f"Geos_Bal/clusters_{n_clusters}.png",
+    False,
 )
 
 print("Clusters computed")
@@ -287,7 +299,7 @@ err = Parallel(n_jobs=4)(
     delayed(spca_err)(alpha, cluster_idx, features, n_clusters) for alpha in alphas
 )
 
-pf.plot_spca_residuals(alphas, err, "Geos_Bal/spca_residuals.png", False)
+pf.plot_spca_residuals(alphas, err, f"Geos_Bal/spca_residuals_{n_clusters}.png", False)
 
 # Set the alpha regularization term to 40
 alpha = float(sys.argv[2])
@@ -306,7 +318,9 @@ for i in range(n_clusters):
     if len(active_terms) > 0:
         spca_model[i, active_terms] = 1  # Set the active terms to 1
 
-pf.plot_balance_models(spca_model, labels, False, "Geos_Bal/active_terms.png", False)
+pf.plot_balance_models(
+    spca_model, labels, False, f"Geos_Bal/active_terms_{n_clusters}_{alpha}.png", False
+)
 
 print("Sparse PCA applied")
 
@@ -340,14 +354,21 @@ nmodels = balance_models.shape[0]
 
 # Plot a grid of the active terms
 pf.plot_balance_models(
-    balance_models, labels, False, "Geos_Bal/final_active_terms.png", False
+    balance_models,
+    labels,
+    False,
+    f"Geos_Bal/final_active_terms_{n_clusters}_{alpha}.png",
+    False,
 )
 
 # Plot the balance models in a grid
 pf.plot_balance_models(
-    balance_models, labels, True, "Geos_Bal/balance_models.png", False
+    balance_models,
+    labels,
+    True,
+    f"Geos_Bal/balance_models_{n_clusters}_{alpha}.png",
+    False,
 )
-
 
 # Assign the new cluster indices
 balance_idx = np.array([model_idx[i] for i in cluster_idx])
@@ -376,6 +397,6 @@ pf.plot_clustering_space_geo(
     lon,
     lat,
     nmodels,
-    "Geos_Bal/balance_models_space.png",
+    f"Geos_Bal/balance_models_space_{n_clusters}_{alpha}.png",
     False,
 )
