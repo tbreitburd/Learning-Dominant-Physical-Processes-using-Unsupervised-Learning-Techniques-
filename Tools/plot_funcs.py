@@ -400,7 +400,14 @@ def plot_clustering_space(
     plt.figure(figsize=(10, 4))
 
     # Plot the clustering in space
-    plt.pcolor(x, y, clustermap + 1, cmap=cm, vmin=-0.5, vmax=cm.N - 0.5)
+    if n_clusters < 10:
+        plt.pcolor(x, y, clustermap + 1, cmap=cm, vmin=-0.5, vmax=cm.N - 0.5)
+    else:
+        cm_1 = sns.color_palette("tab20").as_hex()
+        cm_1.insert(0, "#ffffff")
+        cm_1 = ListedColormap(cm_1)
+        cm_1.set_bad("darkgrey")
+        plt.pcolor(x, y, clustermap + 1, cmap=cm_1, vmin=-0.5, vmax=cm_1.N - 0.5)
     plt.colorbar(
         boundaries=np.arange(0.5, n_clusters + 1.5), ticks=np.arange(0, n_clusters + 1)
     )
