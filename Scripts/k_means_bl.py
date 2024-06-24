@@ -283,8 +283,8 @@ if nc == 14 and alpha_opt == 8:
     inert_sub_idx = np.array([0])
 else:
     print(
-        "You must identify the inertial sublayer cluster manually"
-        + " from the balance models in space."
+        "Because you have used different hyperparameters, you may need to identify the "
+        + "inertial sublayer cluster manually from the balance models in space."
     )
     sys.exit()
 
@@ -356,10 +356,12 @@ y_plus = np.outer(y, u_tau / nu)
 u_plus = np.reshape(u_bar, [ny, nx], order="F") / u_tau
 
 # Plot the self-similarity of the flow
+# This is run for the specific case of 14 clusters and alpha_opt = 8
+# You may need to adjust the cluster index for the viscous sublayer
 print("y+ coordinates where the balance ends:")
 pf.plot_self_similarity(
     x,
-    0,
+    3,
     y_plus,
     u_plus,
     balancemap,
