@@ -1,5 +1,3 @@
-""""""
-
 # ---------------------------------------
 # Import modules
 # ---------------------------------------
@@ -9,6 +7,7 @@ import h5py
 import sys
 from sklearn.cluster import KMeans
 from sklearn.decomposition import SparsePCA
+from joblib import Parallel, delayed
 from scipy.optimize import curve_fit
 
 # adding Tools to the system path
@@ -122,7 +121,9 @@ for i in range(nc):
 
 # Plot the covariance matrices between terms for each of the K-Means cluster
 if nc < 10:
-    pf.plot_cov_mat(covs, nfeatures, nc, labels, "Other", "BL/KMeans_CovMat", False)
+    pf.plot_cov_mat(
+        covs, nfeatures, nc, labels, "Other", "BL/KMeans_CovMat_" + str(nc), False
+    )
 
 # ---------------------------------------------
 # Cluster the data and visualise:
@@ -134,7 +135,7 @@ cluster_idx = clustering + 1
 
 # Plot the clusters in equation space with 2D projections
 pf.plot_clustering_2d_eq_space(
-    features, cluster_idx, nc, "BL/KMeans_2D_eq_space.png", False
+    features, cluster_idx, nc, "BL/KMeans_2D_eq_space_" + str(nc), False
 )
 
 # Assign points in space to each cluster
@@ -153,7 +154,7 @@ pf.plot_clustering_space(
     nc,
     u_bar,
     U_inf,
-    "BL/KMeans_Clustering_Space.png",
+    "BL/KMeans_Clustering_Space_" + str(nc),
     False,
 )
 
@@ -166,29 +167,35 @@ print("----------------------------------")
 print("Applying Sparse PCA")
 print("----------------------------------")
 # Sparse PCA to identify directions of nonzero variance in each cluster
-
 alphas = [1e-4, 1e-3, 1e-2, 0.1, 1, 10, 100, 1e3, 1e4, 1e5]
 err = np.zeros([len(alphas)])
-sparsity = np.zeros([len(alphas)])
 
-for k in range(len(alphas)):
+
+def spca_err(alpha, cluster_idx, features, nc):
+    err_ = 0
+
     for i in range(nc):
         # Identify points in the field corresponding to each cluster
-        feature_idx = np.nonzero(cluster_idx == i)[0]
+        feature_idx = np.where(cluster_idx == i)[0]
         cluster_features = features[feature_idx, :]
 
         # Conduct Sparse PCA
-        spca = SparsePCA(n_components=1, alpha=alphas[k])  # normalize_components=True
+        spca = SparsePCA(n_components=1, alpha=alpha)
         spca.fit(cluster_features)
 
-        # Identify active and terms
-        active_terms = np.nonzero(spca.components_[0])[0]
-        inactive_terms = [feat for feat in range(nfeatures) if feat not in active_terms]
+        # Identify inactive terms
+        inactive_terms = np.where(spca.components_[0] == 0)[0]
 
-        # Calculate the error, as the sum of the norms of the inactive terms
-        err[k] += np.linalg.norm(cluster_features[:, inactive_terms])
+        err_ += np.sqrt(np.sum((cluster_features[:, inactive_terms].ravel()) ** 2))
 
-pf.plot_spca_residuals(alphas, err, "BL/KMeans_spca_residuals.png", False)
+    return err_
+
+
+err = Parallel(n_jobs=4)(
+    delayed(spca_err)(alpha, cluster_idx, features, nc) for alpha in alphas
+)
+
+pf.plot_spca_residuals(alphas, err, "BL/KMeans_spca_residuals_" + str(nc), False)
 
 
 # Now with optimal alpha, get the active terms in each cluster
@@ -208,7 +215,9 @@ for i in range(nc):
         spca_model[i, active_terms] = 1  # Set the active terms to 1
 
 # Plot the active terms in each cluster
-pf.plot_balance_models(spca_model, labels, False, "BL/KMeans_active_terms.png", False)
+pf.plot_balance_models(
+    spca_model, labels, False, f"BL/KMeans_active_terms_{nc}_{alpha_opt}", False
+)
 
 
 # ---------------------------------------------
@@ -229,7 +238,7 @@ balancemap = np.reshape(balance_idx, [ny, nx], order="F")
 
 # Plot the balance models in a grid
 pf.plot_balance_models(
-    balance_models, labels, True, "BL/KMeans_balance_models.png", False
+    balance_models, labels, True, f"BL/KMeans_balance_models_{nc}_{alpha_opt}", False
 )
 
 # Plot the clustering in space after SPCA
@@ -244,12 +253,15 @@ pf.plot_clustering_space(
     nmodels,
     u_bar,
     U_inf,
-    "BL/KMeans_spca_clustering.png",
+    f"BL/KMeans_spca_clustering_{nc}_{alpha_opt}",
     False,
 )
 # Visualize the clusters in equation space with 2D projections
 pf.plot_feature_space(
-    features[mask, :], balance_idx[mask], "BL/KMeans_feature_space.png", False
+    features[mask, :],
+    balance_idx[mask],
+    f"BL/KMeans_feature_space_{nc}_{alpha_opt}",
+    False,
 )
 
 # ---------------------------------------------
@@ -267,8 +279,14 @@ print("----- Outer layer scaling -----")
 u_map = np.reshape(u_bar, (ny, nx), order="F")
 
 # Find which cluster is the inertial sublayer.
-inert_sub_idx = np.where(np.all(balance_models == [1, 0, 0, 0, 1, 0], axis=1))[0]
-
+if nc == 14 and alpha_opt == 8:
+    inert_sub_idx = np.array([0])
+else:
+    print(
+        "You must identify the inertial sublayer cluster manually"
+        + " from the balance models in space."
+    )
+    sys.exit()
 
 # Define some variables
 x_min = 110  # Where inertial balance begins
@@ -318,7 +336,7 @@ pf.plot_sublayer_scaling(
     gmm_fit,
     p_gmm,
     x_to_fit,
-    "BL/KMeans_sublayer_scaling.png",
+    f"BL/KMeans_sublayer_scaling_{nc}_{alpha_opt}",
     False,
 )
 
@@ -340,5 +358,11 @@ u_plus = np.reshape(u_bar, [ny, nx], order="F") / u_tau
 # Plot the self-similarity of the flow
 print("y+ coordinates where the balance ends:")
 pf.plot_self_similarity(
-    x, 0, y_plus, u_plus, balancemap, "BL/KMeans_self_similarity.png", show=False
+    x,
+    0,
+    y_plus,
+    u_plus,
+    balancemap,
+    f"BL/KMeans_self_similarity_{nc}_{alpha_opt}",
+    show=False,
 )
