@@ -35,8 +35,6 @@ v_bar = np.array(file["vm"])
 p_bar = np.array(file["pm"])
 R_uu = np.array(file["uum"]) - u_bar**2
 R_uv = np.array(file["uvm"]) - u_bar * v_bar
-R_vv = np.array(file["uvm"]) - v_bar**2
-
 
 # Visualize the wall-normal Reynolds stress
 X, Y = np.meshgrid(x, y)
@@ -186,7 +184,7 @@ if method == "original":
     model.fit(features[mask, :])
 
     algo = "GMM"
-    path = "BL/GMM_cov_mat.png"
+    path = f"BL/GMM_cov_mat_{nc}"
 
 else:
     # Gather the terms into an array of features
@@ -216,7 +214,7 @@ else:
     model.fit(features[mask, :])
 
     algo = "CustomGMM"
-    path = "BL/custom_GMM_cov_mat.png"
+    path = f"BL/custom_GMM_cov_mat_{nc}"
 
 # Plot the covariance matrices between terms for each of the GMM cluster
 pf.plot_cov_mat(model, nfeatures, nc, labels, algo, path, False)
@@ -231,9 +229,9 @@ cluster_idx = model.predict(features) + 1
 
 # Plot the clusters in equation space with 2D projections
 if method == "original":
-    path = "BL/GMM_2D_eq_space.png"
+    path = f"BL/GMM_2D_eq_space_{nc}.png"
 else:
-    path = "BL/custom_GMM_2D_eq_space.png"
+    path = f"BL/custom_GMM_2D_eq_space_{nc}.png"
 
 pf.plot_clustering_2d_eq_space(features[mask, :], cluster_idx[mask], nc, path, False)
 
@@ -243,9 +241,9 @@ clustermap = np.reshape(cluster_idx, [ny, nx], order="F")
 
 # Visualize the clustering in space
 if method == "original":
-    path = "BL/GMM_clustering_space.png"
+    path = f"BL/GMM_clustering_space_{nc}.png"
 else:
-    path = "BL/custom_GMM_clustering_space.png"
+    path = f"BL/custom_GMM_clustering_space_{nc}.png"
 
 pf.plot_clustering_space(clustermap, x, y, X, Y, nx, ny, nc, u_bar, U_inf, path, False)
 
@@ -311,9 +309,9 @@ else:
     )
 
 if method == "original":
-    path = "BL/GMM_spca_residuals.png"
+    path = f"BL/GMM_spca_residuals_{nc}.png"
 else:
-    path = "BL/custom_GMM_spca_residuals.png"
+    path = f"BL/custom_GMM_spca_residuals_{nc}.png"
 
 pf.plot_spca_residuals(alphas, err, path, False)
 
@@ -348,9 +346,9 @@ else:
             spca_model[i, active_terms] = 1  # Set the active terms to 1
 
 if method == "original":
-    path = "BL/GMM_active_terms.png"
+    path = f"BL/GMM_active_terms_{nc}_{alpha_opt}.png"
 else:
-    path = "BL/custom_GMM_active_terms.png"
+    path = f"BL/custom_GMM_active_terms_{nc}_{alpha_opt}.png"
 
 pf.plot_balance_models(spca_model, labels, False, path, False)
 
@@ -402,26 +400,26 @@ else:
     nmodels = balance_models.shape[0]
 
 if method == "original":
-    path = "BL/GMM_balance_models.png"
+    path = f"BL/GMM_balance_models_{nc}_{alpha_opt}.png"
 else:
-    path = "BL/custom_GMM_balance_models.png"
+    path = f"BL/custom_GMM_balance_models_{nc}_{alpha_opt}.png"
 
 # Plot the balance models in a grid
 pf.plot_balance_models(balance_models, labels, True, path, False)
 
 # Plot the clustering in space after SPCA
 if method == "original":
-    path = "BL/GMM_spca_clustering_space.png"
+    path = f"BL/GMM_spca_clustering_space_{nc}_{alpha_opt}.png"
 else:
-    path = "BL/custom_GMM_spca_clustering_space.png"
+    path = f"BL/custom_GMM_spca_clustering_space_{nc}_{alpha_opt}.png"
 
 pf.plot_clustering_space(balancemap, x, y, X, Y, nx, ny, nc, u_bar, U_inf, path, False)
 
 # Visualize the clusters in equation space with 2D projections
 if method == "original":
-    path = "BL/GMM_feature_space.png"
+    path = f"BL/GMM_feature_space_{nc}_{alpha_opt}.png"
 else:
-    path = "BL/custom_GMM_feature_space.png"
+    path = f"BL/custom_GMM_feature_space_{nc}_{alpha_opt}.png"
 
 pf.plot_feature_space(features[mask, :], balance_idx[mask], path, False)
 
@@ -484,9 +482,9 @@ print(p_gmm)  # Print the fit parameters
 
 # Plot the inertial sublayer scaling
 if method == "original":
-    path = "BL/GMM_sublayer_scaling.png"
+    path = f"BL/GMM_sublayer_scaling_{nc}_{alpha_opt}.png"
 else:
-    path = "BL/custom_GMM_sublayer_scaling.png"
+    path = f"BL/custom_GMM_sublayer_scaling_{nc}_{alpha_opt}.png"
 
 pf.plot_sublayer_scaling(
     x, y, balancemap, delta, x_layer, gmm_fit, p_gmm, x_to_fit, path, False
@@ -510,10 +508,10 @@ print("You may have to change the chosen index of the vicous sublayer balance mo
 print("y+ coordinates where the balance ends:")
 
 if method == "original":
-    path = "BL/GMM_self_similarity.png"
+    path = f"BL/GMM_self_similarity_{nc}_{alpha_opt}.png"
     pf.plot_self_similarity(x, 0, y_plus, u_plus, balancemap, path, show=False)
 else:
-    path = "BL/custom_GMM_self_similarity.png"
+    path = f"BL/custom_GMM_self_similarity_{nc}_{alpha_opt}.png"
     pf.plot_self_similarity(x, 2, y_plus, u_plus, balancemap, path, show=False)
 
 
@@ -541,9 +539,19 @@ F0 = [0, 0, opt_res.x[2]]
 # Evaluate with resulting initial conditions
 f = odeint(lambda y, t: bs.blasius_rhs(y), F0, eta)
 
-pf.plot_blasius_solution(eta, f, "BL/blasius_solution.png", False)
+pf.plot_blasius_solution(eta, f, f"BL/blasius_solution_{nc}_{alpha_opt}.png", False)
 
 # Then, compare inflow profile to this Blasius Solution.
 pf.plot_blasius_deviation(
-    x, y, nx, ny, u_bar, eta, f, U_inf, nu, "BL/blasius_deviation.png", False
+    x,
+    y,
+    nx,
+    ny,
+    u_bar,
+    eta,
+    f,
+    U_inf,
+    nu,
+    f"BL/blasius_deviation_{nc}_{alpha_opt}.png",
+    False,
 )
