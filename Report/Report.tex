@@ -583,20 +583,61 @@ Looking at the results in Fig. \ref{fig:diff_alpha_bal_mods}, there is a lot mor
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\textwidth]{../Plots/Stab_Ass/different_alpha_bal_mods.png}
-  \caption{Plot of the obtained balance models for different $\ell$-1 regularization term factor, $\alpha$. Reading top to bottom and left to right, the cluster numbers are 0.1, 0.2, 0.5, 1, 2, 5, 7, 8, 10, 12, 15, and 17}
+  \caption{Plot of the obtained balance models for different $\ell$-1 regularization term factor, $\alpha$. Reading top to bottom and left to right, the values are 0.1, 0.2, 0.5, 1, 2, 5, 7, 8, 10, 12, 15, and 17}
   \label{fig:diff_alpha_bal_mods}
 \end{figure}
 
-However, for values close to 10, which was selected in the paper, there is some stability in the results, with values from 10 to 15 yielding the same resutls. And checking that it is still the case in physical space (see Fig. )
+However, for values close to 10, which was selected in the paper, there is some stability in the results, with values from 10 to 15 yielding the same resutls. And checking that it is still the case in physical space (see Fig. \ref{fig:diif_alpha_clustering}) shows that though the dominant balance terms are slightly different, the general result stays the same.
 
 \begin{figure}[htbp]
+  \centering
+  \begin{subfigure}[b]{0.7\textwidth}
+      \includegraphics[width=\textwidth]{../Plots/Stab_Ass/spca_clustering_space_training_set_alpha_8.png}
+      \caption{}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.7\textwidth}
+      \includegraphics[width=\textwidth]{../Plots/Stab_Ass/spca_clustering_space_training_set_alpha_12.png}
+      \caption{}
+  \end{subfigure}
+  \caption{Final unique balance models identified when $\alpha$ was set to 8 (a) and 12 (b).}
+  \label{fig:diif_alpha_clustering}
 \end{figure}
 
 \subsection{Under different training set size}
 
-\subsection{discussion}
+Finally, the effect of the training set size on the results is tested (see Fig. \ref{fig:diff_train_frac_bal_mods}).
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{../Plots/Stab_Ass/different_train_frac_bal_mods.png}
+  \caption{Plot of the obtained balance models for different training set size (as a fraction of the full dataset). Reading top to bottom and left to right, the training set size fractions are 0.01, 0.02, 0.05, 0.07, 0.1, 0.3, 0.5, 0.7, 0.9. Except the first one, there are 2 results that reappear. They are plotted in space in Fig. \ref{fig:diff_train_frac_clustering}.}
+  \label{fig:diff_train_frac_bal_mods}
+\end{figure}
+
+From these results and plotting the dominant balance models in space, there is a seemingly random instability to the clustering in space, as the inertial sublayer, which delineates the vertical extent of the boundary layer is sometimes not well sectioned (see Fig. \ref{fig:diff_train_frac_clustering}), and this happens even for low and high training set size but not all. When this occurs, the dominant balances change with, for example, the green region in Fig. \ref{fig:diff_train_frac_clustering}(b) now occupying most of the space and having dynamics that seem to combine those of the inertial sublayer and of the free flow region.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{subfigure}[b]{0.7\textwidth}
+    \includegraphics[width=\textwidth]{../Plots/Stab_Ass/spca_clustering_space_training_set_frac_0.1.png}
+    \caption{}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.7\textwidth}
+      \includegraphics[width=\textwidth]{../Plots/Stab_Ass/spca_clustering_space_training_set_frac_0.5.png}
+      \caption{}
+  \end{subfigure}
+
+  \caption{Final unique balance models identified when the raining set size fraciton was set to 0.1 (a), and 0.5 (b)}
+  \label{fig:diff_train_frac_clustering}
+\end{figure}
+
+\subsection{Discussion}
+
+From the above results, though the Callaham et al. method made considerable effort to have a minimal amount of parameters, the 2 that must be set do have a considerable impact on the results. And in the absence of expert understanding which exists for the boundary layer case, it is not immediately clear what parameters must be selected as many are essentially valid. This is key result which will be accounted for in the next chapter.
 
 \chapter{Elasto-inertial turbulence}
+
+As part of this project, there was an opportunity to attempt using the unsupervised identification of dominant balance method on a much more complex polymer-laden flow, which exhibits a special type of turbulence named Elasto-Inertial Turbulence (EIT). This is a relatively recent topic in fluid dynamics, and there is an interest in seeing whether the Callaham et al. method could be used to identify unknown dominant balance regimes in this flow, hopefully shedding some light on the dynamics at play, particularly near the boundaries.
 
 \section{Background}
 
