@@ -216,6 +216,7 @@ elif part == "train_frac":
 
     # Define a list of training set sizes, as fractions of the total dataset
     train_frac = [0.01, 0.02, 0.05, 0.07, 0.1, 0.3, 0.5, 0.7, 0.9]
+    np.random.seed(75016)
 
     # Plot all found dominant balance regimes for each initial cluster number
     plt.figure(figsize=(15, 12))
@@ -296,6 +297,7 @@ elif part == "alpha":
 
     # Define a list of training set sizes, as fractions of the total dataset
     alphas = [0.1, 0.2, 0.5, 1, 2, 5, 7, 8, 10, 12, 15, 17]
+    np.random.seed(75016)
 
     # Plot all found dominant balance regimes for each initial cluster number
     plt.figure(figsize=(13, 11))
