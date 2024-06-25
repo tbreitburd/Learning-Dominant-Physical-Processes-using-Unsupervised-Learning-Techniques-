@@ -22,6 +22,7 @@
 \usepackage{algpseudocode}
 \usepackage{subcaption}
 \usepackage{cleveref}
+\usepackage[font=small]{caption}
 \usetikzlibrary{shapes.geometric, arrows, positioning}
 
 \tikzstyle{startstop} = [rectangle, rounded corners, text centered, draw=black, fill=red!30]
@@ -154,14 +155,18 @@
 
 \begin{titlepage}
   \centering
-  \vspace*{2cm}
-  {\LARGE\bfseries MPhil DIS Report 24\par}
+  {\LARGE\bfseries MPhil DIS Project 24\par}
+  {\LARGE Learning Dominant Physical Processes with Data-Driven Balance Models\par}
   \vspace{1cm}
-  {\Large\itshape\ CRSiD:\ tmb76\par}
+  {\includegraphics[width=0.2\textwidth]{University_Crest.pdf}\par}
+  {\Large CRSiD:\ tmb76\par}
   \vspace{1cm}
-  {\Large\itshape\ University of Cambridge\par}
+  {\Large Department of Physics\par}
+  {\Large\bfseries University of Cambridge\par}
   \vfill
-  {\large\today\par}
+  {\itshape Submitted in partial fulfilment of the requirements of the MPhil degree in Data Intensive Science}
+  \vfill
+  {\large Hughes Hall  \hspace{6cm} \today\par}
 \end{titlepage}
 
 \tableofcontents
@@ -207,26 +212,26 @@ The method proposed by Callaham et al. (2021)\cite{callaham2021learning} can be 
 
 \section{Data \& Equation Space Reprensentation}
 
-As previously mentionned, obtaining the data can be done through simulations or measurements, with almost no restrictions as to what equations can be studied. The data comes in the form of space-time fields of physical variables: $u(\vec{x}, t)$, where $u$ is the physical variable considered (e.g. $\vec{u}$, $p$, etc. for the Navier-Stokes equations). The variables must be sufficient so that one may derive all the terms of the equation from them. One important requirement is that the computed terms must all balance out to 0 for each point in time and space. This comes down to how one computes said terms. They must be as they are in the equation, since this results in a linear covariance structure, as each term is balanced by a linear combination of the other terms\cite[Supplementary Information]{callaham2021learning}. For example, if a term is a squared comnbination of variables, it must be computed as such, and not as the combination of variables.
+As previously mentionned, obtaining the data can be done through simulations or measurements, with almost no restrictions as to what equations can be studied. The data typically comes in the form of space-time fields of physical variables: $u(\vec{x}, t)$, where $u$ is the physical variable of interest (e.g. $\vec{u}$, $p$, etc. for the Navier-Stokes equations). It is essential that one can compute all the terms of the governing equation from the variables. Additionally, the computed terms must all balance out to 0 for each point in time and space. This depends on the computation of the terms to be as they appear in the equation, which ensures a linear covariance structure, as each term will be balanced by a linear combination of the other terms\cite[Supplementary Information]{callaham2021learning}. For example, if a term involves a squared combination of variables, it must be computed in that form, and not as the combination of variables.
 
 \vspace{5mm}
 
-The fundamental idea of the Callaham et al. (2021) method is to take these physical-space fields of terms and organize them into an equation space where each dimension is one of the terms in the equation, and each sample is a point in space and time. Thus, each sample will be a vector $\vec{f} \in \mathbb{R}^k$ where $k$ is the number of terms in the equation, such that:
+The fundamental idea of the Callaham et al. (2021) method is to take these fields of terms in the physical-space and organize them into an equation-space, where each dimension is one of the terms in the equation, and each sample is a point in space and time. Thus, each sample will be a vector $\vec{f} \in \mathbb{R}^k$ where $k$ is the number of terms in the equation, such that:
 
 \begin{equation}
     \vec{f} = \begin{bmatrix} f_1(u(\vec{x}, t), \hdots) \\ f_2(u(\vec{x}, t), \hdots) \\ \vdots \\ f_k(u(\vec{x}, t), \hdots) \end{bmatrix}
 \end{equation}
 
-Where $f_i$ is the $i^{th}$ term in the equation, itself a function of the physical variables. Again, one must ensure that for each sample, the terms all balance out to 0, or that the residual is several orders of magnitude smaller than the terms themselves. This is in order to make sure that the equation studied or data used is not invalid.
+Where $f_i$ is the $i^{th}$ term in the equation, itself a function of the physical variables. Again, one must ensure that for each sample, the terms all balance out to a residual at least several orders of magnitude smaller than the terms themselves. This is in order to make sure that the equation studied or data used is not invalid.
 
 
 \section{Gaussian Mixture Model Clustering}
 
-Geometrically, by clustering points in this equation space, one can identify groups of points that have a similar balance of terms. Here, the chosen algorithm is the Gaussian Mixture Model (GMM) clustering algorithm. This algorithm relies on the assumption that the data has been generated from a mixture of a finite number of Gaussian distributions with unknown parameters\cite{mit2015algorithmic}. It has the advantage of being able to identify clusters with varying shapes and sizes. It only requires one hyperparameter, which is the number of clusters one wants the algorithm to find, and therefore how many Gaussian distributions the data is assumed to have been generated from\cite{sklearnGMM}. Thus, for each case study, a number of clusters to identify needs to be chosen. Generally, the choice should be conservative, aiming for a number of clusters that is likely to be greater than the true/expected number of dominant balance regimes in the system.
+By clustering the points in equation space, groups of points that have a similar balance of terms can be identified. Here, the chosen algorithm is the Gaussian Mixture Model (GMM) clustering algorithm. This algorithm relies on the assumption that the data has been generated from a mixture of a finite number of Gaussian distributions with unknown parameters\cite{mit2015algorithmic}. It has the advantage of being able to identify clusters with varying shapes and sizes. It only requires one hyperparameter, which is the number of clusters the algorithm must find, and therefore how many Gaussian distributions the data is assumed to have been generated from\cite{sklearnGMM}. This number is not fixed and must be chosen for each case study. Generally, the choice should be conservative, aiming for a number of clusters that is likely to be greater than the true/expected number of dominant balance regimes in the system. This is because if the number is higher than it needs to be, it will likely be the case that some of the clusters actually have identical dominant balances, and these will be combined.
 
 \vspace{5mm}
 
-The way GMMs fit to the data is by using the Expectation-Maximisation algorithm. This algorithm starts from an initial guess for the parameters of the gaussian distributions. The expectation step then evaluates the sum posterior probability of each point belonging to each cluster. And the maximisation step updates the parameters with weighted averages of those posterior probabilities\cite{dempster1977maximum} (see Alg. 1, in section \ref{alg:GMM}). This converges to the maximum likelihood estimates of the parameters (see Fig. \ref{fig:GMM_example}). Once fitted, cluster membership of new data points can be determined by taking the cluster with the highest probability at that point.
+The way GMMs fit to the data is by using the Expectation-Maximisation algorithm. This algorithm starts from an initial guess for the parameters of the gaussian distributions: $w_0$, the weight, $\mathbf{\mu}_{0}$, the vector mean of size $[1 \times n_{features}]$, and $\mathbf{\Sigma}_{0}$, the $[n_{features} \times n_{features}]$ covariance matrix, for each Gaussian. The expectation step evaluates the likelihood of a given point belonging to each cluster, for the current parameters. And the maximisation step updates the parameters with weighted averages of those posterior probabilities\cite{dempster1977maximum} (see Alg. 1, in section \ref{alg:GMM}). This converges to the maximum likelihood estimates of the parameters (see Fig. \ref{fig:GMM_example}). Once fitted, cluster membership of new data points can be determined by taking the cluster with the highest probability at that point.
 
 \begin{figure}[htbp]
   \centering
@@ -238,42 +243,53 @@ The way GMMs fit to the data is by using the Expectation-Maximisation algorithm.
   \label{fig:GMM_example}
 \end{figure}
 
-Another key output of the GMM is in its probabilistic nature which has the covariance matrix of each cluster/Gaussian as part of its output, thus describing the covariance between each term in the equation within that cluster. This gives insight into which terms could be active in each cluster, and also helps illustrate how the method can identify active terms geometrically. If only a subset of the terms in a cluster have non-zero covariance, then it means that it is only along that subset of dimensions that the cluster varies, and hence the terms are non-negligible.
+Another key output of the GMM is in its probabilistic nature as each Gaussian is defined by a covariance matrix of the equation's terms. This gives insight into which terms could be active in each cluster, and helps illustrate the intuition behind identifying active terms geometrically with this method. If only a subset of the terms in a cluster have non-zero covariance, then it means that it is only along that subset of dimensions that the cluster varies, and hence that the terms are non-negligible.
 
 \section{Sparse Principal Component Analysis}
 
-With the points grouped in clusters of similar balance of terms, the next step is to identify which terms are active and which can be dropped to simplify the equation for that cluster. This is done through Sparse Principal Component Analysis (SPCA). Principal Component Analysis (PCA) is a method that is usually used to reduce the dimensionality of the data, whilst maximising the information retained. The new dimensions onto which the data is projected are called principal components and are the directions in which the data has the greatest variance\cite{lever2017principal}. SPCA differs from PCA in that it adds a sparsity constraint to the principal components, resulting in most coefficients of the PCs being zero. This is done by adding a L1 penalty to the objective function of PCA for the number of non-zero coefficients, leading to some coefficients being shrunk down to 0\cite{zou2006sparse} (see Alg. 2, in section \ref{alg:SPCA}).
+With the points grouped in clusters of similar balance of terms, the next step is to identify which terms are active and which can be dropped to simplify the equation for that cluster. This could be done by applying a theshold to the covariance matrices obtained from the GMM clustering. But it is done more robustly through Sparse Principal Component Analysis (SPCA). SPCA is a variant of Principal Component Analysis (PCA) which is a method usually used to reduce the dimensionality of the data, whilst maximising the information retained. The new dimensions onto which the data is projected are called principal components and are the directions in which the data has the greatest variance\cite{lever2017principal} (see Fig. \ref{fig:PCA_wiki}). SPCA differs from PCA in that it adds a sparsity constraint to the principal components, adding a $\ell$-1 penalty to the objective function of PCA for the number of non-zero coefficients. This then leads to some coefficients being shrunk down to 0 when the $\ell$-1 penalty factor ($\alpha$) is large enough\cite{zou2006sparse} (see Alg. 2, in section \ref{alg:SPCA}). When setting a low value for $\alpha$, SPCA will be more lenient in judging if a term is active in a cluster. The higher the value, the sparser the principal components will be. Too low, and all clusters will have a full balance, with all terms active. Too high, and all clusters will have an empty balance, with no terms active.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.4\textwidth]{./pca_wiki.png}
+  \caption{Example of a 2D dataset projected onto its first 2 principal components (black arrows). The first principal component is the direction of greatest variance, and the second is orthogonal to it. \cite{pca_wikipedia}}
+  \label{fig:PCA_wiki}
+\end{figure}
+
+Taking the GMM clustered data, the SPCA algorithm is applied to each cluster, and only the leading component is extracted. By taking the leading component, the algorithm is identifying the one direction along which there is the most variance within that cluster. This will indicate which terms vary the most within that cluster, and therefore which ones matter more. Then applying the sparsity constraint, the vecotr obtained will have some of its coefficients shrunk to 0, and the non-zero coefficients will indicate the active terms in that cluster.
+
+\vspace{5mm}
+
+To help judge what value of $\alpha$ to pick, Callaham et al. (2021) propose to apply SPCA for a range of $\alpha$ values, and computing a residual error defined as the $\ell$-2 norm of the neglected terms across all clusters. This illustrates the trade-off between sparsity (simplifying the model) and retaining information (keeping the model accurate), helping to pick an optimal value. Once SPCA is applied, each cluster is then associated to a sparse binary vector defining the active terms (1 if active, 0 if not). The balance models are then checked for uniqueness, and if some clusters have the same balance, they are combined.
 
 
 \chapter{Conducted research}
 
-To test and validate this method, Callaham et al.\ used a series of case studies\cite{callaham2021learning}. While some were well-studied physical systems with well-known dominant balance regimes (e.g., turbulent boundary layer, geostrophic balance currents), others were more complex and less understood (e.g., optical pulse generation, rotating detonation engine). For these latter cases, the paper presents a first plausible identification of dominant balance regimes. In this chapter, the aim is to discuss the reproducibility of the results presented in the paper, as well as to test and discuss the limitations of the method.
+To test and validate this method, Callaham et al.\ used a series of case studies\cite{callaham2021learning}. Some were of well-studied physical systems with well-known dominant balance regimes (e.g., turbulent boundary layer, geostrophic balance currents). But others were more complex and less understood (e.g., optical pulse generation, rotating detonation engine). For these latter cases, the paper presents a first plausible identification of dominant balance regimes, showing an exciting  In this chapter, the aim is to discuss the reproducibility of the results presented in the paper, as well as to test and discuss the limitations of the method.
 
 \section{Portability of the code}
 
-One great quality of Callaham et al. (2021)\cite{callaham2021learning} is the sharing of their code in the form of runnable notebooks. With the overarching motivation for this project being the importance of reproducibility in today’s code-rich research environment, it is key that scientists share their code so one may verify how the results were obtained. This is also a great asset as it allows for a more useful reproduction of the results, where explicitly different results can be tested.
+One great quality of Callaham et al. (2021)\cite{callaham2021learning} is the sharing of their code in the form of runnable notebooks. This is tied to the motivation for this project being the importance of reproducibility in today’s code-rich research environment. It is key that scientists share their code so one may verify how the results were obtained. This is also a great asset as it allows for a more thorough understanding and test of the method, as it is possible to write explicitely different code.
 
-Overall, the code is of great quality, though some portability issues were encountered. Some of the dependencies were not stated in their README. More importantly, it seemed some of the data-generating code was modified between running their final notebook versions and their uploading to the repository. This led to some troubleshooting to get the data to match the data used in the paper. For the flow past a cylinder case, a file needed in the setup of the Nek5000 simulation software was missing\cite{nek5000setup}. For the bursting neuron case, the times for which the data was generated was wrongly set. Similarly, for the geostrophic current data, the remote reading code was selecting snapshots of the data that did not match the ones used in the paper, and the first 45 were set to zero, which had no real use. Further, the results in the paper are actually obtained from a different snapshot than the one stated in the paper. For this report, the data was simply downloaded from the HYCOM database \cite{hycom}, and the time was set to the same as the one used in the paper.
+Overall, the code is of great quality, though some portability issues were encountered. Some of the dependencies were not stated in their README. More importantly, it seemed some of the data-generating code was modified between running their final notebook versions and their uploading to the repository. This led to some troubleshooting to get the data to match the one used in the paper. For the flow past a cylinder case, a file needed in the setup of the Nek5000 simulation software was missing\cite{nek5000setup}. For the bursting neuron case, the times for which the data was generated was wrongly set. Similarly, for the geostrophic current data, the remote reading code was selecting snapshots of the data that did not match the ones used in the paper, and the first 45 were set to zero, which had no real use. Further, the results in the paper are actually obtained from a different snapshot than the one stated in the paper. For this report, the data was simply downloaded from the HYCOM database \cite{hycom}, and the time was set to the same as the one used in the paper.
 
-Nevertheless, the code was otherwise easy to run, and the notebook format was very useful for following the logic of the code. From this notebook, the code was first written for the turbulent boundary layer case. Explicitly alternative code was then written to test the reproducibility of the results.
+Nevertheless, the code was otherwise easy to run, and the notebook format is very useful to better the logic of the code. From this notebook, the code was first written for the turbulent boundary layer case. Explicitly alternative code was then written to test the reproducibility of the results.
 
-\section{Reproducing of the results}
+\section{The turbulent boundary layer case}
 
-Reiterating previously made points, one of the main goals of this project is to verify the results of Callaham et al. (2021)\cite{callaham2021learning}. The objective is not only to check that the results can be reproduced but to do so using alternative code. The aim here is to have code written differently that, in practice, performs the same functions. This is to ensure that none of the main results from Callaham et al. are due to a “lucky” bug in their code, and were obtained through random chance.
+Reiterating previously made points, the objective is not only to check that the results can be reproduced but to do so using alternative code. The aim here is to have code that, in practice, performs the same functions, but written differently. This is to ensure that none of the main results from Callaham et al. are due to a “lucky” bug in their code, and were obtained through random chance. Because the underlying method is essentially the same for all case studies, the choice was made to put particular focus on just one of the cases, and less so on the others. The scenario chosen was the boundary layer in transition to turbulence.
 
-\subsection{Turbulent Boundary Layer}
+\subsection{Reproducing the code}
 
-Because the underlying method is essentially the same for all case studies, the choice was made to put particular focus on just one of the cases, and less so on the others. The scenario chosen was the boundary layer in transition to turbulence.
+Throughout the Callaham et al. (2021)\cite{callaham2021learning} notebooks, aside from the three main steps of the method, the large majority of the code involves handling the data, switching from equation space to physical space, and obtaining the unique balance models. Most of it is written using \texttt{Numpy}, which is arguably a very good choice for efficient and trustworthy numerical operations. In the alternative code, however, \texttt{Pandas} was primarily used. In terms of performance, it is close to \texttt{Numpy}, especially for the size of the data in this study, and provides similar practical functions. For some code sections, however, impractical workarounds were required, particularly to replace the \texttt{numpy.unique} method, when finding and combining duplicate balance models.
 
-Throughout the Callaham et al. (2021)\cite{callaham2021learning} notebooks, aside from the three main steps of the method, the large majority of the code involves handling the data, switching from equation space to physical space, and obtaining the unique balance models. Most of it is written using \texttt{Numpy}, which is the most efficient way. In the alternative code, however, \texttt{Pandas} was primarily used. In terms of performance, it is close to \texttt{Numpy}, especially for the size of the data in this study. For some code sections, however, impractical workarounds were required, particularly to replace the \texttt{numpy.unique} method.
-
-The data for this case study is obtained from the John Hopkins database, which conducted a direct numerical simulation of a boundary layer over a stationary plate\cite{jhtdb}. This database provides the $x$ and $y$ coordinates as well as the following variables: $u$, the streamwise component of velocity;  $v$, the wall-normal component of velocity;  $p$, the fluid pressure; and $(\overline{u{\prime} v{\prime}})$ and $(\overline{u{\prime}^2})$, the wall-normal and streamwise Reynolds stress terms, respectively. From these variables, the terms of the streamwise component of the Reynolds-Averaged Navier-Stokes (RANS) equations need to be calculated:
+The data for this case study is obtained from the John Hopkins database, which conducted a direct numerical simulation of a boundary layer over a stationary plate\cite{jhtdb}. This database provides the $x$ and $y$ coordinates as well as the following variables: $\overline{u}$, the streamwise component of velocity;  $\overline{v}$, the wall-normal component of velocity;  $\overline{p}$, the fluid pressure; and $(\overline{u{\prime} v{\prime}})$ and $(\overline{u{\prime}^2})$, the wall-normal and streamwise Reynolds stress terms, respectively. From these variables, the terms of the streamwise component of the Reynolds-Averaged Navier-Stokes (RANS) equations need to be calculated:
 
 \begin{equation}
   \bar{u} \bar{u}_x + \bar{v} \bar{u}_y = \rho^{-1} \bar{p}_x + \nu \nabla^2 \bar{u}  - (\overline{u' v'})_y - (\overline{u'^2})_x
 \end{equation}
 
-To compute the derivative terms, the method employed by Callaham et al. uses \texttt{scipy.sparse}’s sparse matrices. These sparse matrices are constructed so that when computing the matrix product with the fields or variables, the second-order forward/central/backward difference derivative is obtained, following the method described in ‘Fundamentals of Numerical Computations’\cite{finitediff}. Though it has the advantage of being portable for all variables, it is much slower than using the \texttt{numpy.gradient} function, which performs the same computation more explicitly when setting the \texttt{edge\_order} argument to 2. With the derivatives computed, spatial fields of each term in the equation can be plotted (see Fig. \ref{fig:RANS_terms}).
+To compute the derivative terms, the method employed by Callaham et al. uses \texttt{scipy.sparse}’s sparse matrices library. The aim is to build a derivative operator sparse matrix so that when computing the matrix product of that matrix with the fields or variables, the second-order forward/central/backward difference derivative is obtained, following the method described in ‘Fundamentals of Numerical Computations’\cite{finitediff}. Though it has the advantage of being portable for all variables, it is much slower than using the \texttt{numpy.gradient} function, which performs the same computation more explicitly when setting the \texttt{edge\_order} argument to 2. With the derivatives computed, spatial fields of each term in the equation can be plotted (see Fig. \ref{fig:RANS_terms}).
 
 \begin{figure}
   \centering
@@ -290,16 +306,16 @@ The next step is to use a Gaussian Mixture Model (GMM) to cluster the data in eq
 
 The algorithm stops when the difference between the new and old log-likelihood is less than $10^{-3}$.
 
-The alternative code was thus written to follow the same initialization, explicitly using \texttt{sklearn}’s K-Means algorithm with \texttt{‘k-means++’} initialization. The Expectation-Maximization algorithm is then implemented as described in Algorithm 1, using the total log-likelihood difference as the convergence criterion.
+The alternative code was thus written aiming to follow the same initialization, explicitly using \texttt{sklearn}’s K-Means algorithm with \texttt{‘k-means++’} initialization. The Expectation-Maximization algorithm is then implemented as described in Algorithm 1, using the total log-likelihood difference as the convergence criterion.
 
-For Sparse Principal Component Analysis (SPCA), the \texttt{sklearn} library’s implementation is used. The method employed is based on an extension of sparse PCA, which utilizes structured regularization to constrain the sparsity patterns.
+For Sparse Principal Component Analysis (SPCA), the \texttt{sklearn} library’s implementation is used. The method employed is based on an extension of sparse PCA, which utilizes structured regularization to constrain the sparsity patterns. This is also done for the alternative code, as the \texttt{sklearn} implementation employs high level methods which were hard to reproduce\cite{jenatton2010structured,mairal2010online}. However, it was decided to use a parallelising package to speed up the computation of the SPCA residuals. Here, the \texttt{joblib} package was used, providing convenient pipelining methods in Python\cite{joblib}.
 
-With SPCA completed, the active terms can be identified. From this point, the original and alternative code only differ in which library they predominantly use. The original code primarily uses \texttt{Numpy}, while the alternative code uses \texttt{Pandas}, which sometimes has similar functions and sometimes requires workarounds.
+With SPCA completed, the active terms can be identified. From this point, the original and alternative code only differ in which library they predominantly use. The original code primarily uses \texttt{Numpy}, while the alternative code uses \texttt{Pandas}. Alternative code was thus also written in handling the balance model results, getting the unique ones, and plotting them in space.
 
 
 \subsection{Results}
 
-The first result to check is the terms obtained in Fig. \ref{fig:RANS_terms}. These were obtained with the original code, which made use of \texttt{scipy.sparse}. The alternative code, which used \texttt{numpy.gradient} instead, gave the same results (see Fig. \ref{fig:custom_RANS_terms}). The reason Callaham et al. likely used \texttt{scipy.sparse} is because it is more generalizable to all variables; however, they also used \texttt{numpy.gradient} for other case studies. Using \texttt{numpy.gradient} also leads to considerable speedups.
+First, checking the computation of the RANS equation's terms, the \texttt{scipy.sparse} method's obtained terms are plotted in Fig. \ref{fig:RANS_terms}. The alternative code, which used \texttt{numpy.gradient} instead, gave the same results (see Fig. \ref{fig:custom_RANS_terms}).
 
 \begin{figure}[htbp]
   \centering
@@ -308,9 +324,7 @@ The first result to check is the terms obtained in Fig. \ref{fig:RANS_terms}. Th
   \label{fig:custom_RANS_terms}
 \end{figure}
 
-\newpage
-
-The next step is to cluster the data in equation space. The resulting clusters’ covariance matrices were obtained and are plotted in Figure \ref{fig:GMM_cov_mat}. Plotting the current clustering in physical space gives the results in Figure \ref{fig:GMM_clusters}. As can be seen, the results do differ, with the alternative code needing 7 clusters to identify the transitional layer (instead of 6 for the original code). The difference could be explained by either the different convergence criteria or some of the covariance matrix regularizations performed in the \texttt{sklearn} implementation\cite{sklearnGMM}.
+The next step involves clustering the data in equation space. A clear way of comparing results is to examine the obtained covariance matrices. In Figure \ref{fig:GMM_cov_mat}, the covariance matrices obtained when using \texttt{sklearn}’s Gaussian Mixture Model (GMM) routine, as well as when using the custom GMM implementation are shown. It can already be seen that some clusters clearly have the more important terms. This is the case within each method (Cluster 3 and 4 in Fig. \ref{fig:GMM_cov_mat}(a)) but also between them: clusters 1 in (a) and 0 in (b), 5 in (a) and 6 in (b), etc. Plotting these clusters in physical space gives the results in Figure \ref{fig:GMM_clusters}. From fluid dynamics theory, Callaham et al. were able to have names for each clustered region in Figure \ref{fig:GMM_clusters}(a), these will be described later in Figure \ref{fig:balance_models}. As can be seen, the results do differ, with the alternative code needing 7 clusters to identify the transitional layer (green in (a) and purple in (b)), instead of 6 for the original code. The difference could be explained by either the different convergence criteria or some of the covariance matrix regularizations which is performed in the \texttt{sklearn} implementation\cite{sklearnGMM}.
 
 \begin{figure}[htbp]
   \centering
@@ -322,7 +336,7 @@ The next step is to cluster the data in equation space. The resulting clusters�
       \includegraphics[width=\textwidth]{../Plots/BL/custom_GMM_cov_mat.png}
       \caption{}
   \end{subfigure}
-  \caption{Covariance matrices of for each of the clusters found by the \texttt{sklearn} (a) and custom (b) GMM algorithm}
+  \caption{Covariance matrices of for each of the clusters found by the \texttt{sklearn} (a) and custom (b) GMM algorithm. The colorscale is not too important, as the magnitude of the covariance matrix is more important.}
   \label{fig:GMM_cov_mat}
 \end{figure}
 
@@ -337,13 +351,14 @@ The next step is to cluster the data in equation space. The resulting clusters�
       \includegraphics[width=\textwidth]{../Plots/BL/custom_GMM_clustering_space.png}
       \caption{}
   \end{subfigure}
-  \caption{Plot of the clusters found by the \texttt{sklearn} (a) and custom (b) GMM algorithm. The cluster numbers here match the ones in Figure \ref{fig:GMM_cov_mat}, but not 0 indexed}
+  \caption{Plot of the clusters found by the \texttt{sklearn} (a) and custom (b) GMM algorithms. The cluster numbers match the ones in Figure \ref{fig:GMM_cov_mat}, with the difference of not being 0-indexed (Cluster 1 here is cluster 0 in Fig. \ref{fig:GMM_cov_mat})}
   \label{fig:GMM_clusters}
 \end{figure}
 
 \newpage
 
-Then comes applying SPCA to each cluster to identify which terms are active in it. In this case, the \texttt{sklearn} function is still used, though with alternative code to handle the results. Due to the different clustering obtained, the optimal alpha values had to be different for each method. For the original code, the optimal alpha value was set to 10, but had to be set to 7 for the alternative code, in order to keep the inertial sublayer unique and separate from the background free-stream (see Fig. \ref{fig:balance_model_clusters}). The results of the SPCA algorithm are $n_{clusters}$  sets of active terms. In the case where some clusters have the same active terms, they are combined. This results in a set of unique balance models, which are plotted in Figure \ref{fig:balance_models}. Similarly to Figure \ref{fig:custom_GMM_cov_mat}, some clusters are well identified by both methods. In both methods, the spatial arrangements of the clusters are the same, though their dynamics sometimes differ, or even switch (free flow vs. inertial sublayer in orange). Overall, similar key dynamics are identified in most of the clusters. For example, the viscous sublayer in blue and green has the viscous forces and streamwise Reynolds’ stress terms as active. The inflow region crucially has the streamwise Reynolds’ stress term as active. And in both cases, the transitional layer is identical.
+Then comes applying SPCA to each cluster to identify which terms are active in it. Due to the different clustering obtained, the optimal alpha values needed changing between the methods. For the original code, the optimal alpha value was set to 10, but had to be set to 7 for the alternative code, in order to keep the purple cluster in Fig. \ref{fig:balance_model_clusters}(b) from being combined with the brown one. The results of the SPCA algorithm are $n_{clusters}$ sets of active terms. In the case where some clusters have the same active terms, they are combined. This results in a set of unique balance models, which are plotted in Figure \ref{fig:balance_models}. As the turbulent boundary layer is a well-studied physical phenomenon, clusters in Fig. \ref{fig:balance_models} and \ref{fig:balance_model_clusters} have been given names to describe the dynamics at play in them. From these plots, the alternative code was able to similarly identify important dynamics in the boundary layer. As in Figure \ref{fig:GMM_cov_mat}, some clusters are well identified by both methods. In both methods, the spatial arrangements of the clusters are the same, though their dynamics sometimes differ, or even switch, with the orange cluster in Fig. \ref{fig:balance_models} having the same dynamics but describing two different regions in Fig. \ref{fig:balance_model_clusters}. Overall, similar key dynamics are identified in most of the clusters. For example, the viscous sublayers in blue (a) and green (b) of Fig. \ref{fig:balance_model_clusters} has the viscous forces and streamwise Reynolds’ stress terms as active in both cases. The inflow region in both cases has the streamwise Reynolds’ stress term as inactive, which is the main characteristic of that region. And in both cases, the transitional layer is identical (purple cluster).
+
 
 \begin{figure}[htbp]
   \centering
@@ -356,7 +371,7 @@ Then comes applying SPCA to each cluster to identify which terms are active in i
       \includegraphics[width=\textwidth]{../Plots/BL/custom_GMM_balance_models.png}
       \caption{}
   \end{subfigure}
-  \caption{Plot of the unique balance models found after applying SPCA, when using the original Callaham et al. code (a) and an alternative code (b). Here, the cluster colors will match the ones in Figure \ref{fig:balance_model_clusters}}
+  \caption{Plot of the unique balance models found after applying SPCA, when using the original Callaham et al. code (a) and an alternative code (b). Here, the cluster colors will match the ones in Figure \ref{fig:balance_model_clusters}. Multiple regions are identified. The inflow region (red): where the flow is still laminar, and the streamwise Reynolds stress term is inactive. The free-stream region (green): where only inertial and pressure gradient forces matter, and the viscous forces are inactive. The inertial sublayer (orange): where the inertial forces are the most active. The transitional layer (purple): where the flow is transitioning from laminar to turbulent, hency why a lot of the terms are active. Finally, the viscous sublayer (blue): where the flow is dominated by the viscous forces.}
   \label{fig:balance_models}
 \end{figure}
 
@@ -375,8 +390,9 @@ Then comes applying SPCA to each cluster to identify which terms are active in i
   \label{fig:balance_model_clusters}
 \end{figure}
 
-Overall, there is a good agreement between the results, considering differences in the specifics of the Gaussian Mixture Modelling clustering algorithm. The alternative code was able to reproduce the identification of important dynamics in the boundary layer. It is also important to note that, though the overall method presented in Callaham et al. (2021)\cite{callaham2021learning} brings large improvements in terms of generalizing the identification of dominant balance regimes for different cases, there are still two parameters to set: the number of clusters to find when using the GMM algorithm, and the alpha value for the SPCA algorithm. These parameters can have a large impact on the results obtained. This is a key point to keep in mind and will be further discussed in the Stability Assessment section.
+Overall, there is a good agreement between the results, considering differences in the specifics of the Gaussian Mixture Modelling clustering algorithm. The alternative code was able to reproduce the identification of important dynamics in the boundary layer. It is also important to note that, though the overall method presented in Callaham et al. (2021)\cite{callaham2021learning} brings large improvements in terms of generalizing the identification of dominant balance regimes for different cases, there are still two parameters to set: the number of clusters to find when using the GMM algorithm, and the alpha value for the SPCA algorithm. These parameters can have a large impact on the results obtained. This is a key point and will be further discussed in the Stability Assessment section.
 
+\newpage
 
 \section{Exploration of other algorithms}
 
@@ -384,44 +400,44 @@ In the interest of further testing Callaham et al.’s method, and following the
 
 \subsection{Spectral clustering}
 
-Because of the nature of the data being dealt with, the similarity measure used by the clustering algorithm being Euclidean may not be the most appropriate. As a result, spectral clustering is a convincing candidate for this, and it was also suggested in the Supplementary Discussion of the paper\cite[Supplementary Information]{callaham2021learning}.
+Because of the nature of the data being dealt with, the similarity measure used by the clustering algorithm being Euclidean may not be the most appropriate\cite{luxburg2007tutorial}. As a result, spectral clustering is a convincing candidate for this, and it was also suggested in the Supplementary Discussion of the paper\cite[Supplementary Information]{callaham2021learning}.
 
 \begin{figure}[htbp]
   \centering
 
   \begin{minipage}{0.7\textwidth}
     \centering
-    \includegraphics[width=\textwidth]{../Plots/BL/SC_CovMat.png}
+    \includegraphics[width=\textwidth]{../Plots/BL/SC_CovMat_6.png}
     \subcaption{}
   \end{minipage}
 
   \begin{minipage}{\textwidth}
       \begin{minipage}[b]{0.6\textwidth}
           \centering
-          \includegraphics[width=\textwidth]{../Plots/BL/SC_clustering_space.png}
+          \includegraphics[width=\textwidth]{../Plots/BL/SC_clustering_space_6.png}
           \subcaption{}
       \end{minipage}
       \begin{minipage}[b]{0.35\textwidth}
           \centering
-          \includegraphics[width=\textwidth]{../Plots/BL/SC_balance_models.png}
+          \includegraphics[width=\textwidth]{../Plots/BL/SC_balance_models_6_1.png}
           \subcaption{}
       \end{minipage}
   \end{minipage}
 
   \begin{minipage}{0.7\textwidth}
       \centering
-      \includegraphics[width=\textwidth]{../Plots/BL/SC_spca_clustering_space.png}
+      \includegraphics[width=\textwidth]{../Plots/BL/SC_spca_clustering_space_6_1.png}
       \subcaption{}
   \end{minipage}
 
-  \caption{Results of the Spectral Clustering algorithm for the turbulent boundary layer case. \textbf{(a)} Covariance matrices of for each of the clusters found by the Spectral Clustering algorithm. \textbf{(b)} Plot of the clusters found by the Spectral Clustering algorithm. \textbf{(c)} Plot of the unique balance models found after applying SPCA. \textbf{(d)} Plot of the unique balance model clusters in physical space. Identified balance models include....}
+  \caption{Results of the Spectral Clustering algorithm for the turbulent boundary layer case. \textbf{(a)} Covariance matrices of for each of the clusters found by the Spectral Clustering algorithm. \textbf{(b)} Plot of the clusters found by the Spectral Clustering algorithm. \textbf{(c)} Plot of the unique balance models found after applying SPCA. \textbf{(d)} Plot of the unique balance model clusters in physical space. Identified balance models include a viscous sublayer (orange), an inertial sublayer (green), a transitional and inflow layer (red), and a no-dynamics free-flow region (red).}
 
   \label{fig:SC_results}
 \end{figure}
 
-Using spectral clustering, the main drawback is the computational complexity $\mathcal{O}(n^3)$, where $n$ is the number of samples. Thus, it is not the most efficient algorithm for larger datasets, which most physical systems likely will be. Furthermore, it is not possible to sequentially add new points to the graph. Training it on a fraction of 0.01 of the full dataset, the results are shown in Figure \ref{fig:SC_results}. Because it is hard to predict cluster membership for all points, the solution was to plot the cluster memberships as a scatter plot. Overall, spectral clustering deals well with the different-shaped clusters, as it can be seen that the same main structure in the flow was captured. However, looking at the dynamics identified, it is once again the case that some of the key dynamics are identified, notably the inertial and viscous sublayers (orange and green). However, the inertial sublayer here extends vertically into the region identified by the original code as the laminar inflow region. Furthermore, a large cluster, which covers the previously identified transitional and laminar inflow region, is simply considered to have all terms active (except the wall-normal stress term).
+When using spectral clustering, a significant drawback is the computational complexity, which is at worst $\mathcal{O}(n^3)$, where n is the number of samples. This makes the algorithm less efficient for larger datasets, which are common in physical systems. Furthermore, it is not possible to sequentially add new points to the graph. By training it on a small fraction (0.01) of the full dataset, the results are shown in Figure \ref{fig:SC_results}. Because prediction of cluster membership for the rest of the dataset is hard, the solution was to plot the cluster memberships as a scatter plot. Overall, spectral clustering deals well with the different-shaped clusters, as the main structure in the flow was captured. However, looking at the dynamics identified, it is once again the case that some of the key dynamics are identified, notably the inertial (green) and viscous sublayers (orange). However, the inertial sublayer here extends vertically into the region identified by the original code as the laminar inflow region. Moreover, a large cluster, which spans the previously identified transitional and laminar inflow region, is simply considered to have all terms active (except the wall-normal stress term). One other novelty is that the free-flow region was identified to have no active terms.
 
-Therefore, though it provides a non-Euclidean based clustering algorithm, spectral clustering is not the most appropriate for this case study, or at least the aims of the method proposed by Callaham et al. (2021)\cite{callaham2021learning}. It is computationally expensive, cannot accept new data points, and additionally can require one extra parameter to set (\texttt{n\_neighbours}) when using nearest neighbors to build the graph.
+Therefore, though it provides a non-Euclidean based clustering algorithm, spectral clustering is not well suited for this case study, or at least the aims of the method proposed by Callaham et al. (2021)\cite{callaham2021learning}. It is computationally expensive, cannot accept new data points, and additionally can require one extra parameter to set (\texttt{n\_neighbours}) when using nearest neighbors to build the graph.
 
 
 \subsection{K-Means}
@@ -433,29 +449,28 @@ The next algorithm used is the K-Means algorithm. Compared to spectral clusterin
 
   \begin{minipage}{0.7\textwidth}
     \centering
-    \includegraphics[width=\textwidth]{../Plots/BL/KMeans_CovMat.png}
-    \subcaption{}
+    \includegraphics[width=\textwidth]{../Plots/BL/KMeans_CovMat_14.png}
   \end{minipage}
 
   \begin{minipage}{\textwidth}
       \begin{minipage}[b]{0.6\textwidth}
           \centering
-          \includegraphics[width=\textwidth]{../Plots/BL/KMeans_Clustering_space.png}
+          \includegraphics[width=\textwidth]{../Plots/BL/KMeans_Clustering_Space_14.png}
           \subcaption{}
       \end{minipage}
       \begin{minipage}[b]{0.35\textwidth}
           \centering
-          \includegraphics[width=\textwidth]{../Plots/BL/KMeans_balance_models.png}
+          \includegraphics[width=\textwidth]{../Plots/BL/KMeans_balance_models_14_8.png}
           \subcaption{}
       \end{minipage}
   \end{minipage}
 
   \begin{minipage}{0.7\textwidth}
       \centering
-      \includegraphics[width=\textwidth]{../Plots/BL/KMeans_spca_clustering.png}
+      \includegraphics[width=\textwidth]{../Plots/BL/KMeans_spca_clustering_14_8.png}
       \subcaption{}
   \end{minipage}
-  \caption{Results of the K-Means algorithm for the turbulent boundary layer case. \textbf{(a)} Covariance matrices of for each of the clusters found by the K-Means algorithm. \textbf{(b)} Plot of the clusters found by the K-Means algorithm. \textbf{(c)} Plot of the unique balance models found after applying SPCA. \textbf{(d)} Plot of the unique balance model clusters in physical space. Identified balance models include....}
+  \caption{Results of the K-Means algorithm for the turbulent boundary layer case. \textbf{(a)} Covariance matrices of for each of the clusters found by the K-Means algorithm. \textbf{(b)} Plot of the clusters found by the K-Means algorithm. \textbf{(c)} Plot of the unique balance models found after applying SPCA. \textbf{(d)} Plot of the unique balance model clusters in physical space. Identified balance models include an inflow region (purple), a inertial sublayer and inflow region (orange), a transitional layer (green), and a region that spans the free-flow region and the viscous sublayer(blue).}
 
   \label{fig:KMeans_results}
 \end{figure}
@@ -464,7 +479,7 @@ The results of the K-Means algorithm are shown in Figure \ref{fig:KMeans_results
 
 \subsection{Weighted K-Means}
 
-One solution to K-Means relying solely on Euclidean distance is to apply a weight to the samples. This is done to give more importance to the samples that are closer to the origin, essentially mimicking the effect of spreading them apart. This should encourage the algorithm to identify multiple clusters in the cloud of points near the origin. The weights are set as follows:
+One solution to K-Means relying solely on Euclidean distance is to apply a weight to the samples. This is done to give more importance to the samples that are closer to the origin, essentially mimicking the effect of spreading them apart. This should encourage the algorithm to identify multiple clusters in the cloud of points near the origin. The weights are set to depend on the distance to the origin as follows:
 
 \begin{equation}
   w_i = 1 - (\text{tanh}^{2}(\frac{1}{2}|\vec{OX}|)) \text{, where } \vec{OX} \text{ is the vector from the origin to the sample} x_i
@@ -475,30 +490,29 @@ One solution to K-Means relying solely on Euclidean distance is to apply a weigh
 
   \begin{minipage}{0.7\textwidth}
     \centering
-    \includegraphics[width=\textwidth]{../Plots/BL/WKMeans_CovMat.png}
+    \includegraphics[width=\textwidth]{../Plots/BL/WKMeans_CovMat_6.png}
     \subcaption{}
   \end{minipage}
 
   \begin{minipage}{\textwidth}
       \begin{minipage}[b]{0.6\textwidth}
           \centering
-          \includegraphics[width=\textwidth]{../Plots/BL/WKMeans_clustering_cpace.png}
+          \includegraphics[width=\textwidth]{../Plots/BL/WKMeans_clustering_space_6.png}
           \subcaption{}
       \end{minipage}
       \begin{minipage}[b]{0.35\textwidth}
           \centering
-          \includegraphics[width=\textwidth]{../Plots/BL/WKMeans_balance_models.png}
+          \includegraphics[width=\textwidth]{../Plots/BL/WKMeans_balance_models_6_7.png}
           \subcaption{}
       \end{minipage}
   \end{minipage}
 
   \begin{minipage}{0.7\textwidth}
       \centering
-      \includegraphics[width=\textwidth]{../Plots/BL/WKMeans_spca_clustering_space.png}
+      \includegraphics[width=\textwidth]{../Plots/BL/WKMeans_spca_clustering_space_6_7.png}
       \subcaption{}
   \end{minipage}
-  \caption{Results of the Weighted K-Means algorithm for the turbulent boundary layer case. \textbf{(a)} Covariance matrices of for each of the clusters found by the Weighted K-Means algorithm. \textbf{(b)} Plot of the clusters found by the Weighted K-Means algorithm. \textbf{(c)} Plot of the unique balance models found after applying SPCA. \textbf{(d)} Plot of the unique balance model clusters in physical space. Identified balance models include....}
-
+  \caption{Results of the Weighted K-Means algorithm for the turbulent boundary layer case. \textbf{(a)} Covariance matrices of for each of the clusters found by the Weighted K-Means algorithm. \textbf{(b)} Plot of the clusters found by the Weighted K-Means algorithm. \textbf{(c)} Plot of the unique balance models found after applying SPCA. \textbf{(d)} Plot of the unique balance model clusters in physical space. Identified balance models include an inflow region (purple), an inertial sublayer and inflow region (orange), a transitional layer (green), a region that spans the free-flow region and the viscous sublayer(blue), and finally, a region that spans the viscous sublayer (red)}
   \label{fig:WKMeans_results}
 \end{figure}
 
@@ -506,7 +520,9 @@ The results of the Weighted K-Means algorithm are shown in Figure \ref{fig:WKMea
 
 \subsection{Summary}
 
-Overall, the Gaussian Mixture Model clustering algorithm offers really good flexibility thanks to its small number of hyperparameters, and for adding new data points. Additionally, it is able to identify clusters of different shapes and sizes, which is important when differentiating different dominant balances close to the origin. Another possible path to explore could be a mixture of other distributions, e.g., Cauchy.
+Overall, the Gaussian Mixture Model clustering algorithm offers really good flexibility thanks to its small number of hyperparameters, and ability to predict cluster membership for new data points. Additionally, it is able to identify clusters of different shapes and sizes, which is important when differentiating different dominant balances close to the origin. Another possible path to explore could be a mixture of other distributions, e.g., Cauchy.
+
+
 
 \section{Stability Assessment}
 
@@ -519,13 +535,60 @@ The first test that can be carried out is to see how results differ when setting
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\textwidth]{../Plots/Stab_Ass/different_cluster_numbers_bal_mods.png}
-  \caption{Plot of the obtained balance models for different initial cluster number}
+  \caption{Plot of the obtained balance models for different initial cluster number. Reading top to bottom and left to right, the cluster numbers are 4 to 15}
   \label{fig:diff_clust_num_bal_mods}
 \end{figure}
 
-The algorithm was run for multiple cluster numbers, and the balance models were obtained for each case. These are all plotted in Figure \ref{fig:diff_clust_num_bal_mods}. It can be seen that the results are mostly stable, with a slow increase in the number of final unique balance models found. However, checking the actual clustering in space and comparing to the balance models obtained…
+The algorithm was run for multiple cluster numbers, and the balance models were obtained for each case. These are all plotted in Figure \ref{fig:diff_clust_num_bal_mods}. It can be seen that the results are mostly stable, with a slow increase in the number of final unique balance models found (see Fig. \ref{fig:diff_clust_num_nmodels}), but with identical balances identified, except for low cluster numbers. Importantly, the relevant case of 6 clusters seems to be unique and changes quite a lot for the 5 and 7 clusters case.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.5\textwidth]{../Plots/Stab_Ass/different_cluster_numbers_nmodels.png}
+  \caption{Plot of the number of unique balance models identified for different number of cluster numbers}
+  \label{fig:diff_clust_num_nmodels}
+\end{figure}
+
+However, checking the actual clustering in space in Fig. \ref{fig:diif_clust_num_clustering} and comparing to the balance models obtained, it can be seen that having identified the same balance models does not necessarily translate to the exact same clustering in space.
+
+
+\begin{figure}[htbp]
+  \centering
+  \begin{subfigure}[b]{0.7\textwidth}
+      \includegraphics[width=\textwidth]{../Plots/Stab_Ass/spca_clustering_space_training_set_9.png}
+      \caption{}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.7\textwidth}
+      \includegraphics[width=\textwidth]{../Plots/Stab_Ass/spca_clustering_space_training_set_14.png}
+      \caption{}
+  \end{subfigure}
+  \caption{Final unique balance models identified when the cluster number was set to 9 (a) and 14 (b).}
+  \label{fig:diif_clust_num_clustering}
+\end{figure}
 
 \subsection{Under different alpha values}
+
+To test the stability of the algorithm under changes to the second parameter: $\alpha$, for the $\ell$-1 regularization of the SPCA problem, the same test is done. Taking the case where the cluster number was set to 6, the unique dominant balance models were obtained for values of $\alpha$ going from 0.1 to 17. This is a choice based on the SPCA residuals curve obtained for the 6 clusters scenario (see Fig. \ref{fig:spca_residuals}) which shows these values being in an area of acceptable trade-off between sparsity and accuracy.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.5\textwidth]{../Plots/BL/GMM_spca_residuals.png}
+  \caption{Plot of the SPCA residuals for different values of $\alpha$. Recall, the residuals are computed as the $\ell$-2 norm of the inactive terms for all clusters}
+  \label{fig:spca_residuals}
+\end{figure}
+
+\newpage
+
+Looking at the results in Fig. \ref{fig:diff_alpha_bal_mods}, there is a lot more variation in the results obtained, with as expected a lot more active terms and less balance models for small $\alpha$ values and the inverse case for larger values.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{../Plots/Stab_Ass/different_alpha_bal_mods.png}
+  \caption{Plot of the obtained balance models for different $\ell$-1 regularization term factor, $\alpha$. Reading top to bottom and left to right, the cluster numbers are 0.1, 0.2, 0.5, 1, 2, 5, 7, 8, 10, 12, 15, and 17}
+  \label{fig:diff_alpha_bal_mods}
+\end{figure}
+
+However, for values close to 10, which was selected in the paper, there is some stability in the results, with values from 10 to 15 yielding the same resutls. And checking that it is still the case in physical space (see Fig. )
+
 
 
 
