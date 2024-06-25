@@ -84,7 +84,7 @@ features_train, _ = sk.model_selection.train_test_split(
     features, train_size=frac, random_state=seed
 )
 
-n_clusters = 9
+n_clusters = int(sys.argv[1])
 model = GaussianMixture(n_components=n_clusters, random_state=seed)
 model.fit(features_train)
 
@@ -105,7 +105,13 @@ labels = [
 
 # Plot the covariance matrices of each cluster
 pf.plot_cov_mat(
-    model, nfeatures, n_clusters, labels, "GMM", "Burst_Neur/cov_mat.png", False
+    model,
+    nfeatures,
+    n_clusters,
+    labels,
+    "GMM",
+    f"Burst_Neur/cov_mat_{n_clusters}.png",
+    False,
 )
 
 # Predict the clusters for the rest of the data
@@ -121,7 +127,9 @@ V_sub = V[idx]
 cluster_sub = cluster_idx[idx]
 
 # Plot the clusters
-pf.plot_clusters_neuron(t_sub, V_sub, cluster_sub, "Burst_Neur/cluster.png", False)
+pf.plot_clusters_neuron(
+    t_sub, V_sub, cluster_sub, f"Burst_Neur/cluster_{n_clusters}.png", False
+)
 
 print("GMM clustering done")
 # -----------------------------------------
@@ -158,11 +166,13 @@ err = Parallel(n_jobs=4)(
     delayed(spca_err)(alpha, cluster_idx, features, n_clusters) for alpha in alphas
 )
 
-pf.plot_spca_residuals(alphas, err, "Burst_Neur/spca_residuals.png", False)
+pf.plot_spca_residuals(
+    alphas, err, f"Burst_Neur/spca_residuals_{n_clusters}.png", False
+)
 
 print("Applying Sparse PCA for optimal alpha...")
 # Set the alpha regularization term to 110
-alpha = 110
+alpha = float(sys.argv[2])
 # Initialize the sparse PCA model
 spca_model = np.zeros((n_clusters, nfeatures))
 
@@ -177,7 +187,13 @@ for i in range(n_clusters):
     if len(active_terms) > 0:
         spca_model[i, active_terms] = 1  # Set the active terms to 1
 
-pf.plot_balance_models(spca_model, labels, False, "Burst_Neur/active_terms.png", False)
+pf.plot_balance_models(
+    spca_model,
+    labels,
+    False,
+    f"Burst_Neur/active_terms_{n_clusters}_{alpha}.png",
+    False,
+)
 
 
 # -----------------------------------------
@@ -211,12 +227,20 @@ nmodels = balance_models.shape[0]
 print("Plotting results...")
 # Plot a grid of the active terms
 pf.plot_balance_models(
-    balance_models, labels, False, "Burst_Neur/final_active_terms.png", False
+    spca_model,
+    labels,
+    False,
+    f"Burst_Neur/active_terms_{n_clusters}_{alpha}.png",
+    False,
 )
 
 # Plot the balance models in a grid
 pf.plot_balance_models(
-    balance_models, labels, True, "Burst_Neur/final_balance_models.png", False
+    balance_models,
+    labels,
+    True,
+    f"Burst_Neur/final_balance_models_{n_clusters}_{alpha}.png",
+    False,
 )
 
 # Assign new cluster indices
@@ -229,11 +253,17 @@ cluster_sub = balance_idx[idx]
 
 # Plot the clusters
 pf.plot_clusters_neuron(
-    t_sub, V_sub, cluster_sub, "Burst_Neur/final_clusters.png", False
+    t_sub,
+    V_sub,
+    cluster_sub,
+    f"Burst_Neur/final_clusters_{n_clusters}_{alpha}.png",
+    False,
 )
 
 # Plot the clusters for the whole data/timeseries
-pf.plot_clusters_neuron(t, V, balance_idx, "Burst_Neur/final_clusters_all.png", False)
+pf.plot_clusters_neuron(
+    t, V, balance_idx, f"Burst_Neur/final_clusters_all_{n_clusters}_{alpha}.png", False
+)
 
 
 # Plot the clusters for 3 projections, as in the paper.
@@ -242,7 +272,13 @@ cluster_sub = balance_idx[idx]
 I_K_sub = I_K[idx]
 RHS_sub = C_M[0] * V_dot[idx]
 pf.plot_clusters_neuron_terms(
-    RHS_sub, I_K_sub, "$RHS$", "$I_K$", cluster_sub, "Burst_Neur/cluster_I_K.png", False
+    RHS_sub,
+    I_K_sub,
+    "$RHS$",
+    "$I_K$",
+    cluster_sub,
+    f"Burst_Neur/cluster_I_K_{n_clusters}_{alpha}.png",
+    False,
 )
 
 I_Na_sub = I_Na[idx]
@@ -252,7 +288,7 @@ pf.plot_clusters_neuron_terms(
     "$RHS$",
     "$I_Na$",
     cluster_sub,
-    "Burst_Neur/cluster_I_Na.png",
+    f"Burst_Neur/cluster_I_Na_{n_clusters}_{alpha}.png",
     False,
 )
 
@@ -264,6 +300,6 @@ pf.plot_clusters_neuron_terms(
     "$I_CaP$",
     "$I_SI$",
     cluster_sub,
-    "Burst_Neur/cluster_I_CaP_ISI.png",
+    f"Burst_Neur/cluster_I_CaP_ISI_{n_clusters}_{alpha}.png",
     False,
 )

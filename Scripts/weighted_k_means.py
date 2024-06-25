@@ -147,7 +147,9 @@ for i in range(nc):
     covs[i, :, :] = np.cov(features[mask_, :].T)
 
 # Plot the covariance matrices between terms for each of the weighted K-Means cluster
-pf.plot_cov_mat(covs, nfeatures, nc, labels, "Other", "BL/WKMeans_CovMat.png", False)
+pf.plot_cov_mat(
+    covs, nfeatures, nc, labels, "Other", f"BL/WKMeans_CovMat_{nc}.png", False
+)
 
 # ---------------------------------------------
 # Cluster the data and visualise:
@@ -159,7 +161,7 @@ cluster_idx = clustering + 1
 
 # Plot the clusters in equation space with 2D projections
 pf.plot_clustering_2d_eq_space(
-    features[mask, :], cluster_idx[mask], nc, "BL/WKMeans_2D_eq_space.png", False
+    features[mask, :], cluster_idx[mask], nc, f"BL/WKMeans_2D_eq_space_{nc}.png", False
 )
 
 # Assign points in space to each cluster
@@ -178,7 +180,7 @@ pf.plot_clustering_space(
     nc,
     u_bar,
     U_inf,
-    "BL/WKMeans_clustering_cpace.png",
+    f"BL/WKMeans_clustering_cpace_{nc}.png",
     False,
 )
 
@@ -219,7 +221,7 @@ err = Parallel(n_jobs=4)(
     delayed(spca_err)(alpha, cluster_idx, features, nc) for alpha in alphas
 )
 
-pf.plot_spca_residuals(alphas, err, "BL/WKMeans_spca_residuals.png", False)
+pf.plot_spca_residuals(alphas, err, f"BL/WKMeans_spca_residuals_{nc}.png", False)
 
 # Now with optimal alpha, get the active terms in each cluster
 alpha_opt = int(sys.argv[2])  # Optimal alpha value
@@ -240,7 +242,9 @@ for i in range(nc):
         spca_model[i, active_terms] = 1  # Set the active terms to 1
 
 # Plot the active terms in each cluster
-pf.plot_balance_models(spca_model, labels, False, "BL/WKMeans_active_terms.png", False)
+pf.plot_balance_models(
+    spca_model, labels, False, f"BL/WKMeans_active_terms_{nc}_{alpha_opt}.png", False
+)
 
 
 # ---------------------------------------------
@@ -261,7 +265,11 @@ balancemap = np.reshape(balance_idx, [ny, nx], order="F")
 
 # Plot the balance models in a grid
 pf.plot_balance_models(
-    balance_models, labels, True, "BL/WKMeans_balance_models.png", False
+    balance_models,
+    labels,
+    True,
+    f"BL/WKMeans_balance_models_{nc}_{alpha_opt}.png",
+    False,
 )
 
 # Plot the clustering in space after SPCA
@@ -276,13 +284,16 @@ pf.plot_clustering_space(
     nmodels,
     u_bar,
     U_inf,
-    "BL/WKMeans_spca_clustering_space.png",
+    f"BL/WKMeans_spca_clustering_space_{nc}_{alpha_opt}.png",
     False,
 )
 
 # Visualize the clusters in equation space with 2D projections
 pf.plot_feature_space(
-    features[mask, :], balance_idx[mask], "BL/WKMeans_feature_space.png", False
+    features[mask, :],
+    balance_idx[mask],
+    f"BL/WKMeans_feature_space_{nc}_{alpha_opt}.png",
+    False,
 )
 
 # ---------------------------------------------
@@ -345,7 +356,7 @@ pf.plot_sublayer_scaling(
     gmm_fit,
     p_gmm,
     x_to_fit,
-    "BL/WKMeans_sublayer_scaling.png",
+    f"BL/WKMeans_sublayer_scaling_{nc}_{alpha_opt}.png",
     False,
 )
 
@@ -366,5 +377,11 @@ u_plus = np.reshape(u_bar, [ny, nx], order="F") / u_tau
 # Plot the self-similarity of the flow
 print("y+ coordinates where the balance ends:")
 pf.plot_self_similarity(
-    x, 3, y_plus, u_plus, balancemap, "BL/WKMeans_self_similarity.png", show=False
+    x,
+    3,
+    y_plus,
+    u_plus,
+    balancemap,
+    f"BL/WKMeans_self_similarity_{nc}_{alpha_opt}.png",
+    show=False,
 )

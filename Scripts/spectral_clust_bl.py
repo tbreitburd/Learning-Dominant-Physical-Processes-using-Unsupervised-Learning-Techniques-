@@ -149,7 +149,9 @@ for i in range(nc):
     covs[i, :, :] = np.cov(features_sc[mask_, :6].T)
 
 # Plot the covariances
-pf.plot_cov_mat(covs, nfeatures, nc, labels, "Other", "BL/SC_CovMat.png", False)
+pf.plot_cov_mat(
+    covs, nfeatures, nc, labels, "Other", f"BL/SC_CovMat_{sample_pct}_{nc}.png", False
+)
 
 # ---------------------------------------------
 # Cluster the data and visualise:
@@ -161,7 +163,11 @@ cluster_idx = model.labels_
 
 # Plot the clusters in equation space with 2D projections
 pf.plot_clustering_2d_eq_space(
-    features_sc[:, :6], cluster_idx, nc, "BL/SC_2D_eq_space.png", False
+    features_sc[:, :6],
+    cluster_idx,
+    nc,
+    f"BL/SC_2D_eq_space_{sample_pct}_{nc}.png",
+    False,
 )
 
 # Plot these points in physical space
@@ -170,7 +176,7 @@ pf.scatter_clustering_space(
     features_sc[:, 7],
     cluster_idx,
     nc,
-    "BL/SC_clustering_space.png",
+    f"BL/SC_clustering_space_{sample_pct}_{nc}.png",
     False,
 )
 
@@ -212,7 +218,9 @@ err = Parallel(n_jobs=4)(
     delayed(spca_err)(alpha, cluster_idx, features, nc) for alpha in alphas
 )
 
-pf.plot_spca_residuals(alphas, err, "BL/SC_spca_residuals.png", False)
+pf.plot_spca_residuals(
+    alphas, err, f"BL/SC_spca_residuals_{sample_pct}_{nc}.png", False
+)
 
 # Now with optimal alpha, get the active terms in each cluster
 alpha_opt = int(sys.argv[3])  # Optimal alpha value
@@ -233,7 +241,13 @@ for i in range(nc):
         spca_model[i, active_terms] = 1  # Set the active terms to 1
 
 # Plot the active terms in each cluster
-pf.plot_balance_models(spca_model, labels, False, "BL/SC_active_terms.png", False)
+pf.plot_balance_models(
+    spca_model,
+    labels,
+    False,
+    f"BL/SC_active_terms_{sample_pct}_{nc}_{alpha_opt}.png",
+    False,
+)
 
 
 # ---------------------------------------------
@@ -252,7 +266,13 @@ nmodels = balance_models.shape[0]
 balance_idx = np.array([model_index[i] for i in cluster_idx])
 
 # Plot the balance models in a grid
-pf.plot_balance_models(balance_models, labels, True, "BL/SC_balance_models.png", False)
+pf.plot_balance_models(
+    balance_models,
+    labels,
+    True,
+    f"BL/SC_balance_models_{sample_pct}_{nc}_{alpha_opt}.png",
+    False,
+)
 
 # Plot the clustering in space
 pf.scatter_clustering_space(
@@ -265,7 +285,12 @@ pf.scatter_clustering_space(
 )
 
 # Visualize the clusters in equation space with 2D projections
-pf.plot_feature_space(features_sc[:, :6], balance_idx, "BL/SC_feature_space.png", False)
+pf.plot_feature_space(
+    features_sc[:, :6],
+    balance_idx,
+    f"BL/SC_feature_space_{sample_pct}_{nc}_{alpha_opt}.png",
+    False,
+)
 
 
 # ---------------------------------------------
@@ -313,7 +338,7 @@ pf.scatter_sublayer_scaling(
     x_layer,
     gmm_fit,
     x_to_fit,
-    "BL/SC_sublayer_scaling.png",
+    f"BL/SC_sublayer_scaling_{sample_pct}_{nc}_{alpha_opt}.png",
     False,
 )
 

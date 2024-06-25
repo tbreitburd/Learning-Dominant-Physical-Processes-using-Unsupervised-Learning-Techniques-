@@ -118,6 +118,7 @@ for i in range(ny):
     x[i, :] = np.cumsum(np.concatenate(([0], np.repeat(dx[i], nx - 1))))
 dy = (1 / 25) * (1 / 360) * 2 * np.pi * R  # Assuming constant Earth radius meriodionaly
 
+print("Data loaded")
 
 # ---------------------------------------------
 # Get the derivatives
@@ -142,6 +143,7 @@ f_v = f * v[0]
 p_x = -rho * (u_t + u_grad_u + f_v)
 p_y = -rho * (v_t + u_grad_v + f_u)
 
+print("Derivatives calculated")
 # ---------------------------------------------
 # Define the features
 # ---------------------------------------------
@@ -200,6 +202,7 @@ features = np.concatenate((features_mer, features_zon), axis=0)
 # Scale the features for better GMM performance
 features = features * 1e5
 
+print("Features computed")
 
 # ---------------------------------------------
 # Gaussian Mixture Model Clustering
@@ -214,13 +217,19 @@ features_train, _ = sk.model_selection.train_test_split(
     features, train_size=frac, random_state=seed
 )
 
-n_clusters = 6
+n_clusters = int(sys.argv[1])
 model = GaussianMixture(n_components=n_clusters, random_state=seed)
 model.fit(features_train)
 
 # Plot the covariance matrix for each cluster
 pf.plot_cov_mat(
-    model, nfeatures, n_clusters, labels, "GMM", "Geos_Bal/cov_mat.png", False
+    model,
+    nfeatures,
+    n_clusters,
+    labels,
+    "GMM",
+    f"Geos_Bal/cov_mat_{n_clusters}.png",
+    False,
 )
 
 # Predict clusters for the entire dataset, for a single snapshot
@@ -248,10 +257,16 @@ clustermap_zon = cluster_idx_zon.reshape(ny, nx)
 
 # Plot the clusters in space
 pf.plot_clustering_space_geo(
-    clustermap_mer, clustermap_zon, lon, lat, n_clusters, "Geos_Bal/clusters.png", False
+    clustermap_mer,
+    clustermap_zon,
+    lon,
+    lat,
+    n_clusters,
+    f"Geos_Bal/clusters_{n_clusters}.png",
+    False,
 )
 
-
+print("Clusters computed")
 # ---------------------------------------------
 # Sparse PCA identification of active terms
 # ---------------------------------------------
@@ -284,10 +299,10 @@ err = Parallel(n_jobs=4)(
     delayed(spca_err)(alpha, cluster_idx, features, n_clusters) for alpha in alphas
 )
 
-pf.plot_spca_residuals(alphas, err, "Geos_Bal/spca_residuals.png", False)
+pf.plot_spca_residuals(alphas, err, f"Geos_Bal/spca_residuals_{n_clusters}.png", False)
 
 # Set the alpha regularization term to 40
-alpha = 40
+alpha = float(sys.argv[2])
 
 # Initialize the sparse PCA model
 spca_model = np.zeros((n_clusters, nfeatures))
@@ -303,7 +318,11 @@ for i in range(n_clusters):
     if len(active_terms) > 0:
         spca_model[i, active_terms] = 1  # Set the active terms to 1
 
-pf.plot_balance_models(spca_model, labels, False, "Geos_Bal/active_terms.png", False)
+pf.plot_balance_models(
+    spca_model, labels, False, f"Geos_Bal/active_terms_{n_clusters}_{alpha}.png", False
+)
+
+print("Sparse PCA applied")
 
 # ---------------------------------------------
 # Get Unique Dominant Balance Models
@@ -335,14 +354,21 @@ nmodels = balance_models.shape[0]
 
 # Plot a grid of the active terms
 pf.plot_balance_models(
-    balance_models, labels, False, "Geos_Bal/final_active_terms.png", False
+    balance_models,
+    labels,
+    False,
+    f"Geos_Bal/final_active_terms_{n_clusters}_{alpha}.png",
+    False,
 )
 
 # Plot the balance models in a grid
 pf.plot_balance_models(
-    balance_models, labels, True, "Geos_Bal/balance_models.png", False
+    balance_models,
+    labels,
+    True,
+    f"Geos_Bal/balance_models_{n_clusters}_{alpha}.png",
+    False,
 )
-
 
 # Assign the new cluster indices
 balance_idx = np.array([model_idx[i] for i in cluster_idx])
@@ -362,6 +388,7 @@ balance_idx_zon[~zon_nan] = balance_idx[n_meridional:]
 balancemap_mer = balance_idx_mer.reshape(ny, nx)
 balancemap_zon = balance_idx_zon.reshape(ny, nx)
 
+print("Unique balance models computed")
 
 # Plot the balance models in space
 pf.plot_clustering_space_geo(
@@ -370,6 +397,6 @@ pf.plot_clustering_space_geo(
     lon,
     lat,
     nmodels,
-    "Geos_Bal/balance_models_space.png",
+    f"Geos_Bal/balance_models_space_{n_clusters}_{alpha}.png",
     False,
 )

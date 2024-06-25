@@ -118,6 +118,8 @@ field = 10 * np.log10(np.abs(u) ** 2)
 
 plot_field(x, t, field, "Opt_Pul/u.png")
 
+print("Data loaded")
+
 # --------------------------------------------
 # Get the features
 # --------------------------------------------
@@ -172,6 +174,8 @@ features = np.real(features)
 # Visualise some of the features
 plot_term_projections(features, labels)
 
+print("Features extracted")
+
 # --------------------------------------------
 # GMM clustering
 # --------------------------------------------
@@ -186,13 +190,19 @@ features_train, _ = sk.model_selection.train_test_split(
     features, train_size=frac, random_state=seed
 )
 
-n_clusters = 6
+n_clusters = int(sys.argv[1])
 model = GaussianMixture(n_components=n_clusters, random_state=seed)
 model.fit(features_train)
 
 # Plot the covariance matrices of each cluster
 pf.plot_cov_mat(
-    model, nfeatures, n_clusters, labels, "GMM", "Opt_Pul/cov_mat.png", False
+    model,
+    nfeatures,
+    n_clusters,
+    labels,
+    "GMM",
+    f"Opt_Pul/cov_mat_{n_clusters}.png",
+    False,
 )
 
 # Predict the clusters for the entire dataset
@@ -208,8 +218,10 @@ clustermap = cluster_idx.reshape(nx, nt)
 t_sub = t[:, idx:]
 
 pf.plot_clustering_optics(
-    clustermap, x, t_sub, n_clusters, "Opt_Pul/clustermap.png", False
+    clustermap, x, t_sub, n_clusters, f"Opt_Pul/clustermap_{n_clusters}.png", False
 )
+
+print("GMM clustering complete")
 
 # --------------------------------------------
 # Sparse PCA identification of active terms
@@ -243,10 +255,13 @@ err = Parallel(n_jobs=4)(
     delayed(spca_err)(alpha, cluster_idx, features, n_clusters) for alpha in alphas
 )
 
-pf.plot_spca_residuals(alphas, err, "Opt_Pul/spca_residuals.png", False)
+pf.plot_spca_residuals(alphas, err, f"Opt_Pul/spca_residuals_{n_clusters}.png", False)
+
+print("Sparse PCA residuals computed")
+
 
 # Set the alpha regularization term to 10
-alpha = 10
+alpha = float(sys.argv[2])
 
 # Initialize the sparse PCA model
 spca_model = np.zeros((n_clusters, nfeatures))
@@ -262,8 +277,11 @@ for i in range(n_clusters):
     if len(active_terms) > 0:
         spca_model[i, active_terms] = 1  # Set the active terms to 1
 
-pf.plot_balance_models(spca_model, labels, False, "Opt_Pul/active_terms.png", False)
+pf.plot_balance_models(
+    spca_model, labels, False, f"Opt_Pul/active_terms_{n_clusters}_{alpha}.png", False
+)
 
+print("Sparse PCA complete")
 
 # --------------------------------------------
 # Get the unique dominant balance models
@@ -294,13 +312,23 @@ nmodels = balance_models.shape[0]
 
 # Plot a grid of the active terms
 pf.plot_balance_models(
-    balance_models, labels, False, "Opt_Pul/final_active_terms.png", False
+    balance_models,
+    labels,
+    False,
+    f"Opt_Pul/final_active_terms_{n_clusters}_{alpha}.png",
+    False,
 )
 
 # Plot the balance models in a grid
 pf.plot_balance_models(
-    balance_models, labels, True, "Opt_Pul/balance_models.png", False
+    balance_models,
+    labels,
+    True,
+    f"Opt_Pul/balance_models_{n_clusters}_{alpha}.png",
+    False,
 )
+
+print("Balance models extracted")
 
 # Assign the new cluster indices
 balance_idx = np.array([model_idx[i] for i in cluster_idx])
@@ -309,10 +337,20 @@ balance_idx = np.array([model_idx[i] for i in cluster_idx])
 balance_clustermap = balance_idx.reshape(nx, nt)
 
 pf.plot_clustering_optics(
-    balance_clustermap, x, t_sub, nmodels, "Opt_Pul/balance_clustermap.png", False
+    balance_clustermap,
+    x,
+    t_sub,
+    nmodels,
+    f"Opt_Pul/balance_clustermap_{n_clusters}_{alpha}.png",
+    False,
 )
 
 # Plot the 3D plot of the balance models
 pf.plot_optical_pulse_3D(
-    x, t, field, balance_clustermap, "Opt_Pul/balance_models_3D.png", False
+    x,
+    t,
+    field,
+    balance_clustermap,
+    f"Opt_Pul/balance_models_3D_{n_clusters}_{alpha}.png",
+    False,
 )
