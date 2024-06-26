@@ -633,7 +633,7 @@ From these results and plotting the dominant balance models in space, there is a
 
 \subsection{Discussion}
 
-From the above results, though the Callaham et al. method made considerable effort to have a minimal amount of parameters, the 2 that must be set do have a considerable impact on the results. And in the absence of expert understanding which exists for the boundary layer case, it is not immediately clear what parameters must be selected as many are essentially valid. This is key result which will be accounted for in the next chapter.
+From the above results, though the Callaham et al. (2021)\cite{callaham2021learning} method made considerable effort to have a minimal amount of parameters, the 2 that must be set do have a considerable impact on the results. And in the absence of expert understanding which exists for the boundary layer case, it is not immediately clear what parameters must be selected as many are essentially valid. This is key result which will be accounted for in the next chapter.
 
 \chapter{Elasto-inertial turbulence}
 
@@ -641,9 +641,54 @@ As part of this project, there was an opportunity to attempt using the unsupervi
 
 \section{Background}
 
+EIT was introduced around 2013 in a paper by Samanta et al.\cite{Samanta2012eit}. These are polymer-laden flows, which are found in several industrial application where small amounts of polymers to liquids reduce the importance of turbulent drag in pipelines. Samanta et al.\cite{Samanta2012eit} explored the conditions under which EIT occurs, and found that it did at high shear rates, through suppressing and replacing Newtonian turbulence. It also demonstrated that EIT was dominated by elastic stresses, and that their balance with inertial stresses was key in determining the onset of EIT. More recent advances include use Direct Numerical Simulations (DNS) of a Finitely Extensible Nonlinear Elastic fluid under the Peterlin approximation (FENE-P) in the EIT regime\cite{beneitez2024multistability}. The first is a paper by Sid, Terrapon, and Dubief \cite{sid2018two} which confirmed the existence of two dimensional elasto-inertial instabilities and highlighted the role of small elastic scales in sustaining EIT. The second paper, by Dubief et al.\cite{dubief2022first}, used DNS and found a coherent structure in EIT, which sustain turbulence through a balance of elastic and inertial stresses, and hence maintain EIT. There has thus been significant progress in understanding EIT. It is dominated by elastic stresses where there is high polymer stretch and shear rates. These are then followed by inertial stresses particularly in the onset of EIT, and the viscous stresses matter less \cite{Samanta2012eit, sid2018two, dubief2022first}. However, Dubief et al.\cite{dubief2022first} still leaves some questions on the dynamics and interactions within EIT's coherent structures. This is the aim of using the Callaham et al. method on DNS data of EIT\cite{beneitez2024multistability}.
+
 \section{Methodology}
 
+The data for this case study is obtained from two-dimensional DNS of the FENE-P model. This model has the following governing equations:
+
+\begin{equation}
+  \begin{aligned}
+    \partial_t \mathbf{u} + (\mathbf{u} \cdot \mathbf{\nabla}) \mathbf{u} + \mathbf{\nabla} p &= \frac{\beta}{Re} \Delta \mathbf{u} + \frac{1 - \beta}{Re} \mathbf{\nabla} \cdot \mathbf{T}(\mathbf{C}), \\
+    \partial_t \mathbf{C} + (\mathbf{u} \cdot \mathbf{\nabla}) \mathbf{C} + \mathbf{T}(\mathbf{C}) &= \mathbf{C} \cdot \mathbf{\nabla} \mathbf{u} + (\mathbf{\nabla} \mathbf{u})^T \cdot \mathbf{C} + \frac{1}{Re \cdot Sc} \Delta \mathbf{C}, \\
+    \mathbf{\nabla} \cdot \mathbf{u} &= 0,
+  \end{aligned}
+\end{equation}
+
+where:
+
+\begin{equation}
+  \begin{aligned}
+    \mathbf{T}(\mathbf{C}) = \frac{1}{\text{Wi}} \left(f(\text{tr}\mathbf{C})\mathbf{C} - \mathbf{I}\right), \\
+    f(x) = \left(1 - \frac{x - 3}{L_{\text{max}}^2}\right)^{-1}
+  \end{aligned}
+\end{equation}
+
+$\mathbf{T}(\mathbf{C})$ is the Polymer Stress Tensor, $\mathbf{u}$ is the velocity field, $\mathbf{C}$ is the conformation tensor, and $p$ is the pressure. This simulation was carried out in the context of the Beneitez et al. (2024) paper\cite{beneitez2024multistability}, and the data was obtained from the authors. In that study, the dimensionless parameters were set to $\beta = 0.9$, $Re = 1000$, $Sc = 500$, and $Wi = 50$, and $L_{max}$, the polymer extensibility was set to vary between [70, 130]. These simulations aimed to explore the dynamical connections betweem the arrowhead structure discovered in Dubief et al. (2022)\cite{dubief2022first} and EIT. Results showed there being 4 coexisting regimes (called attractors): a laminar state, a Steady Arrowhead Regime (SAR), EIT and a Chaotic Arrowhead Regime (CAR)(see Fig. \ref{fig:attractors}).
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.7\textwidth]{./EIT_regimes.png}
+  \caption{Plot of the attractors found in the DNS of the FENE-P model. The Elasto-Inertial Turbulence (EIT) (top-left), the Chaotic Arrowhead Regime (CAR) (top-right), the laminar state (bottom-left), and the Steady Arrowhead Regime (SAR) (bottom-right). There were also some edge-states found in the simulations, which are found in between different basins of attraction in the state-space. Image from Beneitez et al. (2024)\cite{beneitez2024multistability}}
+  \label{fig:attractors}
+\end{figure}
+
+For this case study, focus was consecrated to the CAR regime, obtaining a series of 512 by 512 images (snapshots) of the velocity components, pressure (and its time variant gradient), and the conformation tensor's 4 components through time. With these variables, the terms can be computed. However, to avoid approaching this problem too bluntly with the full set of equation, only the streamwise component of the first equation of Eq. (6.1) is studied (see Eq. (6.3)). This simplifies the problem and still gives us the opportunity to test the usefulness of the Callaham et al. method in a more complex, less studied flow.
+
+\begin{equation}
+  \begin{aligned}
+  \partial_{t}u + u u_{x} + v u_{y} + p_{x} &= \frac{\beta}{Re} (u_{xx} + u_{yy}) \\
+  &\quad + \frac{1 - \beta}{Re} \left[ \left( \frac{1}{Wi} \left(1 - \frac{\text{tr} \mathbf{C} - 3}{L_{\text{max}}^{2}} \right)^{-1} C_{xx} - 1 \right)_{x} \right. \\
+  &\hspace{2.5cm} + \left. \left( \frac{1}{Wi} \left(1 - \frac{\text{tr} \mathbf{C} - 3}{L_{\text{max}}^{2}} \right)^{-1} C_{xy} \right)_{y} \right]
+  \end{aligned}
+\end{equation}
+
+Once the terms are computed, the value of these at each point are used as features in a Gaussian Mixture Modeling. And the rest of the Callaham et al. method is applied as before.
+
+
 \section{Results}
+
+Test initial GMM clustering for a few
 
 \section{Discussion}
 
