@@ -61,7 +61,7 @@ def plot_reynolds_stress(x, y, X, Y, u, Reynold_stress, path, show=True):
     @param show: whether to show the plot or not
     """
 
-    plt.figure(figsize=(10, 4))
+    plt.figure(figsize=(7, 3))
 
     # Plot the Reynolds stress term
     plt.pcolor(x, y, Reynold_stress, cmap="magma")
@@ -124,7 +124,7 @@ def plot_equation_terms_bound_lay(
     @param lap_u: Laplacian of the mean streamwise velocity
     """
 
-    plt.figure(figsize=(13, 6))
+    plt.figure(figsize=(8, 4))
 
     global labels
     clim = 5e-4
@@ -198,7 +198,7 @@ def plot_equation_terms_bound_lay(
 
     plt.suptitle(
         "Plots of the values of each RANS equation terms \n in physical space",
-        fontsize=20,
+        fontsize=10,
     )
 
     plt.tight_layout()
@@ -397,7 +397,7 @@ def plot_clustering_space(
     @param show: whether to show the plot or not, default is True, bool
     """
 
-    plt.figure(figsize=(10, 4))
+    plt.figure(figsize=(7, 3))
 
     # Plot the clustering in space
     if n_clusters < 10:
@@ -453,13 +453,13 @@ def plot_spca_residuals(alphas, error, path, show=True):
     @param show: whether to show the plot or not, default is True, bool
     """
 
-    plt.figure(figsize=(6, 4))
+    plt.figure(figsize=(5, 4))
 
     # Plot the residuals of the inactive terms
     plt.scatter(alphas, error)
 
-    plt.xlabel(r"$\ell_1$ regularization")
-    plt.ylabel("Residual of inactive terms")
+    plt.xlabel(r"$\ell_1$ regularization", fontdict={"size": 20})
+    plt.ylabel("Residual of inactive terms", fontdict={"size": 20})
     plt.gca().set_xscale("log")
     plt.xlim([1e-5, 1e6])
     plt.grid()
