@@ -329,11 +329,11 @@ The next step involves clustering the data in equation space. A clear way of com
 \begin{figure}[htbp]
   \centering
   \begin{subfigure}[b]{0.7\textwidth}
-      \includegraphics[width=\textwidth]{../Plots/BL/GMM_cov_mat.png}
+      \includegraphics[width=\textwidth]{../Plots/BL/GMM_cov_mat_6.png}
       \caption{}
   \end{subfigure}
   \begin{subfigure}[b]{0.7\textwidth}
-      \includegraphics[width=\textwidth]{../Plots/BL/custom_GMM_cov_mat.png}
+      \includegraphics[width=\textwidth]{../Plots/BL/custom_GMM_cov_mat_7.png}
       \caption{}
   \end{subfigure}
   \caption{Covariance matrices of for each of the clusters found by the \texttt{sklearn} (a) and custom (b) GMM algorithm. The colorscale is not too important, as the magnitude of the covariance matrix is more important.}
@@ -344,11 +344,11 @@ The next step involves clustering the data in equation space. A clear way of com
 \begin{figure}[htbp]
   \centering
   \begin{subfigure}[b]{0.7\textwidth}
-      \includegraphics[width=\textwidth]{../Plots/BL/GMM_clustering_space.png}
+      \includegraphics[width=\textwidth]{../Plots/BL/GMM_clustering_space_6.png}
       \caption{}
   \end{subfigure}
   \begin{subfigure}[b]{0.7\textwidth}
-      \includegraphics[width=\textwidth]{../Plots/BL/custom_GMM_clustering_space.png}
+      \includegraphics[width=\textwidth]{../Plots/BL/custom_GMM_clustering_space_7.png}
       \caption{}
   \end{subfigure}
   \caption{Plot of the clusters found by the \texttt{sklearn} (a) and custom (b) GMM algorithms. The cluster numbers match the ones in Figure \ref{fig:GMM_cov_mat}, with the difference of not being 0-indexed (Cluster 1 here is cluster 0 in Fig. \ref{fig:GMM_cov_mat})}
@@ -363,12 +363,12 @@ Then comes applying SPCA to each cluster to identify which terms are active in i
 \begin{figure}[htbp]
   \centering
   \begin{subfigure}[b]{0.45\textwidth}
-      \includegraphics[width=\textwidth]{../Plots/BL/GMM_balance_models.png}
+      \includegraphics[width=\textwidth]{../Plots/BL/GMM_balance_models_6_10.png}
       \caption{}
   \end{subfigure}
   \hfill
   \begin{subfigure}[b]{0.45\textwidth}
-      \includegraphics[width=\textwidth]{../Plots/BL/custom_GMM_balance_models.png}
+      \includegraphics[width=\textwidth]{../Plots/BL/custom_GMM_balance_models_7_7.png}
       \caption{}
   \end{subfigure}
   \caption{Plot of the unique balance models found after applying SPCA, when using the original Callaham et al. code (a) and an alternative code (b). Here, the cluster colors will match the ones in Figure \ref{fig:balance_model_clusters}. Multiple regions are identified. The inflow region (red): where the flow is still laminar, and the streamwise Reynolds stress term is inactive. The free-stream region (green): where only inertial and pressure gradient forces matter, and the viscous forces are inactive. The inertial sublayer (orange): where the inertial forces are the most active. The transitional layer (purple): where the flow is transitioning from laminar to turbulent, hency why a lot of the terms are active. Finally, the viscous sublayer (blue): where the flow is dominated by the viscous forces.}
@@ -379,11 +379,11 @@ Then comes applying SPCA to each cluster to identify which terms are active in i
 \begin{figure}[htbp]
   \centering
   \begin{subfigure}[b]{0.7\textwidth}
-      \includegraphics[width=\textwidth]{../Plots/BL/GMM_spca_clustering_space.png}
+      \includegraphics[width=\textwidth]{../Plots/BL/GMM_spca_clustering_space_6_10.png}
       \caption{}
   \end{subfigure}
   \begin{subfigure}[b]{0.7\textwidth}
-      \includegraphics[width=\textwidth]{../Plots/BL/custom_GMM_spca_clustering_space.png}
+      \includegraphics[width=\textwidth]{../Plots/BL/custom_GMM_spca_clustering_space_7_7.png}
       \caption{}
   \end{subfigure}
   \caption{Plot of the unique balance model clusters in physical space, when using the original Callaham et al. code (a) and an alternative code (b). \textbf{(a)} Identified balance models include a laminar inflow region (red), a free-stream region (green), an inertial sublayer (orange), a transitional layer (purple), and a viscous sublayer (blue). \textbf{(b)} Identified balance models include an inflow region with low Reynolds' stress (brown), a free-stream region (orange), an inertial sublayer with stream-wise and wall normal inertial forces (red), a transitional layer (purple), and a viscous sublayer (green and blue). The cluster colors here match the ones in Figure \ref{fig:balance_models}}
@@ -571,7 +571,7 @@ To test the stability of the algorithm under changes to the second parameter: $\
 
 \begin{figure}
   \centering
-  \includegraphics[width=0.5\textwidth]{../Plots/BL/GMM_spca_residuals.png}
+  \includegraphics[width=0.5\textwidth]{../Plots/BL/GMM_spca_residuals_6.png}
   \caption{Plot of the SPCA residuals for different values of $\alpha$. Recall, the residuals are computed as the $\ell$-2 norm of the inactive terms for all clusters}
   \label{fig:spca_residuals}
 \end{figure}
