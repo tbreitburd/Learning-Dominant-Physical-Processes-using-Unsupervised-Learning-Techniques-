@@ -1,0 +1,5 @@
+# Bursting Neuron
+
+In this directory are MATLAB files to simulate the generalized Hodgkin-Huxley model of an intrinsically bursting neuron. This code follows the simulation of the R15 neuron in APlysia described in the [Canavier et al](https://pubmed.ncbi.nlm.nih.gov/1725879/) (1991) paper.
+
+This code was written by Callaham et al. and can be run using MATLAB to obtain a ```burst_data.mat``` file that will be in the ```Data/``` directory.

@@ -1,0 +1,7 @@
+# Generalized Nonlinear Schrödinger Equation (GNLSE)
+
+In this directory are MATLAB files written by [Callaham et al.](https://www.nature.com/articles/s41467-021-21331-z#Sec14) which follow values described in [Dudley et al.](https://doi.org/10.1017/CBO9780511750465). The GNLSE is then nondimensionalized with soliton scaling. This code uses a split-step spectral method and initial conditions described in this [code](https://github.com/jtravs/SCGBookCode)
+
+This code is to simulate pulse propagation and supercontinuum generation in otpical fibers.
+
+To get the data, one can simply run the ```gnlse_main.m``` file using MATLAB, and the ```gnlse_nondim.mat``` file will get saved in the ```Data/``` directory, and this is the one that will be used in the dominant balance identification method.
