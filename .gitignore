@@ -1,6 +1,7 @@
 Report/*
 !Report/Report.tex
 !Report/Report.pdf
+!Report/refs.bib
 .DS_Store
 Data/*
 !Data/README.md
