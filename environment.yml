@@ -3,10 +3,15 @@ channels:
   - conda-forge
   - defaults
 dependencies:
+  - bottleneck
   - h5py=3.9.0
   - ipykernel=6.29.0
   - ipython=8.20.0
   - joblib=1.2.0
+  - jpeg=9e
+  - jupyter_client=8.6.0
+  - jupyter_core=5.5.0
+  - line_profiler=4.1.1
   - matplotlib=3.8.0
   - numpy=1.23.5
   - pip=23.3.1
@@ -14,17 +19,14 @@ dependencies:
   - scipy=1.11.4
   - seaborn=0.12.2
   - tensorflow=2.12.0
+  - pyarrow
+  - pandas
   - pip:
       - attrs==23.2.0
-      - clawpack==5.9.2
       - cloudpickle==3.0.0
       - dm-tree==0.1.8
-      - pandas==2.2.0
       - pymech==1.5.0
       - scikit-learn==1.4.0
-      - spams==2.6.5.4
-      - sparsepca==0.2.3
       - tensorflow-probability==0.24.0
-      - tzdata==2023.4
       - xarray==2024.1.0
 prefix: /Users/thomasbreitburd/anaconda3/envs/Project_24
