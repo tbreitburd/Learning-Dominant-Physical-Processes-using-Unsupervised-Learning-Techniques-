@@ -1,3 +1,25 @@
+"""!@file EIT_param.py
+
+@brief This code applies the Callaham et al. (2021) method of unsupervised identification of
+balance models to the case of Elasto-Inertial Turbulence (EIT) for multiple hyperparameters.
+The governing equation here follows the model of a FENE-P fluid in a channel flow. This code makes
+the use of the code in the stability_assessment.py script, simply trying multiple hyperparameter
+values to compare the results, and make a choice of the best hyperparameter value. This will then
+be used in the EIT.py script to identify the balance models.
+
+@details The script performs the following steps:
+- Load the data from the Data/ directory, after obtaining it.
+- Get the terms as features to represent the data in equation space.
+- Cluster the data using Gaussian Mixture Models (GMM) for multiple cluster numbers.
+- Apply Sparse Principal Component Analysis (SPCA) to identify the active terms in each cluster.
+- Try multiple alpha values to see what dominant balance models are found.
+
+The script takes no arguments
+
+The script outputs the result plots to the 'Plots/EIT/' directory.
+
+@author T. Breitburd, with code from Callaham et al."""
+
 # ----------------------------------------------
 # Import modules
 # ----------------------------------------------

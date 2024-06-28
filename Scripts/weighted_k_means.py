@@ -1,3 +1,31 @@
+"""!@file weighted_k_means_bl.py
+
+@brief This script version of the Weighted K-Means Boundary Layer Notebook follows the proposed
+method by Callaham et al. (2021), but uses K-Means instead of GMM for the clustering step,
+with weights applied to each sample. Those weights are calculated as a tanh() function of the
+distance of that sample from the origin. This code makes the use of the code in the
+turbulent boundary layer notebook/script, using some of the alternate code.
+
+@details The script performs the following steps:
+- Load the data from the Johns Hopkins Turbulence Database.
+- Calculate the derivatives of the Reynold's averaged quantities.
+- Visualize the Reynold's stress and the terms in the RANS equation.
+- Cluster the data using Weighted K-Means.
+- Apply Sparse Principal Component Analysis (SPCA) to identify the active terms in each cluster.
+- Validate the balance models with diagnostics such as outer layer scaling, self-similarity,
+and the Blasius solution.
+
+The script takes 2 arguments:
+- The number of clusters to use in the GMM, any non-zero positive integer.
+- The optimal alpha value for the SPCA, any non-zero positive float.
+
+The script outputs the result plots to the 'Plots/BL/' directory, with plots
+starting with 'WKMeans'.
+
+@author T. Breitburd, with code from Callaham et al.
+"""
+
+
 # ---------------------------------------
 # Import modules
 # ---------------------------------------

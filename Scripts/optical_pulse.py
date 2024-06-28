@@ -1,3 +1,28 @@
+"""!@file optical_pulse.py
+
+@brief This code applies the Callaham et al. (2021) method of unsupervised identification of
+balance models to the case of an optical pulse. The governing equation here is the Generalized
+Nonlinear Schrodinger Equation (GNLSE). This code makes the use of the code in the turbulent
+boundary layer notebook/script, using some of the alternate code. More importantly, only the
+information in the paper and paper's supplementary information was used to write this, alongside
+the already written code (boundary layer).
+
+@details The script performs the following steps:
+- Load the data from the Data/ directory after running the MATLAB data generating code.
+- Get the terms as features to represent the data in equation space.
+- Cluster the data using Gaussian Mixture Models (GMM).
+- Apply Sparse Principal Component Analysis (SPCA) to identify the active terms in each cluster.
+
+This code was written to try and reproduce the results of the paper.
+
+The script takes 2 arguments:
+- The number of clusters to use in the GMM, any non-zero positive integer.
+- The optimal alpha value for the SPCA, any non-zero positive float.
+
+The script outputs the result plots to the 'Plots/Opt_Pul/' directory.
+
+@author T. Breitburd, with code from Callaham et al."""
+
 # --------------------------------------------
 # Import modules
 # --------------------------------------------

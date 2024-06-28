@@ -8,11 +8,14 @@ pressure, and conformation tensor, and computes the spatial and temporal derivat
 of the velocity field. The features are then defined as the terms in the governing
 equations of the flow.
 
-The code the GMM clusters the equation-space data, and applies sparse PCA to identify
+The code then GMM clusters the equation-space data, and applies sparse PCA to identify
 the active terms and the unique balance models. The balance models are then plotted in a grid
 and the clusters are plotted in space.
 
 Finally, the probabilistic nature of the GMM is used to get the uncertainty of the balance models.
+
+This code uses a mix of the alternative code which was written for the turbulent boundary layer
+and some of the code inspired by Callaham et al. (2021) code.
 
 @author T. Breitburd on 27/06/2024"""
 

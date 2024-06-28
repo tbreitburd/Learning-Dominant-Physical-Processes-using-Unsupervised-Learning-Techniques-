@@ -1,3 +1,29 @@
+"""!@file geostrophic_balance.py
+
+@brief This script applies the method of unsupervised dominant balance identification to a
+geophysical flow case, using oceanographic data. This code makes the use of the code in
+the turbulent boundary layer notebook/script, using some of the alternate code. More importantly,
+only the information in the paper and paper's supplementary information was used to write this,
+alongside the already written code (boundary layer).
+
+@details The script performs the following steps:
+- Load the data obtained from the HYCOM database.
+- Calculate spatial and temporal derivatives of the velocity field.
+- Define features representing terms in the governing equations.
+- Cluster the data using Gaussian Mixture Models (GMM).
+- Apply Sparse Principal Component Analysis (SPCA) to identify active terms in each cluster.
+- Validate the balance models and plot the results.
+
+The script takes 2 arguments:
+- The number of clusters to use in the GMM, any non-zero positive integer.
+- The optimal alpha value for the SPCA, any non-zero positive float.
+
+The script outputs the result plots to the 'Plots/Geos_Bal/' directory.
+
+@author T. Breitburd, with some code from Callaham et al. (2021)
+"""
+
+
 # ---------------------------------------------
 # Load the modules
 # ---------------------------------------------

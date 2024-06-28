@@ -1,3 +1,26 @@
+"""!@file spectral_clust_bl.py
+
+@brief This code applies the Callaham et al. (2021) method of unsupervised identification of
+balance models to the case of a turbulent boundary layer. This code makes the use of the code in
+the turbulent boundary layer notebook/script, using some of the alternate code, switching the
+clustering method to Spectral Clustering.
+
+@details The script performs the following steps:
+- Load the data from the Data/ directory after running the MATLAB data generating code.
+- Get the terms as features to represent the data in equation space.
+- Cluster the data using Spectral Clustering (SC).
+- Apply Sparse Principal Component Analysis (SPCA) to identify the active terms in each cluster.
+
+The script takes 3 arguments:
+- The fraction of the data to be used for training, any non-zero positive float.
+- The number of clusters to use in the SC, any non-zero positive integer.
+- The optimal alpha value for the SPCA, any non-zero positive float.
+
+The script outputs the result plots to the 'Plots/BL/' directory. Plots will be saved starting with
+'SC'.
+
+@author T. Breitburd, with code from Callaham et al."""
+
 # ---------------------------------------------
 # Import Modules
 # ---------------------------------------------

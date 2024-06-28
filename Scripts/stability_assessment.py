@@ -1,3 +1,27 @@
+"""!@file stability_assessment.py
+
+@brief This script assesses the stability of the dominant balance identification method applied
+to a transitional boundary layer case. The script tests different hyperparameters such as the
+number of clusters, the training set size, and the alpha values for Sparse Principal Component
+Analysis (SPCA).
+
+@details The script performs the following steps:
+- Load the data from the Johns Hopkins Turbulence Database.
+- Calculate derivatives of the Reynolds-averaged quantities.
+- Visualize the Reynolds stress.
+- Test the stability of clustering and SPCA results under different hyperparameters:
+  - Number of clusters.
+  - Training set size.
+  - Alpha values for SPCA.
+
+The script takes one argument:
+- The part of the stability assessment to perform: 'n_cluster', 'train_frac', or 'alpha'.
+
+The script outputs the result plots to the 'Plots/Stab_Ass/' directory.
+
+@author T. Breitburd
+"""
+
 # ---------------------------------------------
 # Import necessary modules and define colormap
 # ---------------------------------------------
