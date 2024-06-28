@@ -1,0 +1,61 @@
+. Introduction (100 words)
+
+	•	Briefly introduce the project and its significance.
+	•	Mention the core aim: evaluating the reproducibility and robustness of the Callaham et al. (2021) method.
+
+2. Objectives and Motivation (150 words)
+
+	•	Explain the importance of reproducibility in scientific research.
+	•	Highlight the problem of complex differential equations in engineering and physical sciences.
+	•	Discuss the motivation to simplify these equations using dominant balance or scale analysis and the novel approach proposed by Callaham et al.
+
+3. Methodology (250 words)
+
+	•	Summarize the three-step method proposed by Callaham et al.:
+	1.	Data & Equation Space Representation
+	2.	Gaussian Mixture Model (GMM) Clustering
+	3.	Sparse Principal Component Analysis (SPCA)
+	•	Briefly describe how each step contributes to identifying dominant balance models.
+	•	Mention any modifications or additional algorithms tested, such as Spectral Clustering, K-Means, and Weighted K-Means.
+
+Figures to include:
+
+	•	Figure 4.1: Example of a Gaussian Mixture Model fit to data.
+	•	Figure 4.2: Example of a 2D dataset projected onto its first 2 principal components.
+
+4. Conducted Research and Results (350 words)
+
+	•	Discuss the portability and reproducibility of the code, including any issues encountered and resolved.
+	•	Detail the turbulent boundary layer case:
+	•	How the original and alternative codes were used to reproduce the results.
+	•	Key findings from the reproduction of the RANS equation’s terms and GMM clustering.
+	•	Results from applying SPCA to identify active terms.
+	•	Summarize the exploration of other algorithms:
+	•	Results from Spectral Clustering, K-Means, and Weighted K-Means.
+	•	Highlight the stability assessment:
+	•	Impact of different numbers of clusters and alpha values on the results.
+	•	Effect of training set size on the identified balance models.
+
+Figures to include:
+
+	•	Figure 5.1: Plot of the 6 terms in the RANS equation using the original Callaham code.
+	•	Figure 5.2: Plot of the 6 terms in the RANS equation using alternative code.
+	•	Figure 5.3: Covariance matrices for each cluster found by the sklearn and custom GMM algorithms.
+	•	Figure 5.4: Plot of the clusters found by the sklearn and custom GMM algorithms.
+	•	Figure 5.5: Plot of unique balance models found after applying SPCA with the original and alternative code.
+	•	Figure 5.6: Plot of unique balance model clusters in physical space with the original and alternative code.
+
+5. Application to Elasto-Inertial Turbulence (100 words)
+
+	•	Briefly describe the application of the method to a new dataset involving elasto-inertial turbulence.
+	•	Highlight the potential of the method to uncover new dominant balance regimes in complex flows.
+
+Figures to include:
+
+	•	Figure 6.1: Plot of the attractors found in the DNS of the FENE-P model.
+
+6. Conclusion (100 words)
+
+	•	Summarize the key findings and their implications.
+	•	Reflect on the strengths and limitations of the method.
+	•	Suggest potential future work or improvements.
