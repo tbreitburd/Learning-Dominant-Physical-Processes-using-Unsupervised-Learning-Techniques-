@@ -2,6 +2,8 @@ Report/*
 !Report/Report.tex
 !Report/Report.pdf
 !Report/refs.bib
+!Report/Exec_Summary.tex
+!Report/Exec_Summar.pdf
 .DS_Store
 Data/*
 !Data/README.md
