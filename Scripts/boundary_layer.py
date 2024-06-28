@@ -1,3 +1,36 @@
+"""!@file boundary_layer.py
+
+@brief This script version of the Boundary Layer Notebook has 2 versions of the proposed method by
+Callaham et al. (2021), applied to the turbulent boundary layer case. The original method, which is
+strongly based on the original code written by Callaham et al. (2021), and a custom method that
+uses alternate libraries and methods in an attempt to reproduce the same results.
+
+@details The script performs the following steps:
+- Load the data from the Johns Hopkins Turbulence Database.
+- Calculate the derivatives of the Reynold's averaged quantities.
+- Visualize the Reynold's stress and the terms in the RANS equation.
+- Cluster the data using Gaussian Mixture Models (GMM).
+- Apply Sparse Principal Component Analysis (SPCA) to identify the active terms in each cluster.
+- Validate the balance models with diagnostics such as outer layer scaling, self-similarity,
+and the Blasius solution.
+
+The original method uses the Scipy library to calculate the derivatives, while the custom method
+uses a custom numpy-based method to calculate the derivatives. The custom method also uses a custom
+Gaussian Mixture Model (GMM) implementation to cluster the data. The custom method also uses the
+joblib library to parallelize the Sparse Principal Component Analysis (SPCA) calculations. The main
+difference between the two methods is then mostly the usage of numpy vs Pandas for the manipulation
+of the data.
+
+The script takes 3 arguments:
+- The method to use: 'original' or 'custom'.
+- The number of clusters to use in the GMM, any non-zero positive integer.
+- The optimal alpha value for the SPCA, any non-zero positive float.
+
+The script outputs the result plots to the 'Plots/BL/' directory.
+
+@author T. Breitburd, with code from Callaham et al.
+"""
+
 # ---------------------------------------------
 # Import Modules and set plotting parameters
 # ---------------------------------------------
@@ -63,6 +96,7 @@ nx = len(x)  # Number of points in x
 ny = len(y)  # Number of points in y
 
 if method == "original":
+    # ---- Callaham et al. (2021) method ----
     # Get the gradients using scipy's sparse matrix
     Dx, Dy = pp.get_derivatives(nx, ny, dx, dy)
 
@@ -166,6 +200,7 @@ nc = int(sys.argv[2])
 print(f"Number of clusters: {nc}")
 
 if method == "original":
+    # ---- Callaham et al. (2021) method ----
     # Gather the terms into an array of features
     features = (
         1e3 * np.vstack([u_bar * u_x, v_bar * u_y, p_x, nu * lap_u, R_uvy, R_uux]).T
@@ -261,6 +296,7 @@ alphas = [1e-4, 1e-3, 1e-2, 0.1, 1, 10, 100, 1e3, 1e4, 1e5]
 err = np.zeros([len(alphas)])
 
 if method == "original":
+    # ---- Callaham et al. (2021) method ----
     for k in range(len(alphas)):
         for i in range(nc):
             # Identify points in the field corresponding to each cluster
@@ -323,6 +359,7 @@ print(f"Optimal alpha: {alpha_opt}")
 spca_model = np.zeros([nc, nfeatures])  # Store the active terms for each cluster
 
 if method == "original":
+    # ---- Callaham et al. (2021) method ----
     for i in range(nc):
         feature_idx = np.nonzero(cluster_idx == i)[0]
         cluster_features = features[feature_idx, :]
@@ -363,6 +400,7 @@ print("----------------------------------")
 
 
 if method == "original":
+    # ---- Callaham et al. (2021) method ----
     # Identify clusters with identical balance models
     balance_models, model_index = np.unique(spca_model, axis=0, return_inverse=True)
     nmodels = balance_models.shape[0]
@@ -446,6 +484,7 @@ else:
     inert_sub_idx = np.where(np.all(balance_models == [1, 0, 0, 0, 1, 0], axis=1))[0]
 print(inert_sub_idx)
 
+# ---- Callaham et al. (2021) method ----
 # Define some variables
 x_min = 110  # Where inertial balance begins
 x_turb = 500  # Where transitional region ends
@@ -496,6 +535,7 @@ pf.plot_sublayer_scaling(
 # the vertical extent of the inertial sublayer.
 print("----- Self-similarity test -----")
 
+# ---- Callaham et al. (2021) method ----
 # Compute friction velocity with an estimate of the wall shear stress
 u_tau = np.sqrt(nu * u_y[::ny])
 
@@ -521,6 +561,7 @@ else:
 # Layer solution to be a good approximation in this region.
 print("----- Blasius Solution -----")
 
+# ---- Callaham et al. (2021) method ----
 # Solve Blasius equations numerically
 
 # Arbitrary "infinite" upper limit for domain
