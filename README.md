@@ -252,6 +252,24 @@ $ python weigthed_k_means_bl.py <cluster number> <alpha>
 
 Same conditions apply. Values chosen in the notebook and report were a cluster number of 6, and an alpha value of 7.
 
+## Containerisation
+
+For permissions reasons, the ```Dockerfile``` is not set up to pull the repository directly as it builds the image. Therefore, one must first download this repository to their local machine and then are free to build the Docker image from the ```Dockerfile```.
+
+To run the solver on a Docker container, one first has to build the image and run the container. This can be done as follows:
+
+```bash
+$ docker build -t project_24 .
+$ docker run --rm -ti project_24
+```
+
+The ```project_24``` is not a strict instruction, it can be set to any other name the user may prefer.
+
+If there is a need to get the plots back on the local machine, the second line above can be ran without the ```--rm``` and can also set the container name using ```--name=container_name``` (any valid name is fine). From there, run all the code as instructed below. Once all desired outputs and plots have been obtained. One can exit the container and then run:
+
+```bash
+$ docker cp docker cp container_name:/Project_24/Plots ./Plots
+```
 
 ## Tools
 
