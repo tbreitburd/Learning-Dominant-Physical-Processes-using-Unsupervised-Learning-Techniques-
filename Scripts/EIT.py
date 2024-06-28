@@ -261,7 +261,7 @@ frac = 0.3
 features_training = train_test_split(features, train_size=frac, random_state=seed)[0]
 
 # Set number of clusters
-n_clusters = sys.argv[1]
+n_clusters = int(sys.argv[1])
 
 # Define the model
 GMM = GaussianMixture(n_components=n_clusters, random_state=seed)
@@ -299,7 +299,7 @@ pf.plot_clusters_eit(
 # ----------------------------------------------
 
 # Set the alpha regularization term to its optimal value
-alpha = sys.argv[2]
+alpha = float(sys.argv[2])
 
 # Initialize the sparse PCA model
 spca_model = np.zeros((n_clusters, features.shape[1]))
