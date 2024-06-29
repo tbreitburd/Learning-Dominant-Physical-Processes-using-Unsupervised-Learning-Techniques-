@@ -303,7 +303,7 @@ pf.scatter_clustering_space(
     features_sc[:, 7],
     balance_idx,
     nmodels,
-    "BL/SC_spca_clustering_space.png",
+    f"BL/SC_spca_clustering_space_{sample_pct}_{nc}_{alpha_opt}.png",
     False,
 )
 
