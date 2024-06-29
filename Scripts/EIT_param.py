@@ -111,11 +111,14 @@ Cxy = data["c12"][
 Cyy = data["c22"][
     traj_seed, snapshot, :, :
 ]  # Second diagonal component of the conformation tensor
+Czz = data["c33"][
+    traj_seed, snapshot, :, :
+]  # Third diagonal component of the conformation tensor
 t_prev = data["time"][traj_seed, snapshot - 1]  # Time of the previous snapshot
 t = data["time"][traj_seed, snapshot]  # Time of the current snapshot
 t_next = data["time"][traj_seed, snapshot + 1]  # Time of the following snapshot
 
-trC = Cxx + Cyy  # Trace of the conformation tensor
+trC = Cxx + Cyy + Czz  # Trace of the conformation tensor
 
 
 # Get the derivatives
