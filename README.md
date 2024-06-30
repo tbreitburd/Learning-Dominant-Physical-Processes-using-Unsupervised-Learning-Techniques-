@@ -285,3 +285,18 @@ When running the code for the first time, a ```Plots/``` directory will be creat
 ## Report
 
 Finally, there is a report directory which contains the final report PDF document, as well as a shorter executive summary of the project.
+
+
+## AI Use Declaration
+
+For the coding of this project, the following AI tools were used:
+- GitHub Copilot's autogeneration tool was used when writing the documentation and the comments for the code. It was also used in the case of repetitive parts of the code, taking the example of the stability assessment python file, where the same loop is essentially used 3 times but with a different varying parameter each time, or for the large plot of the terms fields in the EIT Notebook. It was also used extensively to write the bibtex references by giving it links or copy pasting the pages of articles.
+- ChatGPT was used:
+    - To generate a detailed plan with recommended word counts for the executive summary, and a list of recommended figures to include. The plan generated only allocated 50 words to the turbulent boundary layer reproducing section which was not enough so the plan was modified to allocate a lot more words to that section.
+    - It was also used to provide summaries for the literature on EIT.
+    - It was asked for recommendations on if any other library other than sklearn would have a SPCA implementation: It recommended SPAMS\cite{mairal2014spams}, by the same authors as the dictionary learning algorithm used in sklearn \cite{mairal2010online}. This was not used in the end as the documentation was not clear on how to use it, and it seemed to require 2 complexity parameters, which would have made it harder to use than sklearn's implementation, on top of losing the quality of having not many hyperparameters to tune. It also recommended the mlxtend library, however, for this it seemed to simply lack an implementation of SPCA.
+    - Extensive use was made when debugging issues with the Containerisation of this project. Because of the packages installed in the environment such as clawpack, mlxtend or spams, there were a lot of conflict issues which were hard to resolve as Docker error messages can be a bit obscure.
+    - It was used in the proof reading of the report, giving paragraphs of the report one at a time and asking it to give me where spelling mistakes were.
+    - When trying to plot the balance models, which uses latex formulations, running this on the docker brought up a matplotlib error saying it failed to process a string because latex could not be found. ChatGPT suggested installing missing latex packages when building the docker image: "dvipng texlive-latex-extra texlive-fonts-recommended cm-super". This fixed the issue.
+    - It was also used early on when trying to understand how the scipy.sparse library functionned, asking it to explain step by step how the sparse matrices were being built in the original Callaham et al. code.
+    - In general, it was used often by simply giving it the traceback of an error, which would usually return an explanation of what the error was pointing to.
