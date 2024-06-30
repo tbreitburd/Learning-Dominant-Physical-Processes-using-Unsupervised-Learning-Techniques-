@@ -173,7 +173,6 @@
 
 The author would like to first and foremost thank Dr. Richard Kerswell for his guidance and support throughout this project. His advice was short and to the point, and it always managed to give a clear new perspective on the project, which was extremely helpful. The author would also like to thank Miguel Beneitez for his help in getting to grips with the Elasto-Inertial Turbulence data, and for taking the time to get it ready.
 
-
 \tableofcontents
 
 \chapter{Executive Summary}
@@ -676,7 +675,7 @@ As part of this project, there was an opportunity to attempt using the unsupervi
 
 \section{Background}
 
-EIT was introduced around 2013 in a paper by Samanta et al.\cite{Samanta2012eit}, described this new turbulence occuring in visco-elastic fluids. These are polymer-laden flows, which are found in several industrial application where small amounts of polymers are added to liquids to reduce turbulent drag in pipelines. Samanta et al.\cite{Samanta2012eit} explored the conditions under which EIT occurs, and found that it did at high shear rates, through suppressing and replacing Newtonian turbulence. It also demonstrated that EIT was dominated by elastic stresses, and that their balance with inertial stresses was key in determining the onset of EIT. More recent advances include the use Direct Numerical Simulations (DNS) for a Finitely Extensible Nonlinear Elastic fluid under the Peterlin approximation (FENE-P) in the EIT regime\cite{beneitez2024multistability}. The first is a paper by Sid, Terrapon, and Dubief \cite{sid2018two} which confirmed the existence of two dimensional elasto-inertial instabilities and highlighted the role of small elastic scales in sustaining EIT. The second paper, by Dubief et al.\cite{dubief2022first}, used DNS and found a coherent structure in EIT, which sustain turbulence through a balance of elastic and inertial stresses, and hence maintain EIT. There has thus been significant progress in understanding EIT. It is first dominated by elastic stresses when there is high polymer stretch and shear rates. Second are the inertial stresses particularly in the onset of EIT, and the viscous stresses matter less \cite{Samanta2012eit, sid2018two, dubief2022first}. However, Dubief et al.\cite{dubief2022first} still leaves some questions on the dynamics and interactions within EIT's coherent structures. This is the aim of using the Callaham et al. method on DNS data of EIT\cite{beneitez2024multistability}.
+EIT was introduced around 2013 in a paper by Samanta et al.\cite{Samanta2012eit}, describing this new type of turbulence occuring in visco-elastic fluids. These are polymer-laden flows, which are found in several industrial application where small amounts of polymers are added to liquids to reduce turbulent drag in pipelines. Samanta et al.\cite{Samanta2012eit} also explored the conditions under which EIT occurs, and found it did so at high shear rates, through suppressing and replacing Newtonian turbulence. It also demonstrated that EIT was dominated by elastic stresses, and that their balance with inertial stresses was key in determining the onset of EIT. More recent advances include the use of Direct Numerical Simulations (DNS) for a Finitely Extensible Nonlinear Elastic fluid under the Peterlin approximation (FENE-P) in the EIT regime\cite{beneitez2024multistability}. This is essentially simulating visco-elastic fluids in the conditions where EIT is found to occur. The first is a paper by Sid, Terrapon, and Dubief \cite{sid2018two} which confirmed the existence of two dimensional elasto-inertial instabilities and highlighted the role of small elastic scales in sustaining EIT. The second paper, by Dubief et al.\cite{dubief2022first}, used DNS and found a coherent structure in EIT, which sustain turbulence through a balance of elastic and inertial stresses, and hence maintain EIT. There has thus been significant progress in understanding EIT. It is first dominated by elastic stresses when there is high polymer stretch and shear rates. Second are the inertial stresses particularly in the onset of EIT, and the viscous stresses matter less \cite{Samanta2012eit, sid2018two, dubief2022first}. However, Dubief et al.\cite{dubief2022first} still leaves some questions on the dynamics and interactions within EIT's coherent structures unanswered. This is the aim of using the Callaham et al. method on DNS data of EIT\cite{beneitez2024multistability}.
 
 \section{Methodology}
 
@@ -718,8 +717,47 @@ For this case study, focus was consecrated to the CAR regime, obtaining a series
   \end{aligned}
 \end{equation}
 
-Once the terms are computed, these are used as features for each point in space. Based on these features in a Gaussian Mixture Modeling. And the rest of the Callaham et al. method is applied as before.
+Once the terms are computed, these are used as features for each point in space. As discussed in the Stability Assessment section, choosing the hyperparameters for this case study is uncertain. Following the ordering of the method, the number of clusters is first chosen. The reasoning behind this step was to get the covariance matrices of the clusters for an increasing number of clusters, and then choose the number of clusters for which clusters start to have repeated covariance matrices, therefore indicating that most of the different balance models have likely been identified.
 
+\begin{figure}[htbp]
+  \centering
+  \begin{minipage}{0.9\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{../Plots/EIT/GMM_cov_mat_5.png}
+    \subcaption{}
+  \end{minipage}
+
+  \begin{minipage}{0.8\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{../Plots/EIT/GMM_cov_mat_7.png}
+    \subcaption{}
+  \end{minipage}
+
+  \caption{Covariance matrices of the clusters found by the GMM algorithm for 5 (a) and 7 (b) clusters.}
+  \label{fig:EIT_GMM_results_1}
+
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \begin{minipage}{0.7\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{../Plots/EIT/GMM_cov_mat_9.png}
+    \subcaption{}
+  \end{minipage}
+
+  \begin{minipage}{0.9\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{../Plots/EIT/GMM_cov_mat_11.png}
+    \subcaption{}
+  \end{minipage}
+
+  \caption{Covariance matrices of the clusters found by the GMM algorithm for 9 (a) and 11 (b) clusters.}
+  \label{fig:EIT_GMM_results_2}
+
+\end{figure}
+
+The results of the GMM algorithm for the EIT case study are shown in Figures \ref{fig:EIT_GMM_results_1} and \ref{fig:EIT_GMM_results_2}. From these covariance matrices, we see that between 9 and 11 clusters, only repeats are obtained, with no clusters having new or at the least significantly different covariance matrices than in the 9 clusters case. Thus, 9 clusters are chosen as the number of clusters to find.
 
 \section{Results}
 
