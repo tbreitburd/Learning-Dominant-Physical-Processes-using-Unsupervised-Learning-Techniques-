@@ -144,6 +144,7 @@ Lmax = 70
 Lx = 2 * np.pi
 Ly = 2
 
+print("Data loaded")
 # ----------------------------------------------
 # Get the equation space representation
 # ----------------------------------------------
@@ -251,6 +252,7 @@ labels = [
     r"$[T(C)]_{2}$",
 ]
 
+print("Terms computed")
 # ----------------------------------------------
 # GMM clustering
 # ----------------------------------------------
@@ -272,6 +274,8 @@ GMM = GaussianMixture(n_components=n_clusters, random_state=seed)
 
 # Fit the model
 GMM.fit(features_training)
+
+print("GMM fitted")
 
 # Plot the covariance matrices of each cluster
 pf.plot_cov_mat(
@@ -297,6 +301,7 @@ pf.plot_clusters_eit(
     clustermap, Lx, nx, Ly, ny, n_clusters, f"EIT/GMM_clusters_{n_clusters}.png", False
 )
 
+print("GMM clustering done")
 # ----------------------------------------------
 # Apply SPCA
 # ----------------------------------------------
@@ -324,7 +329,7 @@ pf.plot_balance_models(
     spca_model, labels, False, f"EIT/active_terms_{n_clusters}_{alpha}.png", False
 )
 
-
+print("SPCA done")
 # ----------------------------------------------
 # Get the unique balance models
 # ----------------------------------------------
@@ -354,6 +359,7 @@ balance_models = balance_models.drop_duplicates(keep="first")
 balance_models = balance_models.to_numpy()
 nmodels = balance_models.shape[0]
 
+print("Unique balance models found")
 
 # Plot a grid of the active terms
 pf.plot_balance_models(
@@ -405,3 +411,5 @@ balance_prob_map = balance_probs.reshape((ny, nx))
 plot_uncertainties(
     X, Y, balance_prob_map, path=f"balance_model_uncertainties_{n_clusters}_{alpha}.png"
 )
+
+print("Uncertainties computed")
