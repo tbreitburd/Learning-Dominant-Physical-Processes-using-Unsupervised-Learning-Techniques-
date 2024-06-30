@@ -1,8 +1,21 @@
+"""!@file stability_assessment.py
+
+@brief Module to store the routines of the dominant balance identification method.
+
+@details This module contains functions that together implement the dominant balance
+identification method. The method and code is based on the work of Callaham et al. (2021) and
+is simply put into functions for clarity when using the method multiple times when
+conducting the stability assessment of the method.
+
+@author T.Breitburd and Callaham et al."""
+
 import numpy as np
 from sklearn.mixture import GaussianMixture
 from sklearn.decomposition import SparsePCA
 from joblib import Parallel, delayed
 
+
+# Set the random seed
 np.random.seed(75016)
 
 
@@ -16,6 +29,7 @@ def get_clusters(n_clusters, features, train_frac):
 
     @return cluster_idx: The cluster index for each point, np.array
     """
+    # Initialize the model
     model = GaussianMixture(n_components=n_clusters, random_state=75016)
 
     # Train on only a subset train_frac of the data
@@ -25,6 +39,7 @@ def get_clusters(n_clusters, features, train_frac):
     ]
     model.fit(features[mask, :])
 
+    # Predict the cluster index for each point
     cluster_idx = model.predict(features)
 
     return cluster_idx
@@ -42,11 +57,15 @@ def get_spca_residuals(alphas, n_clusters, cluster_idx, eq_space_data):
     @return err: The error for each alpha value, np.array
     """
 
+    # Initialize the error array
     err = np.zeros([len(alphas)])
 
+    # Define the function to calculate the error for each alpha value
     def spca_err(alpha, cluster_idx, features, nc):
+        # Initialize the error
         err_ = 0
 
+        # Loop over each cluster
         for i in range(nc):
             # Identify points in the field corresponding to each cluster
             feature_idx = np.where(cluster_idx == i)[0]
@@ -64,6 +83,7 @@ def get_spca_residuals(alphas, n_clusters, cluster_idx, eq_space_data):
 
         return err_
 
+    # Calculate the error for each alpha value
     err = Parallel(n_jobs=4)(
         delayed(spca_err)(alpha, cluster_idx, eq_space_data, n_clusters)
         for alpha in alphas
@@ -76,31 +96,27 @@ def get_spca_active_terms(
     alpha_opt, n_clusters, cluster_idx, eq_space_data, n_features
 ):
     """
-    Get the active terms for each cluster using Sparse PCA, now using the optimal alpha.
+    !@brief Get the active terms for each cluster using Sparse PCA.
 
-    Params
-    ----------
-    alpha_opt : The optimal alpha value, float
-    n_clusters : The number of clusters, int
-    cluster_idx : The cluster index for each point, np.array
-    eq_space_data : The data with each term being a feature, np.array
-    n_features : The number of features, int
+    @param alpha_opt: The optimal alpha value, float
+    @param n_clusters: The number of clusters, int
+    @param cluster_idx: The cluster index for each point, np.array
+    @param eq_space_data: The data with each term being a feature, np.array
+    @param n_features: The number of features, int
 
-    Returns
-    -------
-    spca_model : The active terms for each cluster, np.array
+    @return spca_model: The active terms for each cluster, np.array
     """
 
-    spca_model = np.zeros(
-        [n_clusters, n_features]
-    )  # Store the active terms for each cluster
+    # Initialize the models array
+    spca_model = np.zeros([n_clusters, n_features])
 
     for i in range(n_clusters):
+        # Identify points in the field corresponding to each cluster
         feature_idx = np.where(cluster_idx == i)[0]
         cluster_features = eq_space_data[feature_idx, :]
 
         # Apply Sparse PCA
-        spca = SparsePCA(n_components=1, alpha=alpha_opt)  # normalize_components=True
+        spca = SparsePCA(n_components=1, alpha=alpha_opt)
         spca.fit(cluster_features)
 
         # Identify active terms
@@ -125,9 +141,11 @@ def get_unique_balance_models(spca_model, labels):
     @return grid_labels: The labels for each term in the unique models, np.array
     """
 
+    # Get the unique balance models
     balance_models, model_index = np.unique(spca_model, axis=0, return_inverse=True)
     nmodels = balance_models.shape[0]
 
+    # Have each model be represented by an integer
     gridmap = balance_models.copy()
     gridmask = gridmap == 0
     gridmap = (gridmap.T * np.arange(nmodels)).T + 1
