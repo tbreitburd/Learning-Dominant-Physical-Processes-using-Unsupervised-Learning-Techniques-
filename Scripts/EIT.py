@@ -77,8 +77,8 @@ def plot_field(X, Y, field, title, path):
     @param field: 2D array of the field to plot
     """
 
-    plt.figure(figsize=(15, 5))
-    plt.pcolor(X, Y, field, cmap="viridis")
+    plt.figure(figsize=(10, 3.5))
+    plt.pcolor(X, Y, field, cmap="inferno")
     plt.colorbar()
     plt.grid()
     plt.title(title)
@@ -294,7 +294,7 @@ cluster_probs = GMM.predict_proba(features)
 # Plot the clusters in space
 clustermap = cluster_idx.reshape((ny, nx))
 pf.plot_clusters_eit(
-    clustermap, Lx, nx, Ly, ny, n_clusters, "EIT/GMM_clusters_{n_clusters}.png", False
+    clustermap, Lx, nx, Ly, ny, n_clusters, f"EIT/GMM_clusters_{n_clusters}.png", False
 )
 
 # ----------------------------------------------
