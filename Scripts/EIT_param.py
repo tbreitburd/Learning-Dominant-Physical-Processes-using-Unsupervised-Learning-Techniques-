@@ -333,7 +333,7 @@ plt.close()
 nmodels_list = []
 
 # Define a list of training set sizes, as fractions of the total dataset
-alphas = [1, 1.5, 2, 2.5, 3, 3.5, 4]
+alphas = [1, 1.25, 1.5, 1.75, 2, 2.5, 3, 3.5, 4]
 np.random.seed(75016)
 
 # Plot all found dominant balance regimes for each initial cluster number
