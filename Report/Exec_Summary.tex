@@ -177,14 +177,16 @@
 \section{Introduction (100 words)}
 
 
-This project aims to evaluate the reproducibility and robustness of the method proposed by Callaham et al. (2021)\cite{callaham2021learning} for identifying dominant balances in complex physical systems. Dominant balance analysis simplifies equations involving numerous terms and complex differential equations, reducing computational costs while maintaining accuracy. Traditionally, this analysis requires significant expertise and manual effort. Callaham et al.’s novel approach leverages machine learning to automate this process. By replicating their study and applying their methods to new datasets, this project assesses both the accuracy and generalizability of their approach, contributing to the validation and potential enhancement of machine learning techniques in physical sciences.
+In a majority of simulation problems in physics and engineering, it is usually unnecessary to consider the full system of equations that govern it. Rather, it is often possible to simplify the equations by considering a subset of the terms to be negligible compared to the others. And because the other terms dominate the dynamics of the system, simulating it with only these dominant terms can provide a good approximation, whilst being computationally cheaper. This concept is the fundamental idea behind the method of dominant balance, where the subset of dominant terms is assumed to be in balance. And this method has proven extremely useful in multiple fields, including meteorology\cite{charney1947dynamics, phillips1963geostrophic, burger1958scale, yano2009scale}.
 
+\vspace{5mm}
 
-\section{Objectives and Motivation (150 words)}
+Historically, this method has been applied manually by field experts, often over a long period of researching and the manipulation of complex mathematical equations. Over the recent years, there has been a growing interest in automating this process using machine learning techniques. Most of these however, were limited to specific systems and sometimes relied on expert interpretation rather than automatic identification of the dominant balances\cite{ortwood2016robust,lee2018detection,sonnewald2019unsupervised}. A similar endeavour has also been pursued, with the application of machine learning techniques in directly identifying the governing equation of a physical system from simulation data\cite{brunton2016discovering, cranmer2020discovering}.
 
-Explain the importance of reproducibility in scientific research.
-Highlight the problem of complex differential equations in engineering and physical sciences.
-Discuss the motivation to simplify these equations using dominant balance or scale analysis and the novel approach proposed by Callaham et al.
+\vspace{5mm}
+
+In this project, a novel method proposed by Callaham et al. (2021)\cite{callaham2021learning} is explored, verified, and used. This method proposes a highly generalisable method to identify dominant balance models in a variety of physical systems, with minimal input from the user. However, before using it for new systems, it is important to verify its robustness and reproducibility. One of this project's core aims is to try to reproduce the results of the original paper, by using alternative code. This is to ensure that the paper's results are not dependent on the specific implementation of the method, but rather the method itself. In terms of coding, this means testing whether there has been no lucky seeding or bug in the original code that has led to the results.
+
 
 
 \section{Methodology (250 words)}
