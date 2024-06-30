@@ -82,6 +82,7 @@ Lmax = 70
 Lx = 2 * np.pi
 Ly = 2
 
+print("Data loaded")
 # ----------------------------------------------
 # Get the equation space representation
 # ----------------------------------------------
@@ -184,6 +185,7 @@ labels = [
     r"$[T(C)]_{2}$",
 ]
 
+print("Terms computed")
 # ----------------------------------------------
 # GMM clustering to choose the number of clusters
 # ----------------------------------------------
@@ -213,7 +215,9 @@ for idx, nc in enumerate(n_clusters):
         GMM, features.shape[1], nc, labels, "GMM", f"EIT/GMM_cov_mat_{nc}.png", False
     )
 
-# SET CLUSTER NUMBER TO 8
+    print(f"Number of clusters: {nc} done")
+
+# SET CLUSTER NUMBER TO 9
 
 # Set the random seeds
 seed = 75016
@@ -224,11 +228,10 @@ frac = 0.3
 features_training = train_test_split(features, train_size=frac, random_state=seed)[0]
 
 # Set number of clusters
-n_clusters = 8
+n_clusters = 9
 
 # Define the model
 GMM = GaussianMixture(n_components=n_clusters, random_state=seed)
-# GMM = CustomGMM(n_components=n_clusters, n_features = 7, random_state=seed)
 
 # Fit the model
 GMM.fit(features_training)
@@ -236,6 +239,7 @@ GMM.fit(features_training)
 # Predict the clusters for the entire dataset
 cluster_idx = GMM.predict(features)
 
+print("GMM clustering done for 9 clusters")
 
 # ----------------------------------------------
 # Apply SPCA to choose alpha value
@@ -271,6 +275,7 @@ err = Parallel(n_jobs=4)(
 
 pf.plot_spca_residuals(alphas, err, f"EIT/SPCA_residuals_{n_clusters}.png", False)
 
+print("SPCA residuals computed")
 
 # Try multiple alpha values to see what dominant balance models are found
 
@@ -297,6 +302,8 @@ for idx, alpha in enumerate(alphas):
     ) = sa.get_unique_balance_models(spca_model, labels)
 
     nmodels_list.append(nmodels)
+
+    print(f"Alpha: {alpha} done")
 
     plt.subplot(3, 4, idx + 1)
     plt.pcolor(
@@ -328,7 +335,7 @@ plt.savefig(plot_dir, bbox_inches="tight")
 plt.close()
 
 # ZOOM IN TO ALPHA VALUES BETWEEN 1 and 4
-
+print("ZOOM IN TO ALPHA VALUES BETWEEN 1 and 4")
 # Initialise a list of the number of dominant balance models found
 nmodels_list = []
 
@@ -352,6 +359,8 @@ for idx, alpha in enumerate(alphas):
     ) = sa.get_unique_balance_models(spca_model, labels)
 
     nmodels_list.append(nmodels)
+
+    print(f"Alpha: {alpha} done")
 
     plt.subplot(3, 3, idx + 1)
     plt.pcolor(
