@@ -1,0 +1,6 @@
+var searchData=
+[
+  ['scatter_5fclustering_5fspace_0',['scatter_clustering_space',['../namespace_tools_1_1plot__funcs.html#a2d53c2934f17d19e1c3b50a2041d9123',1,'Tools::plot_funcs']]],
+  ['scatter_5fsublayer_5fscaling_1',['scatter_sublayer_scaling',['../namespace_tools_1_1plot__funcs.html#ad7bc359b29c95eb7dadb516344f0f669',1,'Tools::plot_funcs']]],
+  ['spca_5ferr_2',['spca_err',['../namespace_scripts_1_1boundary__layer.html#a40dcda2729a6b69607cbfec3fab592e2',1,'Scripts.boundary_layer.spca_err()'],['../namespace_scripts_1_1bursting__neuron.html#af23babc5036c984263d42a62f0f5aba3',1,'Scripts.bursting_neuron.spca_err()'],['../namespace_scripts_1_1_e_i_t__param.html#aa68d1f078f421e09a7f6a779a37c81f4',1,'Scripts.EIT_param.spca_err()'],['../namespace_scripts_1_1geostrophic__balance.html#adb06b60a7482f6e921c0fdcefe23a4b4',1,'Scripts.geostrophic_balance.spca_err()'],['../namespace_scripts_1_1k__means__bl.html#aab1d42279aa6067cfbb4a594865ffeb9',1,'Scripts.k_means_bl.spca_err()'],['../namespace_scripts_1_1optical__pulse.html#afb194d69f2cc1696bc0249af8f90f5ea',1,'Scripts.optical_pulse.spca_err()'],['../namespace_scripts_1_1spectral__clust__bl.html#a0736821c01364d9d13e1bc6675cf9343',1,'Scripts.spectral_clust_bl.spca_err()'],['../namespace_scripts_1_1weighted__k__means.html#a3d0a13309a30e9b71dd4a6da3cae489c',1,'Scripts.weighted_k_means.spca_err()']]]
+];

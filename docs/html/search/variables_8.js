@@ -1,0 +1,20 @@
+var searchData=
+[
+  ['i_5fca_0',['I_Ca',['../namespace_scripts_1_1bursting__neuron.html#a69b3afd75e3d16aa5c1b340e4ab3413f',1,'Scripts::bursting_neuron']]],
+  ['i_5fcap_1',['I_CaP',['../namespace_scripts_1_1bursting__neuron.html#a478db138bc33d9932a38aed60fa5086d',1,'Scripts::bursting_neuron']]],
+  ['i_5fcap_5fsub_2',['I_CaP_sub',['../namespace_scripts_1_1bursting__neuron.html#a0a9fdb607050247d9b7ddbb04270d5a4',1,'Scripts::bursting_neuron']]],
+  ['i_5fk_3',['I_K',['../namespace_scripts_1_1bursting__neuron.html#a95ca4b259608bd9fc4f683c4e6d3cebb',1,'Scripts::bursting_neuron']]],
+  ['i_5fk_5fsub_4',['I_K_sub',['../namespace_scripts_1_1bursting__neuron.html#a70f13dc253b9edd8c9f573d70b303aa8',1,'Scripts::bursting_neuron']]],
+  ['i_5fl_5',['I_L',['../namespace_scripts_1_1bursting__neuron.html#a21b182ae7de0a3d08975c7ab40fb9f17',1,'Scripts::bursting_neuron']]],
+  ['i_5fna_6',['I_Na',['../namespace_scripts_1_1bursting__neuron.html#a4658c010243808c896a49aca1b709bfa',1,'Scripts::bursting_neuron']]],
+  ['i_5fna_5fsub_7',['I_Na_sub',['../namespace_scripts_1_1bursting__neuron.html#abf9860596846d8e7de2247d61a3cdea4',1,'Scripts::bursting_neuron']]],
+  ['i_5fnaca_8',['I_NaCa',['../namespace_scripts_1_1bursting__neuron.html#a3c8e79e2772cf517e393e3df43000207',1,'Scripts::bursting_neuron']]],
+  ['i_5fnak_9',['I_NaK',['../namespace_scripts_1_1bursting__neuron.html#ad54e17bd2663ed71918254b208f04492',1,'Scripts::bursting_neuron']]],
+  ['i_5fns_10',['I_NS',['../namespace_scripts_1_1bursting__neuron.html#abd7280754037701a58310ff49bce257b',1,'Scripts::bursting_neuron']]],
+  ['i_5fr_11',['I_R',['../namespace_scripts_1_1bursting__neuron.html#a9693878911d6dc0de77c325f2c9b99c6',1,'Scripts::bursting_neuron']]],
+  ['i_5fsi_12',['I_SI',['../namespace_scripts_1_1bursting__neuron.html#ad752b204dab65868cc1a6ba7da7058de',1,'Scripts::bursting_neuron']]],
+  ['idx_13',['idx',['../namespace_scripts_1_1boundary__layer.html#afcf529008a4cbfd8e6399f4050e2ee8b',1,'Scripts.boundary_layer.idx'],['../namespace_scripts_1_1bursting__neuron.html#a3f7a181d0c655095963a94b62b2ee9d1',1,'Scripts.bursting_neuron.idx'],['../namespace_scripts_1_1_e_i_t.html#a852e51957ac236ce13ccae3a1d591ad8',1,'Scripts.EIT.idx'],['../namespace_scripts_1_1geostrophic__balance.html#a880424886ad4fef37fa900a035662925',1,'Scripts.geostrophic_balance.idx'],['../namespace_scripts_1_1optical__pulse.html#a3b8b05f3b3b7d402b289eb89b4b5383c',1,'Scripts.optical_pulse.idx']]],
+  ['inactive_5fterms_14',['inactive_terms',['../namespace_scripts_1_1boundary__layer.html#a81ab863075993f1cd6412f984531b828',1,'Scripts::boundary_layer']]],
+  ['inert_5fsub_5fidx_15',['inert_sub_idx',['../namespace_scripts_1_1boundary__layer.html#a319560bf83fecc3d4b394c95b0b856fd',1,'Scripts.boundary_layer.inert_sub_idx'],['../namespace_scripts_1_1k__means__bl.html#a89a7b0e18e2084e70402dcd3c84e9ad8',1,'Scripts.k_means_bl.inert_sub_idx'],['../namespace_scripts_1_1weighted__k__means.html#a8dda26defc948eda836fbe368791265a',1,'Scripts.weighted_k_means.inert_sub_idx']]],
+  ['isi_5fsub_16',['ISI_sub',['../namespace_scripts_1_1bursting__neuron.html#ab72b0d2e184811fc2bf6e4eb47357b73',1,'Scripts::bursting_neuron']]]
+];

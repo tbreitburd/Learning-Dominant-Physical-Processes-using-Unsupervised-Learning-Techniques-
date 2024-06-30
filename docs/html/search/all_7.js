@@ -1,0 +1,16 @@
+var searchData=
+[
+  ['geostrophic_5fbalance_2epy_0',['geostrophic_balance.py',['../geostrophic__balance_8py.html',1,'']]],
+  ['get_5fclusters_1',['get_clusters',['../namespace_tools_1_1stability__assessment.html#af2eca7da2239142ad0394c05af522c5c',1,'Tools::stability_assessment']]],
+  ['get_5fderivatives_2',['get_derivatives',['../namespace_tools_1_1preprocessing.html#a3e339a7312c07ca3aa80f81d1c643d3c',1,'Tools::preprocessing']]],
+  ['get_5fderivatives_5fnumpy_3',['get_derivatives_numpy',['../namespace_tools_1_1preprocessing.html#adfc0f85030a13070bd4e64e6cbaab352',1,'Tools::preprocessing']]],
+  ['get_5fderivatives_5fnumpy_5fgeo_4',['get_derivatives_numpy_geo',['../namespace_scripts_1_1geostrophic__balance.html#ad1627de9e3289581c9b2524325a4580c',1,'Scripts::geostrophic_balance']]],
+  ['get_5fspca_5factive_5fterms_5',['get_spca_active_terms',['../namespace_tools_1_1stability__assessment.html#a16e8c4b9522c573ccd05de358c69a5b6',1,'Tools::stability_assessment']]],
+  ['get_5fspca_5fresiduals_6',['get_spca_residuals',['../namespace_tools_1_1stability__assessment.html#a16341f008c89443d9b1b52eea8a76426',1,'Tools::stability_assessment']]],
+  ['get_5funique_5fbalance_5fmodels_7',['get_unique_balance_models',['../namespace_tools_1_1stability__assessment.html#a645f8b0f5428f3651f8a5453bfb333c8',1,'Tools::stability_assessment']]],
+  ['gmm_8',['gmm',['../namespace_scripts_1_1_e_i_t.html#a64b5597f6b99b4bf8cdccf010e45da22',1,'Scripts.EIT.GMM'],['../namespace_scripts_1_1_e_i_t__param.html#a9cffa143ab69603deb3b3d28157b7ca3',1,'Scripts.EIT_param.GMM']]],
+  ['gmm_5ffit_9',['gmm_fit',['../namespace_scripts_1_1boundary__layer.html#af7acd50cededc0a2a0e075dfd798c470',1,'Scripts.boundary_layer.gmm_fit'],['../namespace_scripts_1_1k__means__bl.html#af72a6abb3bea62eee3555fdb06a4a636',1,'Scripts.k_means_bl.gmm_fit'],['../namespace_scripts_1_1spectral__clust__bl.html#a16e4e6c778924199370d7c126c93b468',1,'Scripts.spectral_clust_bl.gmm_fit'],['../namespace_scripts_1_1weighted__k__means.html#a24d60f86139bf4aad229dc9da1bea96f',1,'Scripts.weighted_k_means.gmm_fit']]],
+  ['grid_5flabels_10',['grid_labels',['../namespace_scripts_1_1_e_i_t__param.html#a9a21504d750165db64058ae72d035891',1,'Scripts.EIT_param.grid_labels'],['../namespace_scripts_1_1stability__assessment.html#a51f6fc613d723740be9cd075ec92e76b',1,'Scripts.stability_assessment.grid_labels']]],
+  ['gridmap_11',['gridmap',['../namespace_scripts_1_1_e_i_t__param.html#af6a1332ef4b785dc1f9c65c332b15e70',1,'Scripts.EIT_param.gridmap'],['../namespace_scripts_1_1stability__assessment.html#a4942636a52bf6102ee5baf7ff7cfc7dd',1,'Scripts.stability_assessment.gridmap']]],
+  ['grouped_5fmodels_12',['grouped_models',['../namespace_scripts_1_1boundary__layer.html#ae75a7d7ed48b04fa751142da4c3bcf62',1,'Scripts.boundary_layer.grouped_models'],['../namespace_scripts_1_1bursting__neuron.html#a57c66548cf55cb7ba839196482fbd2c9',1,'Scripts.bursting_neuron.grouped_models'],['../namespace_scripts_1_1_e_i_t.html#afbedaeccd2ecbb261883d5370cf10df2',1,'Scripts.EIT.grouped_models'],['../namespace_scripts_1_1geostrophic__balance.html#a3dbeaebb135c251755e5861bf7011ef6',1,'Scripts.geostrophic_balance.grouped_models'],['../namespace_scripts_1_1optical__pulse.html#a084b4ab8979a8652ba7a391c58076e89',1,'Scripts.optical_pulse.grouped_models']]]
+];

@@ -1,0 +1,25 @@
+var searchData=
+[
+  ['plot_5fbalance_5fmodels_0',['plot_balance_models',['../namespace_tools_1_1plot__funcs.html#a04223550fdd4003f41733d4d51da81d0',1,'Tools::plot_funcs']]],
+  ['plot_5fblasius_5fdeviation_1',['plot_blasius_deviation',['../namespace_tools_1_1plot__funcs.html#aa6c0fb7a9a5ae2699dece8de6bf64455',1,'Tools::plot_funcs']]],
+  ['plot_5fblasius_5fsolution_2',['plot_blasius_solution',['../namespace_tools_1_1plot__funcs.html#a676e370f002976acb2a705bcb86c602a',1,'Tools::plot_funcs']]],
+  ['plot_5fclustering_5f2d_5feq_5fspace_3',['plot_clustering_2d_eq_space',['../namespace_tools_1_1plot__funcs.html#a192bbf1073c0a8163b5f93e8f249f5af',1,'Tools::plot_funcs']]],
+  ['plot_5fclustering_5foptics_4',['plot_clustering_optics',['../namespace_tools_1_1plot__funcs.html#adfa5b3ff1ca690e3f72cb4030380703a',1,'Tools::plot_funcs']]],
+  ['plot_5fclustering_5fspace_5',['plot_clustering_space',['../namespace_tools_1_1plot__funcs.html#ab372686c100db32248e7a436c9d0e208',1,'Tools::plot_funcs']]],
+  ['plot_5fclustering_5fspace_5fgeo_6',['plot_clustering_space_geo',['../namespace_tools_1_1plot__funcs.html#ab6c68f3d3e8c9cd0e50ada008bc0a2a5',1,'Tools::plot_funcs']]],
+  ['plot_5fclusters_5feit_7',['plot_clusters_eit',['../namespace_tools_1_1plot__funcs.html#a935e4b5d0008cd14b12e51bd44554bbe',1,'Tools::plot_funcs']]],
+  ['plot_5fclusters_5fneuron_8',['plot_clusters_neuron',['../namespace_tools_1_1plot__funcs.html#a4cd4f5f972aa7cfcadd291df5fcb595e',1,'Tools::plot_funcs']]],
+  ['plot_5fclusters_5fneuron_5fterms_9',['plot_clusters_neuron_terms',['../namespace_tools_1_1plot__funcs.html#a78435e3d93e83c8f11cdd251293d43ae',1,'Tools::plot_funcs']]],
+  ['plot_5fcov_5fmat_10',['plot_cov_mat',['../namespace_tools_1_1plot__funcs.html#aba6c22fd6b9d1c008fe9e55402874143',1,'Tools::plot_funcs']]],
+  ['plot_5fequation_5fterms_5fbound_5flay_11',['plot_equation_terms_bound_lay',['../namespace_tools_1_1plot__funcs.html#a7db5c202acb0af5e3ca49d0ae930841b',1,'Tools::plot_funcs']]],
+  ['plot_5ffeature_5fspace_12',['plot_feature_space',['../namespace_tools_1_1plot__funcs.html#a6a55e827cc376617c2c31f593c739408',1,'Tools::plot_funcs']]],
+  ['plot_5ffield_13',['plot_field',['../namespace_scripts_1_1optical__pulse.html#a63adef216231e4236732284e0c9ab61d',1,'Scripts.optical_pulse.plot_field()'],['../namespace_scripts_1_1_e_i_t.html#a26b7637b64404089d2ca3309c69f9115',1,'Scripts.EIT.plot_field()']]],
+  ['plot_5foptical_5fpulse_5f3d_14',['plot_optical_pulse_3D',['../namespace_tools_1_1plot__funcs.html#ae03f2e296dddb4642eb4544e614e46e5',1,'Tools::plot_funcs']]],
+  ['plot_5freynolds_5fstress_15',['plot_reynolds_stress',['../namespace_tools_1_1plot__funcs.html#ad49c83f92f567af7638a44dc1eaa7d4c',1,'Tools::plot_funcs']]],
+  ['plot_5fself_5fsimilarity_16',['plot_self_similarity',['../namespace_tools_1_1plot__funcs.html#ad9ca527c402caed6efe804f87f1d0f9c',1,'Tools::plot_funcs']]],
+  ['plot_5fspca_5fresiduals_17',['plot_spca_residuals',['../namespace_tools_1_1plot__funcs.html#a696546e701ac523eb12f974dbbc94ed8',1,'Tools::plot_funcs']]],
+  ['plot_5fsublayer_5fscaling_18',['plot_sublayer_scaling',['../namespace_tools_1_1plot__funcs.html#a2ac4e59d1f4c4a61fe1a2fe3eace2018',1,'Tools::plot_funcs']]],
+  ['plot_5fterm_5fprojections_19',['plot_term_projections',['../namespace_scripts_1_1optical__pulse.html#a5c1b27fc49a60ef08cd869f6e243c97a',1,'Scripts::optical_pulse']]],
+  ['plot_5funcertainties_20',['plot_uncertainties',['../namespace_scripts_1_1_e_i_t.html#a3355279ad5f8f6a4ea7ab60a36cd571b',1,'Scripts::EIT']]],
+  ['predict_21',['predict',['../class_tools_1_1_custom_g_m_m_1_1_custom_g_m_m.html#aa0f69d0a20348e06ea9e6d95c9115e1c',1,'Tools::CustomGMM::CustomGMM']]]
+];
