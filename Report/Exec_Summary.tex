@@ -174,21 +174,21 @@
 \tableofcontents
 
 
-\section{Introduction (100 words)}
+\section{Introduction}
 
 
 In a majority of simulation problems in physics and engineering, it is usually unnecessary to consider the full system of equations that govern it. And it possible to simplify the equations by considering only a subset of the terms to actually matter. Simulating the system with only these dominant terms can provide a good approximation, whilst being computationally cheaper. This concept is the fundamental idea behind the method of dominant balance, where the subset of dominant terms is assumed to be in balance. And this method has proven extremely useful in multiple fields, including meteorology\cite{charney1947dynamics, phillips1963geostrophic, burger1958scale, yano2009scale}.
 
 \vspace{5mm}
 
-Historically, this method has been applied manually by field experts, often over a long period of researching and the manipulation of complex mathematical equations. Over the recent years, there has been a growing interest in automating this process using machine learning techniques. Most of these however, were limited to specific systems and sometimes relied on expert interpretation rather than automatic identification of the dominant balances\cite{ortwood2016robust,lee2018detection,sonnewald2019unsupervised}.
+Historically, this method has been applied manually by field experts, often over a long period of researching and the manipulation of complex mathematical equations. Over the recent years, there has been a growing interest in automating this process using machine learning techniques. Most of these however, were limited to specific systems and sometimes relied on expert interpretation rather than automatic identification of the dominant balances\cite{portwood2016robust,lee2018detection,sonnewald2019unsupervised}.
 
 \vspace{5mm}
 
 In this project, a novel method proposed by Callaham et al. (2021)\cite{callaham2021learning} is explored, verified, and applied. This method offers a highly generalizable approach to identifying dominant balance models across various physical systems with minimal user input. One of the core aims of this project is to reproduce the results of Callaham et al.’s original paper using alternative code to ensure that the findings are robust and not dependent on specific implementations. Additionally, the project discusses the choice of clustering algorithm and explores the stability of the method under different hyperparameters. The method is then applied to simulation data of elasto-inertial turbulence\cite{Samanta2012eit}, a recently discovered flow, to demonstrate its potential in uncovering new dominant balance regimes in complex flows.
 
 
-\section{Methodology (250 words)}
+\section{Methodology}
 
 The proposed method can be summarized into 3 steps:
 \begin{enumerate}
@@ -226,7 +226,7 @@ Then, if there are any clusters that have the same dominant balance, they are co
 
 \section{Conducted Research and Results}
 
-The Callaham et al. (2021) shared some code as runnable notebooks, and though there were some portability challenges like missing dependencies and data generation discrepancies, the code was successfully reproduced confirming the main results. Then, the turbulent boundary layer case was reproduced using alternative code primarily written in Pandas. The alternative code also made the use of a custom written GMM class. With that code, results sufficiently similar to the original were obtained, meaning the paper's results were not due to chance, and that the method, even when written differently does work well (see Fig. \ref{fig:custom_GMM_results}). Key steps included computing the terms of the Reynolds-Averaged Navier-Stokes (RANS) equations using numpy.gradient for derivatives and employing a Gaussian Mixture Model (GMM) for clustering. Despite minor differences in the clustering outcomes due to different implementations, the alternative code successfully replicated the identification of significant dynamics in the boundary layer.
+The Callaham et al. (2021) paper did share some code as runnable notebooks, and though there were some portability challenges like missing dependencies and data generation discrepancies, the code was successfully reproduced confirming the main results. Then, the turbulent boundary layer case was reproduced using alternative code using primarily pandas for data manipulation. Key steps included computing the terms of the Reynolds-Averaged Navier-Stokes (RANS) equations using numpy.gradient for derivatives and employing a Gaussian Mixture Model (GMM) for clustering. Despite minor differences in the clustering outcomes due to different implementations, the alternative code successfully replicated the identification of significant dynamics in the boundary layer (see Fig. \ref{fig:custom_GMM_results}).
 
 \begin{figure}[htbp]
   \centering
@@ -267,12 +267,12 @@ Testing the method with different clustering algorithms, the spectral clustering
 \end{figure}
 
 
-Finally, the method was used under different hypeparameter values, and showed quite varying results. Putting this in the context of an unknown physical system and this poses a challenge in determining the best hyperparameters to use, as many combinations could be considered valid. This is the main limitation of the Callaham et al. (2021) method.
+Finally, the method was used under different hypeparameter values, and showed quite varying results. Putting this in the context of an unknown physical system poses a challenge in determining the best hyperparameters to use, as many combinations could be considered valid. This is the main limitation of the Callaham et al. (2021) method.
 
 
 \section{EIT}
 
-Finally, the method was applied to simulation data of elasto-inertial turbulence (EIT), a recently discovered flow\cite{Samanta2012eit}. The data used was of a simulation of one of the discovered coherent states of this flow\cite{beneitez2024multistability}, a Chaotic ARrowhead structure (CAR) (see Fig. \ref{fig:CAR}).
+Finally, the method was applied to simulation data of elasto-inertial turbulence (EIT), a recently discovered complex polymer-laden flow\cite{Samanta2012eit}. EIT occurs in visco-elastic fluids and is characterized by a balance of elastic and inertial stresses. The data used is from a Direct Numerical Simulation of one of the discovered coherent states of this flow\cite{beneitez2024multistability}, a Chaotic ARrowhead structure (CAR) (see Fig. \ref{fig:CAR}), for which EIT is maintained.
 
 \begin{figure}[h]
   \centering
@@ -281,7 +281,7 @@ Finally, the method was applied to simulation data of elasto-inertial turbulence
   \label{fig:CAR}
 \end{figure}
 
-In order to select the hyperparameters, the number of clusters was chosen based on when GMM identified clusters only had repeating covariance matrices (see Fig. \ref{fig:Cov_Mat_EIT}). Then, results were obtained for multiple values of $\alpha$. The results clearly showed there being 2 groups of dominant balances. The first only had inertial and pressure terms that were dominant, and the second had only viscous and elastic stresses terms active (see Fig. \ref{fig:EIT_balance_models}).
+In order to select the hyperparameters, the number of clusters was chosen based on when GMM identified clusters only had repeating covariance matrices (see Fig. \ref{fig:Cov_Mat_EIT}). Then, results were obtained for multiple values of $\alpha$. The results clearly showed there being 2 groups of dominant balances. The first only had inertial and pressure terms that were dominant, and the second had only viscous and elastic stresses terms active (see Fig. \ref{fig:EIT_balance_models} and \ref{fig:EIT_balance_models}).
 
 \begin{figure}[h]
   \centering
@@ -319,6 +319,36 @@ In order to select the hyperparameters, the number of clusters was chosen based 
 
   \caption{Plot of the unique balance models found for 9 clusters, and $\alpha$ values of 1.25 (a), 1.5 (b), 1.75 (c), and 2 (d).}
   \label{fig:EIT_balance_models}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \begin{minipage}{0.6\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{../Plots/EIT/spca_clustering_space_9_1.25.png}
+    \subcaption{}
+  \end{minipage}
+
+  \begin{minipage}{0.6\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{../Plots/EIT/spca_clustering_space_9_1.5.png}
+    \subcaption{}
+  \end{minipage}
+
+  \begin{minipage}{0.6\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{../Plots/EIT/spca_clustering_space_9_1.75.png}
+    \subcaption{}
+  \end{minipage}
+
+  \begin{minipage}{0.6\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{../Plots/EIT/spca_clustering_space_9_2.0.png}
+    \subcaption{}
+  \end{minipage}
+
+  \caption{Plot of the unique balance models in physical space found for 9 clusters, and $\alpha$ values of 1.25 (a), 1.5 (b), 1.75 (c), and 2 (d).}
+  \label{fig:EIT_clustering}
 \end{figure}
 
 
