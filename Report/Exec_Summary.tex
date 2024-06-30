@@ -185,23 +185,11 @@ Historically, this method has been applied manually by field experts, often over
 
 \vspace{5mm}
 
-In this project, a novel method proposed by Callaham et al. (2021)\cite{callaham2021learning} is explored, verified, and used. This method proposes a highly generalisable method to identify dominant balance models in a variety of physical systems, with minimal input from the user. However, before using it for new systems, it is important to verify its robustness and reproducibility. One of this project's core aims is to try to reproduce the results of the original paper, by using alternative code. This is to ensure that the paper's results are not dependent on the specific implementation of the method, but rather the method itself. In terms of coding, this means testing whether there has been no lucky seeding or bug in the original code that has led to the results.
-
-
+In this project, a novel method proposed by Callaham et al. (2021)\cite{callaham2021learning} is explored, verified, and used. This method proposes a highly generalisable method to identify dominant balance models in a variety of physical systems, with minimal input from the user. However, before using it for new systems, it is important to verify its robustness and reproducibility. One of this project's core aims is to try to reproduce the results of the original paper, by using alternative code. This is to ensure that the paper's results are not dependent on the specific implementation of the method, but rather the method itself. In terms of coding, this means testing whether there has been no lucky seeding or bug in the original code that has led to the results. Additionally, the choice of clustering algorithm is discussed, and the stability of the method under change of hyperparameters is explored. The method is then applied to simulation data of a fairly recent flow called elasto-inertial turbulence, to demonstrate its potential in uncovering new dominant balance regimes in complex flows\cite{Samanta2012eit}
 
 \section{Methodology (250 words)}
 
-Summarize the three-step method proposed by Callaham et al.:
-Data \& Equation Space Representation
-Gaussian Mixture Model (GMM) Clustering
-Sparse Principal Component Analysis (SPCA)
-Briefly describe how each step contributes to identifying dominant balance models.
-Mention any modifications or additional algorithms tested, such as Spectral Clustering, K-Means, and Weighted K-Means.
-
-Figures to include:
-
-Figure 4.1: Example of a Gaussian Mixture Model fit to data.
-Figure 4.2: Example of a 2D dataset projected onto its first 2 principal components.
+The proposed method can be summarized into 3 steps. The first step involves transforming the data from the physical system into an equation-space format. This is done by computing the terms of the governing equations of the system, at each point in the physical space. Then, by considering each point in physical space as a sample with features the values of the equation's terms. The second step then makes full use of this new format by clustering the samples in equation space, therefore grouping points with terms of similar magnitude. This is done using a Gaussian Mixture Model clustering algorithm, which has the advantage of dealing very well with clusters of different shapes and sizes, and only requires for the number of clusters to be set. The final step involves applying Sparse Principal Component Analysis (SPCA) to the clustered data. SPCA is a variant of PCA where a regularization constraint is applied to the number of non-zero coefficients in the principal components. Essentially, instead of returning a full principal component that is always a linear combination of all the features, SPCA returns a sparse principal component that is a linear combination of only a few features, with some of the coefficients being zero. By applying this to the points in each cluster, and only taking the leading principal component, this step returns a vector which determines what subset of the terms of the governing equation are in balance in that cluster (0 if the term is negligible, non-zero if it is dominant). The severity with which SPCA penalizes the number of non-zero terms is determined by the second hyperparameter of this method; $\alpha$. The larger the value, the higher the chance of a term being considered inactive. In the case where step 2 identified a too large number of cluster, step 3 has the particularity of identifying clusters of points that have the same balance model.
 
 
 \section{Conducted Research and Results (350 words)}
