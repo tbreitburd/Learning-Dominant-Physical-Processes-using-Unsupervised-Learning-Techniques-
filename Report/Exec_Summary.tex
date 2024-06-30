@@ -1,61 +1,223 @@
-. Introduction (100 words)
+\documentclass[12pt]{report} % Increased the font size to 12pt
+\usepackage{epigraph}
+\usepackage{geometry}
+\usepackage{setspace} % Add the setspace package
+\usepackage{titlesec} % Add the titlesec package for customizing titles
 
-	•	Briefly introduce the project and its significance.
-	•	Mention the core aim: evaluating the reproducibility and robustness of the Callaham et al. (2021) method.
+% Optional: customize the style of epigraphs
+\setlength{\epigraphwidth}{0.5\textwidth} % Adjust the width of the epigraph
+\renewcommand{\epigraphflush}{flushright} % Align the epigraph to the right
+\renewcommand{\epigraphrule}{0pt} % No horizontal rule
+\usepackage[most]{tcolorbox}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{graphicx}
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref} % Added for hyperlinks
+\usepackage{listings} % Added for code listings
+\usepackage{color}    % Added for color definitions
+\usepackage[super]{nth}
+\usepackage{fancyhdr}
+\usepackage{tikz}
+\usepackage{cite}
+\usepackage{algpseudocode}
+\usepackage{subcaption}
+\usepackage{cleveref}
+\usepackage[font=small]{caption}
+\usetikzlibrary{shapes.geometric, arrows, positioning}
 
-2. Objectives and Motivation (150 words)
+\tikzstyle{startstop} = [rectangle, rounded corners, text centered, draw=black, fill=red!30]
+\tikzstyle{io} = [trapezium, trapezium left angle=70, trapezium right angle=110, text centered, draw=black, fill=blue!30]
+\tikzstyle{process} = [rectangle, text centered, draw=black, fill=orange!30]
+\tikzstyle{decision} = [diamond, text centered, draw=black, fill=green!30]
+\tikzstyle{arrow} = [thick,->,>=stealth]
 
-	•	Explain the importance of reproducibility in scientific research.
-	•	Highlight the problem of complex differential equations in engineering and physical sciences.
-	•	Discuss the motivation to simplify these equations using dominant balance or scale analysis and the novel approach proposed by Callaham et al.
+% Define the header and footer for general pages
+\pagestyle{fancy}
+\fancyhf{} % Clear all header and footer fields
+\fancyhead{} % Initially, the header is empty
+\fancyfoot[C]{\thepage} % Page number at the center of the footer
+\renewcommand{\headrulewidth}{0pt} % No header line on the first page of chapters
+\renewcommand{\footrulewidth}{0pt} % No footer line
 
-3. Methodology (250 words)
+% Define the plain page style for chapter starting pages
+\fancypagestyle{plain}{%
+  \fancyhf{} % Clear all header and footer fields
+  \fancyfoot[C]{\thepage} % Page number at the center of the footer
+  \renewcommand{\headrulewidth}{0pt} % No header line
+}
 
-	•	Summarize the three-step method proposed by Callaham et al.:
-	1.	Data & Equation Space Representation
-	2.	Gaussian Mixture Model (GMM) Clustering
-	3.	Sparse Principal Component Analysis (SPCA)
-	•	Briefly describe how each step contributes to identifying dominant balance models.
-	•	Mention any modifications or additional algorithms tested, such as Spectral Clustering, K-Means, and Weighted K-Means.
+% Apply the 'fancy' style to subsequent pages in a chapter
+\renewcommand{\chaptermark}[1]{%
+  \markboth{\MakeUppercase{#1}}{}%
+}
+
+% Redefine the 'plain' style for the first page of chapters
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \fancyfoot[C]{\thepage}%
+  \renewcommand{\headrulewidth}{0pt}%
+}
+
+% Header settings for normal pages (not the first page of a chapter)
+\fancyhead[L]{\slshape \nouppercase{\leftmark}} % Chapter title in the header
+\renewcommand{\headrulewidth}{0.4pt} % Header line width on normal pages
+
+\setlength{\headheight}{14.49998pt}
+\addtolength{\topmargin}{-2.49998pt}
+
+% Define colors for code listings
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+% Setup for code listings
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+
+% Definition of the tcolorbox for definitions
+\newtcolorbox{definitionbox}[1]{
+  colback=red!5!white,
+  colframe=red!75!black,
+  colbacktitle=red!85!black,
+  title=#1,
+  fonttitle=\bfseries,
+  enhanced,
+  breakable,
+}
+
+% Definition of the tcolorbox for remarks
+\newtcolorbox{remarkbox}[1]{
+  colback=blue!5!white,     % Light blue background
+  colframe=blue!75!black,   % Darker blue frame
+  colbacktitle=blue!85!black, % Even darker blue for the title background
+  title=#1,            % Title text for remark box
+  fonttitle=\bfseries,      % Bold title font
+  enhanced,
+  breakable,
+}
+
+% Definition of the tcolorbox for examples
+\newtcolorbox{examplebox}[1]{
+  colback=green!5!white,    % Light green background
+  colframe=green!75!black,   % Darker green frame
+  colbacktitle=green!85!black,  % Even darker green for the title background
+  title=#1,         % Title text for example box
+  fonttitle=\bfseries,    % Bold title font
+  enhanced,
+  breakable,
+}
+
+% Definitions and examples will be put in these environments
+\newenvironment{definition}
+    {\begin{definitionbox}}
+    {\end{definitionbox}}
+
+\newenvironment{example}
+    {\begin{examplebox}}
+    {\end{examplebox}}
+
+\onehalfspacing
+
+\geometry{top=1.5in} % Adjust the value as needed
+
+% Customization for chapter titles
+\titleformat{\chapter}[display] % Use 'display' to put number and title on separate lines
+  {\normalfont\LARGE\bfseries} % Format for the chapter title
+  {Chapter \thechapter} % Display "Chapter X"
+  {0.5em} % Space between "Chapter X" and the title
+  {\Huge} % Chapter title format
+\titlespacing*{\chapter}{0pt}{-20pt}{20pt} % Adjust spacing around chapter title
+
+% ----------------------------------------------------------------
+
+
+
+\begin{document}
+
+Introduction (100 words)
+
+
+This project aims to evaluate the reproducibility and robustness of the method proposed by Callaham et al. (2021) for identifying dominant balances in complex physical systems. Dominant balance analysis simplifies equations involving numerous terms and complex differential equations, reducing computational costs while maintaining accuracy. Traditionally, this analysis requires significant expertise and manual effort. Callaham et al.’s novel approach leverages machine learning to automate this process. By replicating their study and applying their methods to new datasets, this project assesses both the accuracy and generalizability of their approach, contributing to the validation and potential enhancement of machine learning techniques in physical sciences.
+
+
+\chapter{Objectives and Motivation (150 words)}
+
+Explain the importance of reproducibility in scientific research.
+Highlight the problem of complex differential equations in engineering and physical sciences.
+Discuss the motivation to simplify these equations using dominant balance or scale analysis and the novel approach proposed by Callaham et al.
+
+
+\chapter{Methodology (250 words)}
+
+Summarize the three-step method proposed by Callaham et al.:
+Data \& Equation Space Representation
+Gaussian Mixture Model (GMM) Clustering
+Sparse Principal Component Analysis (SPCA)
+Briefly describe how each step contributes to identifying dominant balance models.
+Mention any modifications or additional algorithms tested, such as Spectral Clustering, K-Means, and Weighted K-Means.
 
 Figures to include:
 
-	•	Figure 4.1: Example of a Gaussian Mixture Model fit to data.
-	•	Figure 4.2: Example of a 2D dataset projected onto its first 2 principal components.
+Figure 4.1: Example of a Gaussian Mixture Model fit to data.
+Figure 4.2: Example of a 2D dataset projected onto its first 2 principal components.
 
-4. Conducted Research and Results (350 words)
 
-	•	Discuss the portability and reproducibility of the code, including any issues encountered and resolved.
-	•	Detail the turbulent boundary layer case:
-	•	How the original and alternative codes were used to reproduce the results.
-	•	Key findings from the reproduction of the RANS equation’s terms and GMM clustering.
-	•	Results from applying SPCA to identify active terms.
-	•	Summarize the exploration of other algorithms:
-	•	Results from Spectral Clustering, K-Means, and Weighted K-Means.
-	•	Highlight the stability assessment:
-	•	Impact of different numbers of clusters and alpha values on the results.
-	•	Effect of training set size on the identified balance models.
+\chapter{Conducted Research and Results (350 words)}
 
-Figures to include:
-
-	•	Figure 5.1: Plot of the 6 terms in the RANS equation using the original Callaham code.
-	•	Figure 5.2: Plot of the 6 terms in the RANS equation using alternative code.
-	•	Figure 5.3: Covariance matrices for each cluster found by the sklearn and custom GMM algorithms.
-	•	Figure 5.4: Plot of the clusters found by the sklearn and custom GMM algorithms.
-	•	Figure 5.5: Plot of unique balance models found after applying SPCA with the original and alternative code.
-	•	Figure 5.6: Plot of unique balance model clusters in physical space with the original and alternative code.
-
-5. Application to Elasto-Inertial Turbulence (100 words)
-
-	•	Briefly describe the application of the method to a new dataset involving elasto-inertial turbulence.
-	•	Highlight the potential of the method to uncover new dominant balance regimes in complex flows.
+Discuss the portability and reproducibility of the code, including any issues encountered and resolved.
+Detail the turbulent boundary layer case:
+How the original and alternative codes were used to reproduce the results.
+Key findings from the reproduction of the RANS equation’s terms and GMM clustering.
+Results from applying SPCA to identify active terms.
+Summarize the exploration of other algorithms:
+Results from Spectral Clustering, K-Means, and Weighted K-Means.
+Highlight the stability assessment:
+Impact of different numbers of clusters and alpha values on the results.
+Effect of training set size on the identified balance models.
 
 Figures to include:
 
-	•	Figure 6.1: Plot of the attractors found in the DNS of the FENE-P model.
+Figure 5.1: Plot of the 6 terms in the RANS equation using the original Callaham code.
+Figure 5.2: Plot of the 6 terms in the RANS equation using alternative code.
+Figure 5.3: Covariance matrices for each cluster found by the sklearn and custom GMM algorithms.
+Figure 5.4: Plot of the clusters found by the sklearn and custom GMM algorithms.
+Figure 5.5: Plot of unique balance models found after applying SPCA with the original and alternative code.
+Figure 5.6: Plot of unique balance model clusters in physical space with the original and alternative code.
 
-6. Conclusion (100 words)
 
-	•	Summarize the key findings and their implications.
-	•	Reflect on the strengths and limitations of the method.
-	•	Suggest potential future work or improvements.
+\chapter{Application to Elasto-Inertial Turbulence (100 Words)}
+
+Briefly describe the application of the method to a new dataset involving elasto-inertial turbulence.
+Highlight the potential of the method to uncover new dominant balance regimes in complex flows.
+
+Figures to include:
+
+Figure 6.1: Plot of the attractors found in the DNS of the FENE-P model.
+
+\chapter{Conclusion (100 Words)}
+
+Summarize the key findings and their implications.
+Reflect on the strengths and limitations of the method.
+Suggest potential future work or improvements.
+
+
+\end{document}
