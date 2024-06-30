@@ -269,7 +269,7 @@ The ```project_24``` is not a strict instruction, it can be set to any other nam
 If there is a need to get the plots back on the local machine, the second line above can be ran without the ```--rm``` and can also set the container name using ```--name=container_name``` (any valid name is fine). From there, run all the code as instructed above. Once all desired outputs and plots have been obtained. One can exit the container and then run:
 
 ```bash
-$ docker cp docker cp container_name:/Project_24/Plots ./Plots
+$ docker cp container_name:/Project_24/Plots ./Plots
 ```
 
 ## Tools
