@@ -1,27 +1,36 @@
+"""!@file preprocessing.py
+
+@brief Module to compute the derivative terms for the Turbulent Boundary Layer case.
+
+@details This module provides functions to compute the derivative terms for
+the Turbulent Boundary Layer case. And it includes 2 methods, the first one
+is the original method written by Callaham et al. (2021) which uses the scipy.sparse library
+and the second one is the alternate method using numpy.gradient()
+
+@author T.Breitburd and Callaham et al."""
+
 from scipy import sparse
 import numpy as np
 
 
 def get_derivatives(nx, ny, dx, dy):
-    """Get the derivatives for the 2D domain
+    """!@brief Get the derivative operators for the Turbulent Boundary Layer case
 
-    Parameters:
-    -----------
-    nx: int
+    @param nx: int
         Number of points in the x-direction
-    ny: int
+    @param ny: int
         Number of points in the y-direction
-    dx: float
+    @param dx: float
         Step in the x-direction
-    dy: float
+    @param dy: array
         Step in the y-direction
 
-    Returns:
-    --------
-    Dx: sparse matrix
+    @return Dx: scipy.sparse.csr_matrix
         1st derivative to 2nd order accuracy in the x-direction
-    Dy: sparse matrix
+    @return Dy: scipy.sparse.csr_matrix
         1st derivative to 2nd order accuracy in the y-direction
+
+    @author T.Breitburd and Callaham et al.
     """
 
     Dy = sparse.diags([-1, 1], [-1, 1], shape=(ny, ny)).toarray()
@@ -60,47 +69,46 @@ def get_derivatives(nx, ny, dx, dy):
 
 
 def get_derivatives_numpy(nx, ny, dx, y, u, v, p, R_uu, R_uv):
-    """Get the derivatives for the 2D domain
+    """!@brief Get the derivative operators for the Turbulent Boundary Layer case
 
-    Parameters:
-    -----------
-    nx: int
+    @param nx: int
         Number of points in the x-direction
-    ny: int
+    @param ny: int
         Number of points in the y-direction
-    dx: float
+    @param dx: float
         Step in the x-direction
-    y: numpy array
-        Array of y coordinates
-    u: numpy array
-        Array of u velocities
-    v: numpy array
-        Array of v velocities
-    p: numpy array
-        Array of pressures
-    R_uu: numpy array
+    @param y: array
+        Array of y values
+    @param u: array
+        Array of u values
+    @param v: array
+        Array of v values
+    @param p: array
+        Array of p values
+    @param R_uu: array
         Array of R_uu values
-    R_uv: numpy array
+    @param R_uv: array
         Array of R_uv values
 
-    Returns:
-    --------
-    u_x: numpy array
+    @return u_x: array
         1st derivative to 2nd order accuracy in the x-direction
-    u_y: numpy array
+    @return u_y: array
         1st derivative to 2nd order accuracy in the y-direction
-    lap_u: numpy array
+    @return lap_u: array
         Laplacian of u
-    v_y: numpy array
+    @return v_y: array
         1st derivative to 2nd order accuracy in the y-direction
-    p_x: numpy array
+    @return p_x: array
         1st derivative to 2nd order accuracy in the x-direction
-    R_uux: numpy array
-        1st derivative to 2nd order accuracy in the x-direction
-    R_uvy: numpy array
-        1st derivative to 2nd order accuracy in the y-direction
+    @return R_uux: array
+        1st derivative to 2nd order accuracy in the x-direction of R_uu
+    @return R_uvy: array
+        1st derivative to 2nd order accuracy in the y-direction of R_uv
+
+    @author T.Breitburd
     """
 
+    # Initialize the arrays
     u_x = np.zeros((ny, nx))
     u_y = np.zeros((ny, nx))
     u_yy = np.zeros((ny, nx))
@@ -110,16 +118,23 @@ def get_derivatives_numpy(nx, ny, dx, y, u, v, p, R_uu, R_uv):
     R_uux = np.zeros((ny, nx))
     R_uvy = np.zeros((ny, nx))
 
+    # Compute the x-derivatives
     u_x = np.gradient(u, dx, edge_order=2, axis=1)
     p_x = np.gradient(p, dx, edge_order=2, axis=1)
     R_uux = np.gradient(R_uu, dx, edge_order=2, axis=1)
+
+    # Compute the 2nd derivatives
     u_xx = np.gradient(u_x, dx, edge_order=2, axis=1)
 
+    # Compute the y-derivatives
     u_y = np.gradient(u, y, edge_order=2, axis=0)
     v_y = np.gradient(v, y, edge_order=2, axis=0)
     R_uvy = np.gradient(R_uv, y, edge_order=2, axis=0)
+
+    # Compute the 2nd derivatives
     u_yy = np.gradient(u_y, y, edge_order=2, axis=0)
 
+    # Compute the laplacian
     lap_u = u_xx + u_yy
 
     return u_x, u_y, lap_u, v_y, p_x, R_uux, R_uvy
