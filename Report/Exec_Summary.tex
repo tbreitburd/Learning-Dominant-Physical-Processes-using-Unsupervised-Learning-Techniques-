@@ -177,58 +177,71 @@
 \section{Introduction (100 words)}
 
 
-In a majority of simulation problems in physics and engineering, it is usually unnecessary to consider the full system of equations that govern it. Rather, it is often possible to simplify the equations by considering a subset of the terms to be negligible compared to the others. And because the other terms dominate the dynamics of the system, simulating it with only these dominant terms can provide a good approximation, whilst being computationally cheaper. This concept is the fundamental idea behind the method of dominant balance, where the subset of dominant terms is assumed to be in balance. And this method has proven extremely useful in multiple fields, including meteorology\cite{charney1947dynamics, phillips1963geostrophic, burger1958scale, yano2009scale}.
+In a majority of simulation problems in physics and engineering, it is usually unnecessary to consider the full system of equations that govern it. And it possible to simplify the equations by considering only a subset of the terms to actually matter. Simulating the system with only these dominant terms can provide a good approximation, whilst being computationally cheaper. This concept is the fundamental idea behind the method of dominant balance, where the subset of dominant terms is assumed to be in balance. And this method has proven extremely useful in multiple fields, including meteorology\cite{charney1947dynamics, phillips1963geostrophic, burger1958scale, yano2009scale}.
 
 \vspace{5mm}
 
-Historically, this method has been applied manually by field experts, often over a long period of researching and the manipulation of complex mathematical equations. Over the recent years, there has been a growing interest in automating this process using machine learning techniques. Most of these however, were limited to specific systems and sometimes relied on expert interpretation rather than automatic identification of the dominant balances\cite{ortwood2016robust,lee2018detection,sonnewald2019unsupervised}. A similar endeavour has also been pursued, with the application of machine learning techniques in directly identifying the governing equation of a physical system from simulation data\cite{brunton2016discovering, cranmer2020discovering}.
+Historically, this method has been applied manually by field experts, often over a long period of researching and the manipulation of complex mathematical equations. Over the recent years, there has been a growing interest in automating this process using machine learning techniques. Most of these however, were limited to specific systems and sometimes relied on expert interpretation rather than automatic identification of the dominant balances\cite{ortwood2016robust,lee2018detection,sonnewald2019unsupervised}.
 
 \vspace{5mm}
 
-In this project, a novel method proposed by Callaham et al. (2021)\cite{callaham2021learning} is explored, verified, and used. This method proposes a highly generalisable method to identify dominant balance models in a variety of physical systems, with minimal input from the user. However, before using it for new systems, it is important to verify its robustness and reproducibility. One of this project's core aims is to try to reproduce the results of the original paper, by using alternative code. This is to ensure that the paper's results are not dependent on the specific implementation of the method, but rather the method itself. In terms of coding, this means testing whether there has been no lucky seeding or bug in the original code that has led to the results. Additionally, the choice of clustering algorithm is discussed, and the stability of the method under change of hyperparameters is explored. The method is then applied to simulation data of a fairly recent flow called elasto-inertial turbulence, to demonstrate its potential in uncovering new dominant balance regimes in complex flows\cite{Samanta2012eit}
+In this project, a novel method proposed by Callaham et al. (2021)\cite{callaham2021learning} is explored, verified, and applied. This method offers a highly generalizable approach to identifying dominant balance models across various physical systems with minimal user input. One of the core aims of this project is to reproduce the results of Callaham et al.’s original paper using alternative code to ensure that the findings are robust and not dependent on specific implementations. Additionally, the project discusses the choice of clustering algorithm and explores the stability of the method under different hyperparameters. The method is then applied to simulation data of elasto-inertial turbulence\cite{Samanta2012eit}, a recently discovered flow, to demonstrate its potential in uncovering new dominant balance regimes in complex flows.
+
 
 \section{Methodology (250 words)}
 
-The proposed method can be summarized into 3 steps. The first step involves transforming the data from the physical system into an equation-space format. This is done by computing the terms of the governing equations of the system, at each point in the physical space. Then, by considering each point in physical space as a sample with features the values of the equation's terms. The second step then makes full use of this new format by clustering the samples in equation space, therefore grouping points with terms of similar magnitude. This is done using a Gaussian Mixture Model clustering algorithm, which has the advantage of dealing very well with clusters of different shapes and sizes, and only requires for the number of clusters to be set. The final step involves applying Sparse Principal Component Analysis (SPCA) to the clustered data. SPCA is a variant of PCA where a regularization constraint is applied to the number of non-zero coefficients in the principal components. Essentially, instead of returning a full principal component that is always a linear combination of all the features, SPCA returns a sparse principal component that is a linear combination of only a few features, with some of the coefficients being zero. By applying this to the points in each cluster, and only taking the leading principal component, this step returns a vector which determines what subset of the terms of the governing equation are in balance in that cluster (0 if the term is negligible, non-zero if it is dominant). The severity with which SPCA penalizes the number of non-zero terms is determined by the second hyperparameter of this method; $\alpha$. The larger the value, the higher the chance of a term being considered inactive. In the case where step 2 identified a too large number of cluster, step 3 has the particularity of identifying clusters of points that have the same balance model.
+The proposed method can be summarized into 3 steps:
+\begin{enumerate}
+  \item The first step involves transforming the data from the physical system into an equation-space format. This is done by computing the terms of the governing equations of the system, at each point in the physical space, and then have each point in physical space be a sample with features: the values of the equation's terms (see Fig. \ref{fig:EquationSpace}).
+  \item The second step then makes full use of this new format by clustering the samples in equation space, therefore grouping points with terms of similar magnitude. This is done using a Gaussian Mixture Model (GMM) clustering algorithm, which has the advantage of dealing very well with clusters of different shapes and sizes, and only requires for the number of clusters to be set (see Fig. \ref{fig:EquationSpace}).
+  \item The final step involves applying Sparse Principal Component Analysis (SPCA) to each. SPCA is a variant of PCA where a regularization constraint is applied to the number of non-zero coefficients in the principal components. Essentially, instead of returning a full principal component that is a linear combination of all the features, SPCA returns a sparse principal component that is a linear combination of only a few features, with some of the coefficients being zero. By applying this to the points in each cluster, and only taking the leading principal component, this gives a sparse vector describing which terms in the cluster dominate, and form together a dominant balance model.
+\end{enumerate}
+Then, if there are any clusters that have the same dominant balance, they are combined.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.5\textwidth]{../Plots/BL/GMM_feature_space_6_10.png}
+  \caption{This plot shows the GMM clustered data in equation space for the turbulent boundary layer case. These specific plots are 2-D projections of the 6-D equation space, with the axes being the values of terms of the Reynolds-Averaged Navier-Stokes (RANS) equations. The different colours represent the different clusters identified by the GMM algorithm.}
+  \label{fig:EquationSpace}
+\end{figure}
 
 
-\section{Conducted Research and Results (350 words)}
+\section{Conducted Research and Results}
 
-Discuss the portability and reproducibility of the code, including any issues encountered and resolved.
-Detail the turbulent boundary layer case:
-How the original and alternative codes were used to reproduce the results.
-Key findings from the reproduction of the RANS equation’s terms and GMM clustering.
-Results from applying SPCA to identify active terms.
-Summarize the exploration of other algorithms:
-Results from Spectral Clustering, K-Means, and Weighted K-Means.
-Highlight the stability assessment:
-Impact of different numbers of clusters and alpha values on the results.
-Effect of training set size on the identified balance models.
+The Callaham et al. (2021) shared some code as runnable notebooks, and though there were some portability challenges like missing dependencies and data generation discrepancies, the code was successfully reproduced confirming the main results. Then, the turbulent boundary layer case was reproduced using alternative code primarily written in Pandas. The alternative code also made the use of a custom written GMM class. With that code, results similar to the original were reproduced, confirming that the method did work. Key steps included computing the terms of the Reynolds-Averaged Navier-Stokes (RANS) equations using numpy.gradient for derivatives and employing a Gaussian Mixture Model (GMM) for clustering. Despite minor differences in the clustering outcomes due to different implementations, the alternative code successfully replicated the identification of significant dynamics in the boundary layer.
 
-Figures to include:
-
-Figure 5.1: Plot of the 6 terms in the RANS equation using the original Callaham code.
-Figure 5.2: Plot of the 6 terms in the RANS equation using alternative code.
-Figure 5.3: Covariance matrices for each cluster found by the sklearn and custom GMM algorithms.
-Figure 5.4: Plot of the clusters found by the sklearn and custom GMM algorithms.
-Figure 5.5: Plot of unique balance models found after applying SPCA with the original and alternative code.
-Figure 5.6: Plot of unique balance model clusters in physical space with the original and alternative code.
+Testing the method with different clustering algorithms, the spectral clustering algorithm which was thought to be a good candidate \cite[Supplementary Information]{callaham2021learning} was found to have poor performance, especially in the context of practicality with the dataset sizes. K-Means and weighted K-Means algorithms were also tested, giving results that captured some of the expected dominant balances for the turbulent boundary layer case.
 
 
-\section{Application to Elasto-Inertial Turbulence (100 Words)}
+Finally, the method was used under different hypeparameter values, and showed quite varying results. Putting this in the context of an unknown physical system and this poses a challenge in determining the best hyperparameters to use, as many combinations could be considered valid. This is the main limitation of the Callaham et al. (2021) method.
 
-Briefly describe the application of the method to a new dataset involving elasto-inertial turbulence.
-Highlight the potential of the method to uncover new dominant balance regimes in complex flows.
 
-Figures to include:
+\section{EIT}
 
-Figure 6.1: Plot of the attractors found in the DNS of the FENE-P model.
+Finally, the method was applied to simulation data of elasto-inertial turbulence (EIT), a recently discovered flow\cite{Samanta2012eit}. The data used was of a simulation of one of the discovered coherent states of this flow\cite{beneitez2024multistability}, a Chaotic ARrowhead structure (CAR) (see Fig. ).
 
-\section{Conclusion (100 Words)}
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.5\textwidth]{../Plots/EIT/Cxx.png}
+  \caption{A Chaotic Arrowhead structure (CAR) in elasto-inertial turbulence, visualised with one of the components of the conformation tensor, $C_{xx}$.}
+  \label{fig:CAR}
+\end{figure}
 
-Summarize the key findings and their implications.
-Reflect on the strengths and limitations of the method.
-Suggest potential future work or improvements.
+In order to select the hyperparameters, the number of clusters was chosen based on when GMM identified clusters only had repeating covariance matrices (see Fig.). Then, results were obtained for multiple values of $\alpha$. The results clearly showed there being 2 groups of dominant balances. The first only had inertial and pressure terms that were dominant, and the second had only viscous and elastic stresses terms active (see Fig.).
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.5\textwidth]{../Plots/EIT/GMM_cov_mat_9.png}
+  \caption{The covariance matrices of the 9 clusters identified by the GMM algorithm for the EIT case. As can be seen, multiple of the clusters have very similar covariance matrices, indicating that they are likely clusters with the same dominant balance, and the data has been sufficiently clustered.}
+  \label{fig:Cov_Mat_EIT}
+\end{figure}
+
+
+
+
+
+
+
 
 
 
