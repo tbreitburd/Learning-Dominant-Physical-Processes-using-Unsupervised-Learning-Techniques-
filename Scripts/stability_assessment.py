@@ -87,6 +87,7 @@ U_inf = 1
 nu = 1 / 800
 Re = (U_inf / nu) * x
 
+print("Data Loaded")
 
 # ---------------------------------------------
 # Get the finite difference derivatives
@@ -141,7 +142,7 @@ labels = [
 features = 1e3 * np.vstack([u_bar * u_x, v_bar * u_y, p_x, nu * lap_u, R_uvy, R_uux]).T
 nfeatures = features.shape[1]
 
-
+print("Terms computed")
 # ---------------------------------------------
 # ---------------------------------------------
 # Stability assessment
@@ -155,6 +156,7 @@ part = sys.argv[1]
 # ---------------------------------------------
 
 if part == "n_cluster":
+    print("Starting n_cluster")
     # Initialise a list of the number of dominant balance models found
     nmodels_list = []
 
@@ -167,11 +169,13 @@ if part == "n_cluster":
     for n_cluster in n_clusters:
         # Get clusters for the current number of clusters
         cluster_idx = sa.get_clusters(n_cluster, features, 0.1)
+        print("Clustering done")
 
         alpha_opt = 10  # Optimal alpha value, in all cases the optimal alpha is 10
         spca_model = sa.get_spca_active_terms(
             alpha_opt, n_cluster, cluster_idx, features, nfeatures
         )
+        print("SPCA done")
 
         (
             balance_models,
@@ -180,6 +184,7 @@ if part == "n_cluster":
             gridmap,
             grid_labels,
         ) = sa.get_unique_balance_models(spca_model, labels)
+        print("Unique balance models obtained")
 
         nmodels_list.append(nmodels)
 
@@ -200,6 +205,8 @@ if part == "n_cluster":
             f"Stab_Ass/spca_clustering_space_training_set_{n_cluster}.png",
             False,
         )
+
+        print(f"N_cluster: {n_cluster}, done")
 
         plt.subplot(3, 4, n_cluster - 3)
         plt.pcolor(
@@ -235,6 +242,7 @@ if part == "n_cluster":
 # ---------------------------------------------
 
 elif part == "train_frac":
+    print("Starting train_frac")
     # Initialise a list of the number of dominant balance models found
     nmodels_list = []
 
@@ -247,11 +255,13 @@ elif part == "train_frac":
     for idx, frac in enumerate(train_frac):
         # Get clusters for the current number of clusters
         cluster_idx = sa.get_clusters(n_clusters=6, features=features, train_frac=frac)
+        print("Clustering done")
 
         alpha_opt = 10  # Optimal alpha value, in all cases the optimal alpha is 10
         spca_model = sa.get_spca_active_terms(
             alpha_opt, 6, cluster_idx, features, nfeatures
         )
+        print("SPCA done")
 
         (
             balance_models,
@@ -260,6 +270,7 @@ elif part == "train_frac":
             gridmap,
             grid_labels,
         ) = sa.get_unique_balance_models(spca_model, labels)
+        print("Unique balance models obtained")
 
         nmodels_list.append(nmodels)
 
@@ -280,6 +291,8 @@ elif part == "train_frac":
             f"Stab_Ass/spca_clustering_space_training_set_frac_{frac}.png",
             False,
         )
+
+        print(f"Train_frac: {frac} done")
 
         plt.subplot(3, 3, idx + 1)
         plt.pcolor(
@@ -316,6 +329,7 @@ elif part == "train_frac":
 # ---------------------------------------------
 
 elif part == "alpha":
+    print("Starting alpha")
     # Initialise a list of the number of dominant balance models found
     nmodels_list = []
 
@@ -328,12 +342,14 @@ elif part == "alpha":
 
     # Get clusters with GMM
     cluster_idx = sa.get_clusters(n_clusters=6, features=features, train_frac=0.1)
+    print("Clustering done")
 
     for idx, alpha in enumerate(alphas):
         # Get the active terms for the current alpha
         spca_model = sa.get_spca_active_terms(
             alpha, 6, cluster_idx, features, nfeatures
         )
+        print("SPCA done")
 
         (
             balance_models,
@@ -342,6 +358,7 @@ elif part == "alpha":
             gridmap,
             grid_labels,
         ) = sa.get_unique_balance_models(spca_model, labels)
+        print("Unique balance models obtained")
 
         nmodels_list.append(nmodels)
 
@@ -362,6 +379,8 @@ elif part == "alpha":
             f"Stab_Ass/spca_clustering_space_training_set_alpha_{alpha}.png",
             False,
         )
+
+        print(f"Alpha: {alpha}, done")
 
         plt.subplot(3, 4, idx + 1)
         plt.pcolor(
