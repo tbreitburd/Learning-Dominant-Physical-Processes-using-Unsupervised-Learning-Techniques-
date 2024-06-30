@@ -179,7 +179,7 @@ if part == "n_cluster":
             nmodels,
             gridmap,
             grid_labels,
-        ) = sa.get_unique_balance_models(spca_model)
+        ) = sa.get_unique_balance_models(spca_model, labels)
 
         nmodels_list.append(nmodels)
 
@@ -259,7 +259,7 @@ elif part == "train_frac":
             nmodels,
             gridmap,
             grid_labels,
-        ) = sa.get_unique_balance_models(spca_model)
+        ) = sa.get_unique_balance_models(spca_model, labels)
 
         nmodels_list.append(nmodels)
 
@@ -341,7 +341,7 @@ elif part == "alpha":
             nmodels,
             gridmap,
             grid_labels,
-        ) = sa.get_unique_balance_models(spca_model)
+        ) = sa.get_unique_balance_models(spca_model, labels)
 
         nmodels_list.append(nmodels)
 
