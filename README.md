@@ -10,15 +10,15 @@ This project explores a relatively recent approach to identify dominant physical
 
 In short, Callaham et al. (2021) introduced a three-step data-driven method to identify dominant balance models in physical systems. The methodology consists of:
 
-1.	Data & Equation Space Representation: Physical system data (e.g., velocity, pressure) are transformed into an equation space where each term in the governing equations forms a dimension, creating a feature space in which clustering is run.
-2.	Gaussian Mixture Model (GMM) Clustering (or other algorithms): Thanks to the equation space representation, unsupervised clustering will mean grouping points which have a similar balance of terms. This step requires setting a hyperparameter: the number of clusters, which determines the number of Gaussian distributions assumed in the data.
-3.	Sparse Principal Component Analysis (SPCA): SPCA is then applied to each cluster, identifying the active terms by applying a sparsity constraint. This constraint helps in reducing the number of non-zero coefficients, simplifying the model but keeping the most information possible. This sparsity constraint's intensity is set by a second hyperparameter: the alpha (α) parameter, the larger it is, the more terms will be considered inactive in a cluster.
+1.	Data & Equation Space Representation: Physical system data (e.g., velocity, pressure) are transformed into an equation space where each term in the governing equations represents a dimension, creating a feature space in which the following machine learning techniques are applied.
+2.	Gaussian Mixture Model (GMM) Clustering (or other algorithms): With the equation space representation, unsupervised clustering of the data will mean grouping points which have a similar balance of terms. This step requires setting a hyperparameter: the number of clusters, which determines the number of Gaussian distributions assumed in the data.
+3.	Sparse Principal Component Analysis (SPCA): SPCA is then applied to each cluster, identifying the active terms by applying a sparsity constraint to the Principal Component's coefficients. This constraint helps in reducing the number of non-zero coefficients, simplifying the model but keeping the most information possible. The sparsity constraint's intensity is set by a second hyperparameter: the alpha (α) parameter, the larger it is, the more terms will be considered inactive in a cluster.
 
 One can adjust the number of clusters for the GMM and the alpha value for SPCA to optimize the method for different datasets and desired levels of model complexity.
 
 The main goal of the project is to discuss the reproducibility of the results, using alternative code. It also delves into thoroughly testing the robustness of the methods, by testing other clustering algorithms, as well as testing the stability of the results when changing hyperparameters.
 
-Its secondary goal was to try using that original method on some novel data, testing the ability of the model to generalise to not well-studied physical systems, and learning more about that type of flow.
+Its secondary goal was to try using this method on some novel data (Elasto-Inertial Turbulence), testing the ability of the model to generalise to not well-studied physical systems, and learning more about that type of flow.
 
 In this repository are notebooks for every physical system studied, and algorithm tested (all found in the ```Notebooks/``` directory). For each notebook, there is a script version that is there for portability and if one wants to test other values of hyperparameters (all found in the ```Scripts/``` directory).
 
@@ -28,21 +28,21 @@ As this project is quite large, a detailed description of its contents is done b
 
 ## Data
 
-In this directory should be stored the data for any physical system studied in this project. For most of them the data was obtained from external sources. There is an exception which is for the Elasto-Inertial Turbulence. The data for this novel case was obtained internally through the DAMTP, simulated using the Dedalus framework ??
+In this directory should be stored the data for any physical system studied in this project. For most of them the data was obtained from external sources. There is an exception which is for the Elasto-Inertial Turbulence. The data for this novel case was obtained internally through the DAMTP (Department of Applied Mathematics and Theoretical Physics).
 
 ### Turbulent Boundary Layer
 
-The data is a Direct Numerical Simulation (DNS) of a boundary layer in transition to turbulence by [Lee and Zaki](https://turbulence.pha.jhu.edu/docs/README-transition_bl.pdf) and is available on the John Hopkins Turbulence Databases: [here](https://turbulence.pha.jhu.edu/Transition_bl.aspx)
+The data for this scenario is a Direct Numerical Simulation (DNS) of a boundary layer in transition to turbulence by [Lee and Zaki](https://turbulence.pha.jhu.edu/docs/README-transition_bl.pdf) and is available on the John Hopkins Turbulence Databases: [here](https://turbulence.pha.jhu.edu/Transition_bl.aspx)
 
 ### Geostrophic Balance
 
-The data here is obtained from the high-resolution 1/$25^{o}$ [HYCOM](https://www.hycom.org/hycom) reanalysis data from the Gulf of Mexico. The paper states that only the first field from Exoeriment 50.1 is used (i.e. January 1993), and it is what is used to get the results presented in the report. However, the results obtained in the Callaham et al, (2021) paper were actually obtained using Expermiment 90.1m000 which had its first fields in 2019.
+The data here is obtained from the high-resolution 1/$25^{o}$ [HYCOM](https://www.hycom.org/hycom) reanalysis data from the Gulf of Mexico. The paper states that only the first field from Experiment 50.1 is used (i.e. January 1993) to get the results presented in the paper. However, the results obtained in the Callaham et al, (2021) paper were actually obtained using Expermiment 90.1m000 which had its first fields in 2019.
 
 Experiment 50.1, first 1993 fields: [here](https://data.hycom.org/datasets/GOMu0.04/expt_50.1/data/netcdf/1993/)
 
 Experiment 90.1m000, first 2019 fields: [here](https://data.hycom.org/datasets/GOMu0.04/expt_90.1m000/data/hindcasts/2019/)
 
-In both cases, the first and second field available were downloaded in order get the time derivative terms.
+In both cases, the first and second field available were downloaded in order get the time derivative terms. In the report, however, it is the fields from experiment 50.1 which are used.
 
 ----
 For the data that cannot be downloaded from an external source, there is data generating code in 2 subdirectories: ```gnlse/``` and ```neuron/```.
@@ -61,13 +61,13 @@ Data generating code for the bursting neuron case. See subdirectory ```README```
 
 ### Turbulent Boundary Layer Case
 
-The main case that is studied is the case of a boundary layer in transition to turbulence. Beyond using the Callaham et al. (2021) method to identify the dominant balance models for this physical system, this notebook explores the reproducing of results using alternative code to make sure the paper's results are not unique and random.
+The main case that is studied is one of a boundary layer in transition to turbulence. Beyond using the Callaham et al. (2021) method to identify the dominant balance models for this physical system, this notebook explores the reproducing of the results using alternative code to make sure the paper's results are not unique and random.
 
 The governing equation here is the Reynold's Averaged Navier-Stokes Equation, and only the streamwise component is considered:
 
 $$ \bar{u} \bar{u}_x + \bar{v} \bar{u}_y = \rho^{-1} \bar{p}_x + \nu \nabla^2 \bar{u}  - (\overline{u' v'})_y - (\overline{u'^2})_x $$
 
-To choose between running the code for the original or custom version, there is a cell dedicated to this where one can comment out/uncomment the ```method``` defining lines. From there the whole Notebook should run without input. The value for the hyperparameters (cluster number, and $\alpha$) are set for the notebook, though they can of course be changed.
+To choose between running the code for the original or custom version, there is a cell dedicated to this where one can comment out/uncomment the ```method``` defining lines. From there the whole Notebook should run without input. The value for the hyperparameters (cluster number, and $\alpha$) are set for the notebook (6 clusters, $\alpha = 10$), though they can of course be changed.
 
 More importantly, the notebook is there for presenting the code in a more guided manner but there is a script which ensures portability, faster runtime, and the ability for the user to control the hyperparameter values, as well as the method used (original or alternate)
 
@@ -119,17 +119,16 @@ where
 $ \mathbf{T}(\mathbf{C}) := \frac{1}{Wi}(f(\text{tr}\mathbf{C})\mathbf{C} - \mathbf{I}) $, and $ f(x) := (1 - \frac{x - 3}{L_{max}^{2}})^{-1} $.
 
 
-
 Thus, $\mathbf{T}(\mathbf{C}) = \frac{1}{Wi} ((1 - \frac{(\text{tr}\mathbf{C}) - 3}{L_{max}^{2}})^{-1}\mathbf{C} - \mathbf{I}) $
 
 This code was written using partly code from the original Callaham et al method, and partly using the alternative code which was written in the ```Boundary_Layer``` Notebook.
 
-That dataset here contains simulation data for one of the attractors discussed in the [Beneitez et al. (2024)](https://www.cambridge.org/core/journals/journal-of-fluid-mechanics/article/multistability-of-elastoinertial-twodimensional-channel-flow/D63B7EDB638451A6FC2FBBFDA85E1BBD) paper. The attractor in question is the Chaotic Arrowhead Regime (CAR), which is characterised by a weak arrowhead structure near the centre of the channel. With EIT, it shares being maintained through near-wall mechanisms of energy transfers.
+That dataset here contains simulation data for one of the attractors discussed in the [Beneitez et al. (2024)](https://www.cambridge.org/core/journals/journal-of-fluid-mechanics/article/multistability-of-elastoinertial-twodimensional-channel-flow/D63B7EDB638451A6FC2FBBFDA85E1BBD) paper. The attractor in question is the Chaotic Arrowhead Regime (CAR), which is characterised by a weak arrowhead structure near the centre of the channel. Similar to EIT, it is being maintained through near-wall mechanisms of energy transfers.
 
 For now, only the x-component of the governing equation is studied:
 $$ \partial_{t}u + u u_{x} + v u_{y} + p_{x} = \frac{\beta}{Re} (u_{xx} + u_{yy}) + \frac{1 - \beta}{Re} ( (\frac{1}{Wi} ((1 - \frac{(\text{tr}\mathbf{C}) - 3}{L_{max}^{2}})^{-1} C_{xx} - 1))_{x} + (\frac{1}{Wi} ((1 - \frac{(\text{tr}\mathbf{C}) - 3}{L_{max}^{2}})^{-1} C_{xy}))_{y} ) $$
 
-Because this is novel data for which the true dominant balance regimes are not known, there are many valid results that can be obtained with multiple hyperparameters values. Thus the notebook covers the selection of hyperparameters and the obtaining of the dominant balance models for those values.
+Because this is novel data for which the true dominant balance regimes are not known, there are many valid results that can be obtained with multiple hyperparameters values. Thus, the notebook covers the selection of hyperparameters and the obtaining of the dominant balance models for those values.
 
 Because the notebook can be split into 2 parts, 2 python files were written for this case study. One to cover the selection of hyperparameters, and the other which simply goes through the Callaham et al. method for a chosen set of hyperparameters. They can be run as follows:
 
@@ -139,7 +138,7 @@ $ python EIT_param.py
 $ python EIT.py <cluster number> <alpha>
 ```
 
-Once again, the parameters can be any number subject to type and non-zero conditions. For the results presented in the report, the parameters chosen were 8 clusters and an $\alpha$ vlaue of 1.5.
+Once again, the parameters can be any number subject to type and non-zero conditions. For the results presented in the report, the parameters chosen were 9 clusters and multiple $\alpha$ values between 1 and 2.
 
 ----
 ### Geostrophic Balance in Ocean Currents Case
@@ -165,7 +164,7 @@ Same conditions apply. Values chosen in the notebook and report were a cluster n
 ------
 ### K-Means Turbulent Boundary Layer Case
 
-As part of testing the method's robustness, other clusteirng algorithms were tested on the same turbulent boundary layer case. In this notebook, a standard K-means clustering algorithm is used instead of the GMM. The hyperparameters stay the same and again a script version was written.
+As part of testing the method's robustness, other clustering algorithms were tested on the same turbulent boundary layer case. In this notebook, a standard K-means clustering algorithm is used instead of the GMM. The hyperparameters stay the same and again a script version was written.
 
 And it can be run as follows:
 ```bash
@@ -179,7 +178,7 @@ Same conditions apply. Values chosen in the notebook and report were a cluster n
 ------
 ### Optical Pulse Case
 
-In this notebook, the case of generalized nonlinear Schrödinger equations is studied, in the context of a ultra-short pulse of light, typically occuring in optical fibers.
+In this notebook, the case of generalized nonlinear Schrödinger equations is studied, in the context of an ultra-short pulse of light, typically occuring in optical fibers.
 
 The governing equation was derived starting from Maxwell's wave equation in 1D, and is a PDE known as a generalized nonlinear Schrödinger equation (GNLSE):
 
@@ -188,7 +187,7 @@ r(t) = a \delta(t) + b \exp (ct) \sin (dt) \Theta(t) $$
 
 This describes the variation of the complex envelope $u(x, t)$ of the pulse. This equation is the nondimenionalized version (done with soliton scalings). The delta-function component of the RHS integral is called the cubic Kerr nonlinearity. And the r(t) function is called the Raman Kernel.
 
-The ($\alpha_{k}, a, b, c, d$) describe the polarization response and were determined empirically.
+The ($\alpha_{k}, a, b, c, d$) variables describe the polarization response and were determined empirically.
 
 This code was written using some code from the ```Boundary_Layer``` Notebook, which used some original Callaham et al. turbulent boundary layer case code and custom written alternative code. With that code and the information in the paper and its supplementary information, the aim here was to try and reproduce the results from the paper.
 
@@ -204,7 +203,7 @@ Same conditions apply. Values chosen in the notebook and report were a cluster n
 ------
 ### Spectral Clustering Turbulent Boundary Layer Case
 
-In this notebook, the robustness of the method chosen in the Callaham paper is tested by exploring spectral clustering for unsupervised dominant balance identification. Spectral clustering functions by constructing a graph network between points based on a defined condition, which means it does not rely on Eulcidean Distance [Spectral CLustering](https://en.wikipedia.org/wiki/Spectral_clustering). This means it better able to handle different sized and shaped clusters. However, it does not have the capacity to take in new data points after training, which brings a computational cost difficulty.
+In this notebook, the robustness of the method chosen in the Callaham paper is tested by exploring spectral clustering for unsupervised dominant balance identification. Spectral clustering functions by constructing a graph network between points based on a defined condition, which means it does not rely on Eulcidean Distance [Spectral CLustering](https://en.wikipedia.org/wiki/Spectral_clustering). This means it is better able to handle different sized and shaped clusters. However, it does not have the capacity to take in new data points after training, and it brings a computational cost difficulty.
 
 The code here relied on the code written in the ```Boundary_Layer``` Notebook which has some code from the original Callaham et al paper's repository as well as custom written alternative code.
 
