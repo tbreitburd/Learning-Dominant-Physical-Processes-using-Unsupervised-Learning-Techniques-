@@ -153,20 +153,41 @@
 
 \begin{document}
 
-Introduction (100 words)
+
+\begin{titlepage}
+	\centering
+	{\LARGE\bfseries MPhil DIS Project 24\par}
+	{\LARGE Executive Summary\par}
+	\vspace{1cm}
+	{\includegraphics[width=0.2\textwidth]{University_Crest.pdf}\par}
+	{\Large CRSiD:\ tmb76\par}
+	\vspace{1cm}
+	{\Large Department of Physics\par}
+	{\Large\bfseries University of Cambridge\par}
+	\vfill
+	{\itshape Submitted in partial fulfilment of the requirements of the MPhil degree in Data Intensive Science}
+	\vfill
+	{\large Hughes Hall  \hspace{6cm} \today\par}
+\end{titlepage}
 
 
-This project aims to evaluate the reproducibility and robustness of the method proposed by Callaham et al. (2021) for identifying dominant balances in complex physical systems. Dominant balance analysis simplifies equations involving numerous terms and complex differential equations, reducing computational costs while maintaining accuracy. Traditionally, this analysis requires significant expertise and manual effort. Callaham et al.’s novel approach leverages machine learning to automate this process. By replicating their study and applying their methods to new datasets, this project assesses both the accuracy and generalizability of their approach, contributing to the validation and potential enhancement of machine learning techniques in physical sciences.
+\tableofcontents
 
 
-\chapter{Objectives and Motivation (150 words)}
+\section{Introduction (100 words)}
+
+
+This project aims to evaluate the reproducibility and robustness of the method proposed by Callaham et al. (2021)\cite{callaham2021learning} for identifying dominant balances in complex physical systems. Dominant balance analysis simplifies equations involving numerous terms and complex differential equations, reducing computational costs while maintaining accuracy. Traditionally, this analysis requires significant expertise and manual effort. Callaham et al.’s novel approach leverages machine learning to automate this process. By replicating their study and applying their methods to new datasets, this project assesses both the accuracy and generalizability of their approach, contributing to the validation and potential enhancement of machine learning techniques in physical sciences.
+
+
+\section{Objectives and Motivation (150 words)}
 
 Explain the importance of reproducibility in scientific research.
 Highlight the problem of complex differential equations in engineering and physical sciences.
 Discuss the motivation to simplify these equations using dominant balance or scale analysis and the novel approach proposed by Callaham et al.
 
 
-\chapter{Methodology (250 words)}
+\section{Methodology (250 words)}
 
 Summarize the three-step method proposed by Callaham et al.:
 Data \& Equation Space Representation
@@ -181,7 +202,7 @@ Figure 4.1: Example of a Gaussian Mixture Model fit to data.
 Figure 4.2: Example of a 2D dataset projected onto its first 2 principal components.
 
 
-\chapter{Conducted Research and Results (350 words)}
+\section{Conducted Research and Results (350 words)}
 
 Discuss the portability and reproducibility of the code, including any issues encountered and resolved.
 Detail the turbulent boundary layer case:
@@ -204,7 +225,7 @@ Figure 5.5: Plot of unique balance models found after applying SPCA with the ori
 Figure 5.6: Plot of unique balance model clusters in physical space with the original and alternative code.
 
 
-\chapter{Application to Elasto-Inertial Turbulence (100 Words)}
+\section{Application to Elasto-Inertial Turbulence (100 Words)}
 
 Briefly describe the application of the method to a new dataset involving elasto-inertial turbulence.
 Highlight the potential of the method to uncover new dominant balance regimes in complex flows.
@@ -213,11 +234,16 @@ Figures to include:
 
 Figure 6.1: Plot of the attractors found in the DNS of the FENE-P model.
 
-\chapter{Conclusion (100 Words)}
+\section{Conclusion (100 Words)}
 
 Summarize the key findings and their implications.
 Reflect on the strengths and limitations of the method.
 Suggest potential future work or improvements.
+
+
+
+\bibliographystyle{plain}
+\bibliography{refs.bib}
 
 
 \end{document}
