@@ -757,15 +757,132 @@ Once the terms are computed, these are used as features for each point in space.
 
 \end{figure}
 
-The results of the GMM algorithm for the EIT case study are shown in Figures \ref{fig:EIT_GMM_results_1} and \ref{fig:EIT_GMM_results_2}. From these covariance matrices, we see that between 9 and 11 clusters, only repeats are obtained, with no clusters having new or at the least significantly different covariance matrices than in the 9 clusters case. Thus, 9 clusters are chosen as the number of clusters to find.
+The results of the GMM algorithm for the EIT case study are shown in Figures \ref{fig:EIT_GMM_results_1} and \ref{fig:EIT_GMM_results_2}. From these covariance matrices, we see that between 9 and 11 clusters, only repeats are obtained, with no clusters having new or at the least significantly different covariance matrices than in the 9 clusters case. So 9 clusters was the chosen number of clusters to find.
+
+Choosing the value for $\alpha$ is a little more ambiguous. A more brute force approach is chosen, simply looking at the multiple results for a range of $\alpha$ values. The range itself is chosen to be in the trade-off region between sparsity and accuracy, as seen in the residuals plot for the 9 clusters case (see Fig. \ref{fig:EIT_spca_residuals}).
+
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.6\textwidth]{../Plots/EIT/SPCA_residuals_9.png}
+  \caption{Plot of the SPCA residuals for different values of $\alpha$ for the EIT case. Recall, the residuals are computed as the $\ell$-2 norm of the inactive terms for all clusters}
+  \label{fig:EIT_spca_residuals}
+\end{figure}
+
+Now based on the 9 covariance matrices (see Fig. \ref{fig:EIT_GMM_results_2}(a)), it would not be unreasonable to expect to find 4 to 7 unique balance models. Looking at the balance models found for the different alpha values in Fig. \ref{fig:EIT_diff_alpha},
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{../Plots/EIT/different_alpha_bal_mods_zoom_9.png}
+  \caption{Plot of the obtained balance models for different $\ell$-1 regularization term factor, $\alpha$. Reading top to bottom and left to right, the values are 1, 1.25, 1.5, 1.75, 2, 2.5, 3, 3.5, 4}
+  \label{fig:EIT_diff_alpha}
+\end{figure}
+
+Clearly there is a lot of variation between $\alpha =1$ and $\alpha = 2$, with the number of unique balance models decreasing from 8 to 4, and results for multiple $\alpha$ values will be studied and observed.
+
+\newpage
 
 \section{Results}
 
-Test initial GMM clustering for a few
+First, the data contained multiple snapshots and trajectories so the 15$^{\text{th}}$ snapshot of the 5$^{\text{th}}$ trajectory was chosen to be studied. For visualisation purposes, a plot of the first diagonal component of the comformation tensor, $C_{xx}$, is shown in Fig. \ref{fig:EIT_Cxx}. In that plot, the chaotic arrowhead structure is clearly visible.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\textwidth]{../Plots/EIT/Cxx.png}
+  \caption{Plot of the first diagonal component of the conformation tensor, $C_{xx}$, for the 15$^{\text{th}}$ snapshot of the 5$^{\text{th}}$ trajectory.}
+  \label{fig:EIT_Cxx}
+\end{figure}
+
+Getting the terms for the streamwise component of the velocity equation did raise one issue, which was the value of the residuals of the equation. By putting all terms on the same side of the equation, the residuals were computed and plotted in Fig. \ref{fig:EIT_residuals}. As can be seen the residuals are overall low but the colormap shows that there some peak regions which reach order of magnitude 1. And compared to the terms' orders of magnitude ($1$, $10^{-1}$, $10^{-2}$), this is quite high. There are a couple of possible reasons for this, the first being the computing of the time derivative terms which relies on using a $2^{\text{nd}}$ order finite difference scheme, using the previous and next snapshots. This is a fairly strong assumption as one time step in these simulations are consequent. The second can be attributed to cumulative errors in the other derivatives. On the same note, the data ussed does have a spectral version, which could possibly have smaller cumulative errors when differentiating, so this could be a possible direction to explore in future work. Overall this does not necessarily invalidate our results but does mean that caution must be taken when interpreting the results.
+
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\textwidth]{../Plots/EIT/Equation Residuals.png}
+  \caption{Plot of the residuals of the streamwise component of the FENE-P model equation for the EIT case study.}
+  \label{fig:EIT_residuals}
+\end{figure}
+
+
+Having chosen the number of clusters to be 9, the clustering in space was obtained and is plotted in Fig. \ref{fig:EIT_clustering}. Though with the large number of clusters, it is hard to discern any visible patterns yet.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\textwidth]{../Plots/EIT/GMM_clusters_9.png}
+  \caption{Plot of the clustering in space for $n_{clusters}=9$ for the EIT case study.}
+  \label{fig:EIT_clustering}
+\end{figure}
+
+Moving on to getting the balance models, Fig. \ref{fig:EIT_diff_alpha} already shows the balance models obtained for different $\alpha$ values. Recalling our expected number of balance models to be between 4 and 7, based on Fig. \ref{fig:EIT_GMM_results_2}, balance models in space were obtained for values of alpha between 1.25 and 2. The results are shown in Fig. \ref{fig:EIT_balance_models_space}. For clarity, the associated balance models are shown in Fig. \ref{fig:EIT_balance_models}.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{minipage}{0.75\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{../Plots/EIT/spca_clustering_space_9_1.25.png}
+    \subcaption{}
+  \end{minipage}
+
+  \begin{minipage}{0.75\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{../Plots/EIT/spca_clustering_space_9_1.5.png}
+    \subcaption{}
+  \end{minipage}
+
+  \begin{minipage}{0.75\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{../Plots/EIT/spca_clustering_space_9_1.75.png}
+    \subcaption{}
+  \end{minipage}
+
+  \begin{minipage}{0.75\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{../Plots/EIT/spca_clustering_space_9_2.0.png}
+    \subcaption{}
+  \end{minipage}
+
+  \caption{Plot of the unique balance models in space found for $\alpha$ values of 1.25 (a), 1.5 (b), 1.75 (c), and 2 (d).}
+  \label{fig:EIT_balance_models_space}
+\end{figure}
+
+
+\begin{figure}[htbp]
+  \centering
+  \begin{minipage}{0.5\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{../Plots/EIT/balance_models_9_1.25.png}
+    \subcaption{}
+  \end{minipage}
+
+  \begin{minipage}{0.5\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{../Plots/EIT/balance_models_9_1.5.png}
+    \subcaption{}
+  \end{minipage}
+
+  \begin{minipage}{0.45\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{../Plots/EIT/balance_models_9_1.75.png}
+    \subcaption{}
+  \end{minipage}
+
+  \begin{minipage}{0.45\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{../Plots/EIT/balance_models_9_2.0.png}
+    \subcaption{}
+  \end{minipage}
+
+  \caption{Plot of the unique balance models found for $\alpha$ values of 1.25 (a), 1.5 (b), 1.75 (c), and 2 (d).}
+  \label{fig:EIT_balance_models}
+\end{figure}
+
 
 \section{Discussion}
 
+Overall, Fig. \ref{fig:EIT_balance_models_space} and \ref{fig:EIT_balance_models} show that there is a clear 2 or 3 groups of dominant balance regimes. The first are the clusters which have neither elastic or viscous stresses (pink, brown, purple, red except for $\alpha = 1.25$, and green). These occupy the majority of the channel, being primarily along the walls or the centre of the channel, with the exception of the where the arrowhead is. The second group are the orange and blue clusters which are associated with regions with strong elastic and viscous stresses, with the latter only being in the orange cluster. From literature \cite{beneitez2024multistability,Samanta2012eit,dubief2022first}, this fits with conditions for which EIT is maintained. In terms of location, elastic stresses are localised to the sides of the channel, and where the arrowhead structure is. The viscous stresses are more localised, only on the sides of the channels for x positions that are aligned with where the arrowhead structure stops.
+
 \chapter{Conclusion}
+
 
 
 \chapter{Appendix}
