@@ -194,7 +194,7 @@ The proposed method can be summarized into 3 steps:
 \begin{enumerate}
   \item The first step involves transforming the data from the physical system into an equation-space format. This is done by computing the terms of the governing equations of the system, at each point in the physical space, and then have each point in physical space be a sample with features: the values of the equation's terms (see Fig. \ref{fig:EquationSpace}).
   \item The second step then makes full use of this new format by clustering the samples in equation space, therefore grouping points with terms of similar magnitude. This is done using a Gaussian Mixture Model (GMM) clustering algorithm, which has the advantage of dealing very well with clusters of different shapes and sizes, and only requires for the number of clusters to be set (see Fig. \ref{fig:EquationSpace}).
-  \item The final step involves applying Sparse Principal Component Analysis (SPCA) to each. SPCA is a variant of PCA where a regularization constraint is applied to the number of non-zero coefficients in the principal components. Essentially, instead of returning a full principal component that is a linear combination of all the features, SPCA returns a sparse principal component that is a linear combination of only a few features, with some of the coefficients being zero. By applying this to the points in each cluster, and only taking the leading principal component, this gives a sparse vector describing which terms in the cluster dominate, and form together a dominant balance model.
+  \item The final step involves applying Sparse Principal Component Analysis (SPCA) to each. SPCA is a variant of PCA where a regularization constraint is applied to the number of non-zero coefficients in the principal components. Essentially, instead of returning a full principal component that is a linear combination of all the features, SPCA returns a sparse principal component that is a linear combination of only a few features, with some of the coefficients being zero. By applying this to the points in each cluster, and only taking the leading principal component, this gives a sparse vector describing which terms in the cluster dominate, and form together a dominant balance model (see Fig. \ref{fig:GMM_results}).
 \end{enumerate}
 Then, if there are any clusters that have the same dominant balance, they are combined.
 
@@ -205,12 +205,66 @@ Then, if there are any clusters that have the same dominant balance, they are co
   \label{fig:EquationSpace}
 \end{figure}
 
+\begin{figure}[htbp]
+  \centering
+  \begin{minipage}[b]{0.6\textwidth}
+      \centering
+      \includegraphics[width=\textwidth]{../Plots/BL/GMM_balance_models_6_10.png}
+      \subcaption{}
+  \end{minipage}
+
+  \begin{minipage}[b]{0.6\textwidth}
+      \centering
+      \includegraphics[width=\textwidth]{../Plots/BL/GMM_spca_clustering_space_6_10.png}
+      \subcaption{}
+  \end{minipage}
+
+  \caption{Plot of the unique balance models found after applying SPCA, when using the original Callaham et al. code, in grid form (a) and back in physical space (b). Color coding is consistent between the two subplots.}
+  \label{fig:GMM_results}
+\end{figure}
+
 
 \section{Conducted Research and Results}
 
-The Callaham et al. (2021) shared some code as runnable notebooks, and though there were some portability challenges like missing dependencies and data generation discrepancies, the code was successfully reproduced confirming the main results. Then, the turbulent boundary layer case was reproduced using alternative code primarily written in Pandas. The alternative code also made the use of a custom written GMM class. With that code, results similar to the original were reproduced, confirming that the method did work. Key steps included computing the terms of the Reynolds-Averaged Navier-Stokes (RANS) equations using numpy.gradient for derivatives and employing a Gaussian Mixture Model (GMM) for clustering. Despite minor differences in the clustering outcomes due to different implementations, the alternative code successfully replicated the identification of significant dynamics in the boundary layer.
+The Callaham et al. (2021) shared some code as runnable notebooks, and though there were some portability challenges like missing dependencies and data generation discrepancies, the code was successfully reproduced confirming the main results. Then, the turbulent boundary layer case was reproduced using alternative code primarily written in Pandas. The alternative code also made the use of a custom written GMM class. With that code, results sufficiently similar to the original were obtained, meaning the paper's results were not due to chance, and that the method, even when written differently does work well (see Fig. \ref{fig:custom_GMM_results}). Key steps included computing the terms of the Reynolds-Averaged Navier-Stokes (RANS) equations using numpy.gradient for derivatives and employing a Gaussian Mixture Model (GMM) for clustering. Despite minor differences in the clustering outcomes due to different implementations, the alternative code successfully replicated the identification of significant dynamics in the boundary layer.
 
-Testing the method with different clustering algorithms, the spectral clustering algorithm which was thought to be a good candidate \cite[Supplementary Information]{callaham2021learning} was found to have poor performance, especially in the context of practicality with the dataset sizes. K-Means and weighted K-Means algorithms were also tested, giving results that captured some of the expected dominant balances for the turbulent boundary layer case.
+\begin{figure}[htbp]
+  \centering
+  \begin{minipage}[b]{0.6\textwidth}
+      \centering
+      \includegraphics[width=\textwidth]{../Plots/BL/custom_GMM_balance_models_7_7.png}
+      \subcaption{}
+  \end{minipage}
+
+  \begin{minipage}[b]{0.6\textwidth}
+      \centering
+      \includegraphics[width=\textwidth]{../Plots/BL/custom_GMM_spca_clustering_space_7_7.png}
+      \subcaption{}
+  \end{minipage}
+
+  \caption{Plot of the unique balance models found after applying SPCA, when using the custom written alternative code, in grid form (a) and back in physical space (b). Color coding is consistent between the two subplots.}
+  \label{fig:custom_GMM_results}
+\end{figure}
+
+Testing the method with different clustering algorithms, the spectral clustering algorithm which was thought to be a good candidate \cite[Supplementary Information]{callaham2021learning} was found to have poor performance, especially in the context of practicality with the dataset sizes. K-Means and weighted K-Means algorithms were also tested, giving results that captured some of the expected dominant balances for the turbulent boundary layer case (see Fig. \ref{fig:other_algs}). Furthermore, the dominant balances found to be associated with the clusters were overall consistent with original results and fluid dynamics theory, with some exceptions.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{minipage}[b]{0.6\textwidth}
+      \centering
+      \includegraphics[width=\textwidth]{../Plots/BL/SC_spca_clustering_space_6_1.png}
+      \subcaption{}
+  \end{minipage}
+
+  \begin{minipage}[b]{0.6\textwidth}
+      \centering
+      \includegraphics[width=\textwidth]{../Plots/BL/KMeans_spca_clustering_14_8.png}
+      \subcaption{}
+  \end{minipage}
+
+  \caption{Plot of the unique balance models found after applying SPCA, when using spectral clustering (a) and K-Means clustering (b).}
+  \label{fig:other_algs}
+\end{figure}
 
 
 Finally, the method was used under different hypeparameter values, and showed quite varying results. Putting this in the context of an unknown physical system and this poses a challenge in determining the best hyperparameters to use, as many combinations could be considered valid. This is the main limitation of the Callaham et al. (2021) method.
@@ -218,7 +272,7 @@ Finally, the method was used under different hypeparameter values, and showed qu
 
 \section{EIT}
 
-Finally, the method was applied to simulation data of elasto-inertial turbulence (EIT), a recently discovered flow\cite{Samanta2012eit}. The data used was of a simulation of one of the discovered coherent states of this flow\cite{beneitez2024multistability}, a Chaotic ARrowhead structure (CAR) (see Fig. ).
+Finally, the method was applied to simulation data of elasto-inertial turbulence (EIT), a recently discovered flow\cite{Samanta2012eit}. The data used was of a simulation of one of the discovered coherent states of this flow\cite{beneitez2024multistability}, a Chaotic ARrowhead structure (CAR) (see Fig. \ref{fig:CAR}).
 
 \begin{figure}[h]
   \centering
@@ -227,13 +281,44 @@ Finally, the method was applied to simulation data of elasto-inertial turbulence
   \label{fig:CAR}
 \end{figure}
 
-In order to select the hyperparameters, the number of clusters was chosen based on when GMM identified clusters only had repeating covariance matrices (see Fig.). Then, results were obtained for multiple values of $\alpha$. The results clearly showed there being 2 groups of dominant balances. The first only had inertial and pressure terms that were dominant, and the second had only viscous and elastic stresses terms active (see Fig.).
+In order to select the hyperparameters, the number of clusters was chosen based on when GMM identified clusters only had repeating covariance matrices (see Fig. \ref{fig:Cov_Mat_EIT}). Then, results were obtained for multiple values of $\alpha$. The results clearly showed there being 2 groups of dominant balances. The first only had inertial and pressure terms that were dominant, and the second had only viscous and elastic stresses terms active (see Fig. \ref{fig:EIT_balance_models}).
 
 \begin{figure}[h]
   \centering
-  \includegraphics[width=0.5\textwidth]{../Plots/EIT/GMM_cov_mat_9.png}
+  \includegraphics[width=0.8\textwidth]{../Plots/EIT/GMM_cov_mat_9.png}
   \caption{The covariance matrices of the 9 clusters identified by the GMM algorithm for the EIT case. As can be seen, multiple of the clusters have very similar covariance matrices, indicating that they are likely clusters with the same dominant balance, and the data has been sufficiently clustered.}
   \label{fig:Cov_Mat_EIT}
+\end{figure}
+
+
+\begin{figure}[htbp]
+  \centering
+  \begin{minipage}{0.5\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{../Plots/EIT/balance_models_9_1.25.png}
+    \subcaption{}
+  \end{minipage}
+
+  \begin{minipage}{0.5\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{../Plots/EIT/balance_models_9_1.5.png}
+    \subcaption{}
+  \end{minipage}
+
+  \begin{minipage}{0.45\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{../Plots/EIT/balance_models_9_1.75.png}
+    \subcaption{}
+  \end{minipage}
+
+  \begin{minipage}{0.45\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{../Plots/EIT/balance_models_9_2.0.png}
+    \subcaption{}
+  \end{minipage}
+
+  \caption{Plot of the unique balance models found for 9 clusters, and $\alpha$ values of 1.25 (a), 1.5 (b), 1.75 (c), and 2 (d).}
+  \label{fig:EIT_balance_models}
 \end{figure}
 
 
