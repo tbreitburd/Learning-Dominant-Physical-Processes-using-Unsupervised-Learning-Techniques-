@@ -294,13 +294,16 @@ def plot_cov_mat(
         plt.close()
 
 
-def plot_clustering_2d_eq_space(features, cluster_idx, n_clusters, path, show=True):
+def plot_clustering_2d_eq_space(
+    features, cluster_idx, n_clusters, color, path, show=True
+):
     """!@brief Plot the clustering in multiple 2D projections of the equation space.
     If the features data is masked, make sure that the cluster index is masked as well.
 
     @param features: equation space data with terms as features, np.array [n, n_features]
     @param cluster_idx: cluster labels assigned to each sample point of features, np.array [n]
     @param n_clusters: number of clusters, int
+    @param color: Color the points according to their cluster membership, bool
     @param path: path to save the plot, str
     @param show: whether to show the plot or not, default is True, bool
     """
@@ -317,43 +320,63 @@ def plot_clustering_2d_eq_space(features, cluster_idx, n_clusters, path, show=Tr
 
     # Plot the clustering in the 2D equation space, for different pairs of features
     plt.subplot(221)
-    plt.scatter(features[:, 0], features[:, 1], 0.1, cluster_idx, cmap=cm)
+    if color:
+        plt.scatter(features[:, 0], features[:, 1], 0.1, cluster_idx, cmap=cm)
+        plt.colorbar(
+            boundaries=np.arange(0.5, n_clusters + 1.5),
+            ticks=np.arange(1, n_clusters + 1),
+        )
+    else:
+        plt.scatter(features[:, 0], features[:, 1], 0.1, c="k")
     plt.xlabel(labels[0], fontsize=20)
     plt.ylabel(labels[1], fontsize=20)
     plt.clim([-0.5, cm.N - 0.5])
-    plt.colorbar(
-        boundaries=np.arange(0.5, n_clusters + 1.5), ticks=np.arange(1, n_clusters + 1)
-    )
+
     plt.grid()
 
     plt.subplot(222)
-    plt.scatter(features[:, 1], features[:, 2], 0.1, cluster_idx, cmap=cm)
+    if color:
+        plt.scatter(features[:, 1], features[:, 2], 0.1, cluster_idx, cmap=cm)
+        plt.colorbar(
+            boundaries=np.arange(0.5, n_clusters + 1.5),
+            ticks=np.arange(1, n_clusters + 1),
+        )
+    else:
+        plt.scatter(features[:, 1], features[:, 2], 0.1, c="k")
     plt.xlabel(labels[1], fontsize=20)
     plt.ylabel(labels[2], fontsize=20)
     plt.clim([-0.5, cm.N - 0.5])
-    plt.colorbar(
-        boundaries=np.arange(0.5, n_clusters + 1.5), ticks=np.arange(1, n_clusters + 1)
-    )
+
     plt.grid()
 
     plt.subplot(223)
-    plt.scatter(features[:, 1], features[:, 3], 0.1, cluster_idx, cmap=cm)
+    if color:
+        plt.scatter(features[:, 1], features[:, 3], 0.1, cluster_idx, cmap=cm)
+        plt.colorbar(
+            boundaries=np.arange(0.5, n_clusters + 1.5),
+            ticks=np.arange(1, n_clusters + 1),
+        )
+    else:
+        plt.scatter(features[:, 1], features[:, 3], 0.1, c="k")
     plt.xlabel(labels[1], fontsize=20)
     plt.ylabel(labels[3], fontsize=20)
     plt.clim([-0.5, cm.N - 0.5])
-    plt.colorbar(
-        boundaries=np.arange(0.5, n_clusters + 1.5), ticks=np.arange(1, n_clusters + 1)
-    )
+
     plt.grid()
 
     plt.subplot(224)
-    plt.scatter(features[:, 4], features[:, 3], 0.1, cluster_idx, cmap=cm)
+    if color:
+        plt.scatter(features[:, 4], features[:, 3], 0.1, cluster_idx, cmap=cm)
+        plt.colorbar(
+            boundaries=np.arange(0.5, n_clusters + 1.5),
+            ticks=np.arange(1, n_clusters + 1),
+        )
+    else:
+        plt.scatter(features[:, 4], features[:, 3], 0.1, c="k")
     plt.xlabel(labels[4], fontsize=20)
     plt.ylabel(labels[3], fontsize=20)
     plt.clim([-0.5, cm.N - 0.5])
-    plt.colorbar(
-        boundaries=np.arange(0.5, n_clusters + 1.5), ticks=np.arange(1, n_clusters + 1)
-    )
+
     plt.grid()
 
     plt.subplots_adjust(
@@ -1050,8 +1073,6 @@ def plot_clusters_eit(cluster_idx, Lx, nx, Ly, ny, n_clusters, path, show=True):
     plt.xlabel("x (in h units)", fontsize=18)
     plt.ylabel("y (in h units)", fontsize=18)
     plt.title("EIT Balance Models", fontsize=20)
-
-    plt.grid()
 
     plt.tight_layout()
 
